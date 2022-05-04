@@ -1,8 +1,8 @@
 package battle
 
 type Unit struct {
-	Props    map[int]int
-	UnitType int
+	Props    map[int]int `json:"props"`
+	UnitType int         `json:"unitType"`
 }
 
 func NewUnit(hp int, dps int) *Unit {

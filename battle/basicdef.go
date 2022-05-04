@@ -17,7 +17,7 @@ const (
 )
 
 type BattleResult struct {
-	Units      []*Unit // 战斗单位，2个
-	WinIndex   int     // 胜利索引
-	FirstIndex int     // 先手索引
+	Units      []*Unit `json:"units"`      // 战斗单位，2个
+	WinIndex   int     `json:"winIndex"`   // 胜利索引
+	FirstIndex int     `json:"firstIndex"` // 先手索引
 }
