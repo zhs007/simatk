@@ -9,7 +9,7 @@ import (
 )
 
 type Stats struct {
-	Info    string          `json:"email"`
+	Title   string          `json:"title"`
 	Results []*BattleResult `json:"results"`
 }
 

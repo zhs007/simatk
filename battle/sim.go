@@ -33,9 +33,9 @@ func genUnits(totalval int, minhp int, mindps int) []*Unit {
 }
 
 // 给定初始属性，模拟全战斗
-func Sim(totalval int, minhp int, mindps int, info string, fn string) *Stats {
+func Sim(totalval int, minhp int, mindps int, title string, fn string) *Stats {
 	stats := &Stats{
-		Info: info,
+		Title: title,
 	}
 
 	units := genUnits(totalval, minhp, mindps)
