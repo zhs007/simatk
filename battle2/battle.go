@@ -8,27 +8,38 @@ func getOther(index int) int {
 	return 0
 }
 
-func StartBattle(units []*Unit, firstIndex int) *BattleResult {
-	units[0].Reset()
-	units[1].Reset()
+func StartBattle(src []*Unit, firstIndex int) *BattleResult {
+	lst := []*Unit{src[0].ResetAndClone(), src[1].ResetAndClone()}
+	// units[0].Reset()
+	// units[1].Reset()
 
 	ret := &BattleResult{
-		Units:      units,
-		FirstIndex: firstIndex,
+		Units:           lst,
+		ForceFirstIndex: -1,
 	}
+
+	if src[0].Props[PropTypeCurSpeed] == src[1].Props[PropTypeCurSpeed] {
+		ret.ForceFirstIndex = firstIndex
+	} else if src[0].Props[PropTypeCurSpeed] > src[1].Props[PropTypeCurSpeed] {
+		firstIndex = 0
+	} else if src[0].Props[PropTypeCurSpeed] < src[1].Props[PropTypeCurSpeed] {
+		firstIndex = 1
+	}
+
+	ret.FirstIndex = firstIndex
 
 	otherIndex := getOther(firstIndex)
 
 	for {
-		units[firstIndex].Attack(units[otherIndex])
-		if !units[otherIndex].IsAlive() {
+		lst[firstIndex].Attack(lst[otherIndex])
+		if !lst[otherIndex].IsAlive() {
 			ret.WinIndex = firstIndex
 
 			break
 		}
 
-		units[otherIndex].Attack(units[firstIndex])
-		if !units[firstIndex].IsAlive() {
+		lst[otherIndex].Attack(lst[firstIndex])
+		if !lst[firstIndex].IsAlive() {
 			ret.WinIndex = otherIndex
 
 			break

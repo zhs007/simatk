@@ -39,15 +39,17 @@ func Sim(totalval int, minhp int, mindps int, title string, fn string) *Stats {
 	}
 
 	units := genUnits(totalval, minhp, mindps)
-	for i := 0; i < len(units)-1; i++ {
-		for j := i + 1; j < len(units); j++ {
+	for i := 0; i < len(units); i++ {
+		for j := 0; j < len(units); j++ {
 			arr := []*Unit{units[i], units[j]}
 
 			ret0 := StartBattle(arr, 0)
 			stats.Results = append(stats.Results, ret0)
 
-			ret1 := StartBattle(arr, 1)
-			stats.Results = append(stats.Results, ret1)
+			// if i != j {
+			// 	ret1 := StartBattle(arr, 1)
+			// 	stats.Results = append(stats.Results, ret1)
+			// }
 		}
 	}
 

@@ -25,7 +25,17 @@ func NewUnit(hp int, dps int, speed int) *Unit {
 
 func (unit *Unit) analyzeUnitType() int {
 	if unit.Props[PropTypeHP] > unit.Props[PropTypeDPS] {
-		return UnitTypeHP
+		if unit.Props[PropTypeSpeed] == unit.Props[PropTypeDPS] {
+			return UnitTypeHP
+		}
+
+		if unit.Props[PropTypeSpeed] > unit.Props[PropTypeHP] {
+			return UnitTypeSpeed
+		}
+
+		if unit.Props[PropTypeSpeed] == unit.Props[PropTypeHP] {
+			return UnitTypeHPSpeed
+		}
 	}
 
 	if unit.Props[PropTypeHP] < unit.Props[PropTypeDPS] {
@@ -56,4 +66,9 @@ func (unit *Unit) Attack(target *Unit) {
 func (unit *Unit) Reset() {
 	unit.Props[PropTypeCurHP] = unit.Props[PropTypeHP]
 	unit.Props[PropTypeCurDPS] = unit.Props[PropTypeDPS]
+	unit.Props[PropTypeCurSpeed] = unit.Props[PropTypeSpeed]
+}
+
+func (unit *Unit) ResetAndClone() *Unit {
+	return NewUnit(unit.Props[PropTypeHP], unit.Props[PropTypeDPS], unit.Props[PropTypeSpeed])
 }

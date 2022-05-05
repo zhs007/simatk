@@ -10,6 +10,13 @@
             "request": "launch",
             "mode": "auto",
             "program": "examples/simatk/main.go"
+        },
+        {
+            "name": "simatk2",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "examples/simatk2/main.go"
         }
     ]
 }
