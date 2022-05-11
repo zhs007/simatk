@@ -35,16 +35,12 @@ const (
 )
 
 const (
-	UnitTypeUnknow     = 0
-	UnitTypeHP         = 1
-	UnitTypeDPS        = 2
-	UnitTypeSpeed      = 3
-	UnitTypeHPDPS      = 4
-	UnitTypeHPSpeed    = 5
-	UnitTypeDPSHP      = 6
-	UnitTypeDPSSpeed   = 7
-	UnitTypeHPSpeedHP  = 8
-	UnitTypeHPSpeedDPS = 9
+	UnitTypeUnknow  = 0
+	UnitTypeMoreHP  = 1
+	UnitTypeHP      = 2
+	UnitTypeNormal  = 3
+	UnitTypeDPS     = 4
+	UnitTypeMoreDPS = 5
 )
 
 type BattleResult struct {

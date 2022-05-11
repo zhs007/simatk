@@ -23,11 +23,12 @@ func NewUnit(hp int, dps int) *Unit {
 }
 
 func (unit *Unit) analyzeUnitType() int {
-	if unit.Props[PropTypeHP] > unit.Props[PropTypeDPS] {
-	}
-
-	if unit.Props[PropTypeHP] < unit.Props[PropTypeDPS] {
-		return UnitTypeDPS
+	total := unit.Props[PropTypeHP] + unit.Props[PropTypeDPS]
+	for ut := UnitTypeMoreHP; ut <= UnitTypeMoreDPS; ut++ {
+		minhp, maxhp := GetHPAreaForUnitType(ut, total)
+		if unit.Props[PropTypeHP] >= minhp && unit.Props[PropTypeHP] < maxhp {
+			return ut
+		}
 	}
 
 	return UnitTypeUnknow
@@ -138,12 +139,7 @@ func (unit *Unit) Attack(target *Unit, isFirstAttack bool) bool {
 	}
 
 	// 自己攻击结束的处理
-	iskilled = unit.onAttackEnd(target, isFirstAttack)
-	if iskilled {
-		return true
-	}
-
-	return false
+	return unit.onAttackEnd(target, isFirstAttack)
 }
 
 func (unit *Unit) Reset() {

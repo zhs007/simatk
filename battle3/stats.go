@@ -1,4 +1,4 @@
-package battle2
+package battle3
 
 import (
 	"os"
