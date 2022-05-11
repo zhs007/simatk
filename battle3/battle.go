@@ -75,5 +75,7 @@ func StartBattle(src []*Unit) *BattleResult {
 		}
 	}
 
+	ret.Turns = curTurns
+
 	return ret
 }

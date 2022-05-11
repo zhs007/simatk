@@ -48,4 +48,5 @@ type BattleResult struct {
 	WinIndex        int     `json:"winIndex"`        // 胜利索引
 	FirstIndex      int     `json:"firstIndex"`      // 先手索引
 	ForceFirstIndex int     `json:"forceFirstIndex"` // 强制先手索引，只在速度相等时才有用，如果无意义为-1
+	Turns           int     `json:"turns"`           // 回合数
 }
