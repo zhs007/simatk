@@ -34,14 +34,90 @@ type GenEnemyResultDetail struct {
 	Nodes     []*GenEnemyResultNode `json:"nodes"` //
 }
 
+func (detail *GenEnemyResultDetail) addDetail(totalval int, hp int) {
+	for _, v := range detail.Nodes {
+		if v.TotalVal == totalval {
+			v.LstHP = append(v.LstHP, hp)
+
+			return
+		}
+	}
+
+	node := &GenEnemyResultNode{
+		TotalVal: totalval,
+		LstHP:    []int{hp},
+	}
+
+	detail.Nodes = append(detail.Nodes, node)
+}
+
 type GenEnemyResult struct {
 	Param       *GenEnemyParam          `json:"param"`       //
 	Nodes       []*GenEnemyResultNode   `json:"nodes"`       //
 	DetailNodes []*GenEnemyResultDetail `json:"detailNodes"` //
 }
 
-// func (result *GenEnemyResult) Output() {
-// }
+func (result *GenEnemyResult) RebuildDetail() {
+	result.DetailNodes = nil
+
+	if result.Param != nil {
+		if result.Param.DetailTurnOff > 0 {
+			for t := result.Param.MinTurns + result.Param.DetailTurnOff; t <= result.Param.MaxTurns; t += result.Param.DetailTurnOff {
+
+				detail := &GenEnemyResultDetail{
+					MinTurns: t - result.Param.DetailTurnOff,
+					MaxTurns: t,
+				}
+
+				result.DetailNodes = append(result.DetailNodes, detail)
+			}
+		}
+
+		if result.Param.DetailLastHPOff > 0 {
+			for hp := result.Param.MaxLastHP + result.Param.DetailLastHPOff; hp <= result.Param.MaxLastHP; hp += result.Param.DetailLastHPOff {
+
+				detail := &GenEnemyResultDetail{
+					MinLastHP: hp - result.Param.DetailLastHPOff,
+					MaxLastHP: hp,
+				}
+
+				result.DetailNodes = append(result.DetailNodes, detail)
+			}
+		}
+	}
+}
+
+func (result *GenEnemyResult) AddNodeForDetail(ret *BattleResult) {
+	for _, v := range result.DetailNodes {
+		if v.MinTurns > 0 && v.MaxTurns >= v.MinTurns {
+			if ret.Turns >= v.MinTurns && ret.Turns <= v.MaxTurns {
+
+				if v.MinLastHP > 0 && v.MaxLastHP >= v.MinLastHP {
+
+					curhp := ret.Units[0].Props[PropTypeCurHP] * 100 / ret.Units[0].Props[PropTypeHP]
+
+					if curhp >= v.MinLastHP &&
+						curhp <= v.MaxLastHP {
+
+						v.addDetail(ret.Units[1].Props[PropTypeHP]+ret.Units[1].Props[PropTypeDPS], ret.Units[1].Props[PropTypeHP])
+
+						continue
+					}
+				}
+
+				v.addDetail(ret.Units[1].Props[PropTypeHP]+ret.Units[1].Props[PropTypeDPS], ret.Units[1].Props[PropTypeHP])
+			}
+		} else if v.MinLastHP > 0 && v.MaxLastHP >= v.MinLastHP {
+			curhp := ret.Units[0].Props[PropTypeCurHP] * 100 / ret.Units[0].Props[PropTypeHP]
+
+			if curhp >= v.MinLastHP &&
+				curhp <= v.MaxLastHP {
+
+				v.addDetail(ret.Units[1].Props[PropTypeHP]+ret.Units[1].Props[PropTypeDPS], ret.Units[1].Props[PropTypeHP])
+			}
+		}
+	}
+}
 
 func (result *GenEnemyResult) Output(fn string) error {
 	json := jsoniter.ConfigCompatibleWithStandardLibrary
@@ -92,6 +168,8 @@ func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int, detailR
 						result.LstHP = append(result.LstHP, ret0.Units[1].Props[PropTypeHP])
 					}
 				}
+
+				detailRet.AddNodeForDetail(ret0)
 			}
 		} else { // 如果找战斗失败的，只能判断回合数
 			if ret0.WinIndex == 1 {
@@ -99,6 +177,8 @@ func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int, detailR
 
 					result.LstHP = append(result.LstHP, ret0.Units[1].Props[PropTypeHP])
 				}
+
+				detailRet.AddNodeForDetail(ret0)
 			}
 		}
 	}
@@ -114,6 +194,8 @@ func GenEnemy(hero *Unit, param *GenEnemyParam) *GenEnemyResult {
 	result := &GenEnemyResult{
 		Param: param,
 	}
+
+	result.RebuildDetail()
 
 	for tv := param.StartTotalVal; tv <= param.EndTotalVal; tv++ {
 		ret := genEnemyWithTotaVal(hero, param, tv, result)
