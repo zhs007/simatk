@@ -9,14 +9,16 @@ import (
 )
 
 type GenEnemyParam struct {
-	UnitType      int  `json:"unitType"`
-	MinTurns      int  `json:"minTurns"`
-	MaxTurns      int  `json:"maxTurns"`
-	MinLastHP     int  `json:"minLastHP"`
-	MaxLastHP     int  `json:"maxLastHP"`
-	StartTotalVal int  `json:"startTotalVal"`
-	EndTotalVal   int  `json:"endTotalVal"`
-	IsWinner      bool `json:"isWinner"`
+	UnitType        int  `json:"unitType"`
+	MinTurns        int  `json:"minTurns"`
+	MaxTurns        int  `json:"maxTurns"`
+	MinLastHP       int  `json:"minLastHP"`
+	MaxLastHP       int  `json:"maxLastHP"`
+	StartTotalVal   int  `json:"startTotalVal"`
+	EndTotalVal     int  `json:"endTotalVal"`
+	IsWinner        bool `json:"isWinner"`
+	DetailTurnOff   int  `json:"detailTurnOff"`
+	DetailLastHPOff int  `json:"detailLastHPOff"`
 }
 
 type GenEnemyResultNode struct {
@@ -24,10 +26,22 @@ type GenEnemyResultNode struct {
 	LstHP    []int `json:"lstHP"`    // HP
 }
 
-type GenEnemyResult struct {
-	Param *GenEnemyParam        `json:"param"` //
-	Nodes []*GenEnemyResultNode `json:"nodes"` //
+type GenEnemyResultDetail struct {
+	MinTurns  int                   `json:"minTurns"`
+	MaxTurns  int                   `json:"maxTurns"`
+	MinLastHP int                   `json:"minLastHP"`
+	MaxLastHP int                   `json:"maxLastHP"`
+	Nodes     []*GenEnemyResultNode `json:"nodes"` //
 }
+
+type GenEnemyResult struct {
+	Param       *GenEnemyParam          `json:"param"`       //
+	Nodes       []*GenEnemyResultNode   `json:"nodes"`       //
+	DetailNodes []*GenEnemyResultDetail `json:"detailNodes"` //
+}
+
+// func (result *GenEnemyResult) Output() {
+// }
 
 func (result *GenEnemyResult) Output(fn string) error {
 	json := jsoniter.ConfigCompatibleWithStandardLibrary
@@ -51,7 +65,7 @@ func (result *GenEnemyResult) Output(fn string) error {
 	return nil
 }
 
-func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int) *GenEnemyResultNode {
+func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int, detailRet *GenEnemyResult) *GenEnemyResultNode {
 	result := &GenEnemyResultNode{
 		TotalVal: totalval,
 	}
@@ -71,9 +85,10 @@ func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int) *GenEne
 		if param.IsWinner {
 			if ret0.WinIndex == 0 {
 				if ret0.Turns >= param.MinTurns && ret0.Turns <= param.MaxTurns {
-					if ret0.Units[0].Props[PropTypeCurHP] >= param.MinLastHP &&
-						ret0.Units[0].Props[PropTypeCurHP] <= param.MaxLastHP {
+					curhp := ret0.Units[0].Props[PropTypeCurHP] * 100 / ret0.Units[0].Props[PropTypeHP]
 
+					if curhp >= param.MinLastHP &&
+						curhp <= param.MaxLastHP {
 						result.LstHP = append(result.LstHP, ret0.Units[1].Props[PropTypeHP])
 					}
 				}
@@ -101,7 +116,7 @@ func GenEnemy(hero *Unit, param *GenEnemyParam) *GenEnemyResult {
 	}
 
 	for tv := param.StartTotalVal; tv <= param.EndTotalVal; tv++ {
-		ret := genEnemyWithTotaVal(hero, param, tv)
+		ret := genEnemyWithTotaVal(hero, param, tv, result)
 		if ret != nil {
 			result.Nodes = append(result.Nodes, ret)
 		}
