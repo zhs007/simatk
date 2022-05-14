@@ -1,11 +1,17 @@
 package main
 
-import "github.com/zhs007/simatk/battle3"
+import (
+	"github.com/xuri/excelize/v2"
+	"github.com/zhs007/simatk/battle3"
+)
 
 func main() {
+	f := excelize.NewFile()
+
 	ret := battle3.GenEnemy(battle3.NewUnit(120, 80),
 		&battle3.GenEnemyParam{
-			UnitType:        battle3.UnitTypeDPS,
+			Title:           "偏肉",
+			UnitType:        battle3.UnitTypeMoreHP,
 			MinTurns:        1,
 			MaxTurns:        10,
 			MinLastHP:       1,
@@ -17,5 +23,11 @@ func main() {
 			DetailLastHPOff: 10,
 		})
 
+	ret.OutputExcel(f)
+
 	ret.Output("genenemy3.json")
+
+	f.DeleteSheet("Sheet1")
+
+	f.SaveAs("genenemy3.xlsx")
 }

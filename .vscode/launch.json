@@ -24,6 +24,13 @@
             "request": "launch",
             "mode": "auto",
             "program": "examples/genenemy3/main.go"
+        },
+        {
+            "name": "genenemy3001",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "examples/genenemy3001/main.go"
         }
     ]
 }
