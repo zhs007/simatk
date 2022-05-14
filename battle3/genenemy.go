@@ -92,22 +92,24 @@ func (result *GenEnemyResult) AddNodeForDetail(ret *BattleResult) {
 		if v.MinTurns > 0 && v.MaxTurns >= v.MinTurns {
 			if ret.Turns >= v.MinTurns && ret.Turns <= v.MaxTurns {
 
-				if v.MinLastHP > 0 && v.MaxLastHP >= v.MinLastHP {
+				// if v.MinLastHP > 0 && v.MaxLastHP >= v.MinLastHP {
 
-					curhp := ret.Units[0].Props[PropTypeCurHP] * 100 / ret.Units[0].Props[PropTypeHP]
+				// 	curhp := ret.Units[0].Props[PropTypeCurHP] * 100 / ret.Units[0].Props[PropTypeHP]
 
-					if curhp >= v.MinLastHP &&
-						curhp <= v.MaxLastHP {
+				// 	if curhp >= v.MinLastHP &&
+				// 		curhp <= v.MaxLastHP {
 
-						v.addDetail(ret.Units[1].Props[PropTypeHP]+ret.Units[1].Props[PropTypeDPS], ret.Units[1].Props[PropTypeHP])
+				// 		v.addDetail(ret.Units[1].Props[PropTypeHP]+ret.Units[1].Props[PropTypeDPS], ret.Units[1].Props[PropTypeHP])
 
-						continue
-					}
-				}
+				// 		continue
+				// 	}
+				// }
 
 				v.addDetail(ret.Units[1].Props[PropTypeHP]+ret.Units[1].Props[PropTypeDPS], ret.Units[1].Props[PropTypeHP])
 			}
-		} else if v.MinLastHP > 0 && v.MaxLastHP >= v.MinLastHP {
+		}
+
+		if v.MinLastHP > 0 && v.MaxLastHP >= v.MinLastHP {
 			curhp := ret.Units[0].Props[PropTypeCurHP] * 100 / ret.Units[0].Props[PropTypeHP]
 
 			if curhp >= v.MinLastHP &&
