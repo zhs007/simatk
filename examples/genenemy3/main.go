@@ -5,7 +5,7 @@ import "github.com/zhs007/simatk/battle3"
 func main() {
 	ret := battle3.GenEnemy(battle3.NewUnit(120, 80),
 		&battle3.GenEnemyParam{
-			UnitType:        battle3.UnitTypeNormal,
+			UnitType:        battle3.UnitTypeDPS,
 			MinTurns:        1,
 			MaxTurns:        10,
 			MinLastHP:       1,

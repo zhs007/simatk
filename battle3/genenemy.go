@@ -74,7 +74,7 @@ func (result *GenEnemyResult) RebuildDetail() {
 		}
 
 		if result.Param.DetailLastHPOff > 0 {
-			for hp := result.Param.MaxLastHP + result.Param.DetailLastHPOff; hp <= result.Param.MaxLastHP; hp += result.Param.DetailLastHPOff {
+			for hp := result.Param.MinLastHP + result.Param.DetailLastHPOff; hp <= result.Param.MaxLastHP; hp += result.Param.DetailLastHPOff {
 
 				detail := &GenEnemyResultDetail{
 					MinLastHP: hp - result.Param.DetailLastHPOff,
@@ -90,7 +90,7 @@ func (result *GenEnemyResult) RebuildDetail() {
 func (result *GenEnemyResult) AddNodeForDetail(ret *BattleResult) {
 	for _, v := range result.DetailNodes {
 		if v.MinTurns > 0 && v.MaxTurns >= v.MinTurns {
-			if ret.Turns >= v.MinTurns && ret.Turns <= v.MaxTurns {
+			if ret.Turns >= v.MinTurns && ret.Turns < v.MaxTurns {
 
 				// if v.MinLastHP > 0 && v.MaxLastHP >= v.MinLastHP {
 
@@ -113,7 +113,7 @@ func (result *GenEnemyResult) AddNodeForDetail(ret *BattleResult) {
 			curhp := ret.Units[0].Props[PropTypeCurHP] * 100 / ret.Units[0].Props[PropTypeHP]
 
 			if curhp >= v.MinLastHP &&
-				curhp <= v.MaxLastHP {
+				curhp < v.MaxLastHP {
 
 				v.addDetail(ret.Units[1].Props[PropTypeHP]+ret.Units[1].Props[PropTypeDPS], ret.Units[1].Props[PropTypeHP])
 			}
@@ -157,6 +157,12 @@ func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int, detailR
 		dps := totalval - hp
 
 		enemy := NewUnit(hp, dps)
+
+		// 如果是极致DPS，则一定先手
+		if param.UnitType == UnitTypeMoreDPS {
+			enemy.Props[PropTypeIsFirst] = 1
+		}
+
 		arr := []*Unit{hero.ResetAndClone(), enemy}
 
 		ret0 := StartBattle(arr)
@@ -168,19 +174,19 @@ func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int, detailR
 					if curhp >= param.MinLastHP &&
 						curhp <= param.MaxLastHP {
 						result.LstHP = append(result.LstHP, ret0.Units[1].Props[PropTypeHP])
+
+						detailRet.AddNodeForDetail(ret0)
 					}
 				}
-
-				detailRet.AddNodeForDetail(ret0)
 			}
 		} else { // 如果找战斗失败的，只能判断回合数
 			if ret0.WinIndex == 1 {
 				if ret0.Turns >= param.MinTurns && ret0.Turns <= param.MaxTurns {
 
 					result.LstHP = append(result.LstHP, ret0.Units[1].Props[PropTypeHP])
-				}
 
-				detailRet.AddNodeForDetail(ret0)
+					detailRet.AddNodeForDetail(ret0)
+				}
 			}
 		}
 	}
