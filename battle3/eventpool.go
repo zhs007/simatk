@@ -9,7 +9,7 @@ import (
 )
 
 type EventPool struct {
-	Events []*Event `yaml:"events"`
+	Events []*GenEventData `yaml:"events"`
 }
 
 func LoadEventPool(fn string) (*EventPool, error) {

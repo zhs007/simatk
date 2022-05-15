@@ -1,0 +1,13 @@
+events:
+  - id: 2000
+    totalNum: 3
+  - id: 3000
+    totalNum: 3
+  - id: 10000
+  - id: 10001
+  - id: 10002
+  - id: 5000
+    preFunc: needids
+    preFuncParams: [2000, 2, 3000, 1]
+    isEnding: true
+    
