@@ -150,3 +150,7 @@ func (unit *Unit) Reset() {
 func (unit *Unit) ResetAndClone() *Unit {
 	return NewUnit(unit.Props[PropTypeHP], unit.Props[PropTypeDPS])
 }
+
+func (unit *Unit) ChgProp(prop int, val int) {
+	unit.Props[prop] += val
+}

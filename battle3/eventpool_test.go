@@ -7,7 +7,7 @@ import (
 )
 
 func Test_LoadEventPool(t *testing.T) {
-	ep, err := LoadEventPool("../gamedata/stage001.yaml")
+	ep, err := LoadEventPool("../gamedata/mt/stage001.yaml")
 	assert.NoError(t, err)
 	assert.NotNil(t, ep)
 

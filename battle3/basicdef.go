@@ -50,3 +50,38 @@ type BattleResult struct {
 	ForceFirstIndex int     `json:"forceFirstIndex"` // 强制先手索引，只在速度相等时才有用，如果无意义为-1
 	Turns           int     `json:"turns"`           // 回合数
 }
+
+var mapProp map[string]int
+
+func Str2Prop(str string) (int, error) {
+	prop, isok := mapProp[str]
+	if !isok {
+		return 0, ErrInvalidPropStr
+	}
+
+	return prop, nil
+}
+
+func init() {
+	mapProp = make(map[string]int)
+
+	mapProp["hp"] = PropTypeHP
+	mapProp["dps"] = PropTypeDPS
+
+	mapProp["maxhp"] = PropTypeMaxHP
+	mapProp["curhp"] = PropTypeCurHP
+	mapProp["curdps"] = PropTypeCurDPS
+
+	mapProp["isfirst"] = PropTypeIsFirst
+	mapProp["isdouble"] = PropTypeIsDouble
+	mapProp["isfightback"] = PropTypeIsFightBack
+	mapProp["isleech"] = PropTypeIsLeech
+	mapProp["isreturndamage"] = PropTypeIsReturnDamage
+
+	mapProp["returndamageval"] = PropTypeReturnDamageVal
+	mapProp["leechval"] = PropTypeLeechVal
+	mapProp["upatk"] = PropTypeUpAtk
+	mapProp["downatk"] = PropTypeDownAtk
+	mapProp["updamage"] = PropTypeUpDamage
+	mapProp["downdamage"] = PropTypeDownDamage
+}
