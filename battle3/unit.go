@@ -1,8 +1,14 @@
 package battle3
 
+import (
+	"github.com/zhs007/goutils"
+	"go.uber.org/zap"
+)
+
 type Unit struct {
-	Props    map[int]int `json:"props"`
-	UnitType int         `json:"unitType"`
+	Props        map[int]int  `json:"props"`
+	UnitType     int          `json:"unitType"`
+	LstEquipment []*Equipment `json:"-"`
 }
 
 func NewUnit(hp int, dps int) *Unit {
@@ -151,6 +157,100 @@ func (unit *Unit) ResetAndClone() *Unit {
 	return NewUnit(unit.Props[PropTypeHP], unit.Props[PropTypeDPS])
 }
 
-func (unit *Unit) ChgProp(prop int, val int) {
-	unit.Props[prop] += val
+func (unit *Unit) ChgProp(prop int, val int) (int, error) {
+	return MgrStatic.MgrPropFunc.ChgProp(unit, prop, val)
+}
+
+func (unit *Unit) UseItem(id int) error {
+	itemdata, err := MgrStatic.MgrItem.GetItemData(id)
+	if err != nil {
+		goutils.Error("Unit.UseItem:GetItemData",
+			zap.Int("id", id),
+			zap.Error(err))
+
+		return err
+	}
+
+	err = MgrStatic.MgrPropFunc.Run(itemdata.ValFunc, unit, nil, PropFuncStateOn, itemdata.TargetProp, itemdata.Val, itemdata.StrVal)
+	if err != nil {
+		goutils.Error("Unit.UseItem:Run",
+			zap.Int("id", id),
+			zap.Error(err))
+
+		return err
+	}
+
+	return nil
+}
+
+func (unit *Unit) HasEquipment(id int) bool {
+	for _, v := range unit.LstEquipment {
+		if v.Data.ID == id {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (unit *Unit) TakeOff(id int) error {
+	for i, v := range unit.LstEquipment {
+		if v.Data.ID == id {
+			err := MgrStatic.MgrPropFunc.Run(v.Data.ValFunc, unit, v.AddOn, PropFuncStateOff, v.Data.TargetProp, v.Data.Val, v.Data.StrVal)
+			if err != nil {
+				goutils.Error("Unit.TakeOff:Run",
+					zap.Int("id", id),
+					zap.Error(err))
+
+				return err
+			}
+
+			unit.LstEquipment = append(unit.LstEquipment[:i], unit.LstEquipment[i+1:]...)
+
+			return nil
+		}
+	}
+
+	goutils.Error("Unit.TakeOff",
+		zap.Int("id", id),
+		zap.Error(ErrCantEquip))
+
+	return ErrCantEquip
+}
+
+func (unit *Unit) Equip(id int) error {
+	if unit.HasEquipment(id) {
+		goutils.Error("Unit.Equip:HasEquipment",
+			zap.Int("id", id),
+			zap.Error(ErrEquiped))
+
+		return ErrEquiped
+	}
+
+	itemdata, err := MgrStatic.MgrItem.GetItemData(id)
+	if err != nil {
+		goutils.Error("Unit.Equip:GetItemData",
+			zap.Int("id", id),
+			zap.Error(err))
+
+		return err
+	}
+
+	equ := &Equipment{
+		Data:  itemdata,
+		AddOn: &AddOn{},
+	}
+
+	err = MgrStatic.MgrPropFunc.Run(itemdata.ValFunc, unit, equ.AddOn, PropFuncStateOn, itemdata.TargetProp, itemdata.Val, itemdata.StrVal)
+	if err != nil {
+		goutils.Error("Unit.Equip:Run",
+			zap.Int("id", id),
+			zap.Error(err))
+
+		return err
+	}
+
+	unit.LstEquipment = append(unit.LstEquipment, equ)
+
+	return nil
 }

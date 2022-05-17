@@ -38,12 +38,27 @@ func (item *ItemData) onInit() error {
 }
 
 type ItemDataMgr struct {
-	MapItem map[int]*ItemData
+	mapItem map[int]*ItemData
+}
+
+func (mgr *ItemDataMgr) GetItemData(id int) (*ItemData, error) {
+	if id >= MinItemID && id <= MaxItemID {
+		data, isok := mgr.mapItem[id]
+		if isok {
+			return data, nil
+		}
+	}
+
+	goutils.Error("ItemDataMgr.GetItemData",
+		zap.Int("id", id),
+		zap.Error(ErrInvalidItemID))
+
+	return nil, ErrInvalidItemID
 }
 
 func LoadItem(fn string) (*ItemDataMgr, error) {
 	mgr := &ItemDataMgr{
-		MapItem: make(map[int]*ItemData),
+		mapItem: make(map[int]*ItemData),
 	}
 
 	f, err := excelize.OpenFile(fn)
@@ -133,7 +148,7 @@ func LoadItem(fn string) (*ItemDataMgr, error) {
 					zap.Error(err))
 			}
 
-			mgr.MapItem[item.ID] = item
+			mgr.mapItem[item.ID] = item
 		}
 	}
 

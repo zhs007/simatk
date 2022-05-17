@@ -4,6 +4,9 @@ const (
 	MaxTurns     = 10 // 最大回合数
 	LeechVal     = 5  // 吸血率
 	FightBackVal = 15 // 反击率
+
+	MinItemID = 10000 // 最小ItemID
+	MaxItemID = 99999 //最大ItemID
 )
 
 // 只考虑HP和DPS的情况，所以只有2种倾向，一种是肉，一种是输出

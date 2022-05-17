@@ -63,3 +63,19 @@ func LoadAllStatic(fnpath string) (*StaticMgr, error) {
 
 	return mgr, nil
 }
+
+var MgrStatic *StaticMgr
+
+func InitSystem(fnpath string) error {
+	mgr, err := LoadAllStatic(fnpath)
+	if err != nil {
+		goutils.Error("InitSystem:LoadAllStatic",
+			zap.Error(err))
+
+		return err
+	}
+
+	MgrStatic = mgr
+
+	return nil
+}

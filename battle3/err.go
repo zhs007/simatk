@@ -11,4 +11,10 @@ var (
 	ErrInvalidFuncPropParam = errors.New("invalid FuncItem parameter")
 	// ErrInvalidBasicPropFunc - invalid BasicPropFunc
 	ErrInvalidBasicPropFunc = errors.New("invalid BasicPropFunc")
+	// ErrInvalidItemID - invalid ItemID
+	ErrInvalidItemID = errors.New("invalid ItemID")
+	// ErrEquiped - equiped
+	ErrEquiped = errors.New("equiped")
+	// ErrCantEquip - can not equip
+	ErrCantEquip = errors.New("can not equip")
 )

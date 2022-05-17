@@ -1,5 +1,7 @@
 package battle3
 
+// 基本属性修改，val为改变量
+// 注意，如果是状态数据，val为最终值
 type BasicPropFunc func(unit *Unit, prop int, val int)
 
 // 普通属性，一定大于0
