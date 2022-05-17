@@ -1,5 +1,7 @@
 package battle3
 
+type ForEachEventFunc func(*Event) bool
+
 type GenEventFuncData struct {
 	PreFunc          string   `yaml:"preFunc"`
 	PreFuncParams    []int    `yaml:"preFuncParams"`
@@ -51,4 +53,20 @@ func (event *Event) Add2Last(id int) {
 	}
 
 	event.Children[0].Add2Last(id)
+}
+
+func (event *Event) ForEach(funcForEach ForEachEventFunc) bool {
+	if event.ID > 0 {
+		if !funcForEach(event) {
+			return false
+		}
+
+		for _, v := range event.Children {
+			if !v.ForEach(funcForEach) {
+				return false
+			}
+		}
+	}
+
+	return false
 }

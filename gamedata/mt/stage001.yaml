@@ -1,28 +1,28 @@
 events:
-  - id: 2000
+  - id: 2000 # 史莱姆，最多3个
     totalNum: 3
-  - id: 3000
+  - id: 3000 # 骷髅战士，最多3个
     totalNum: 3
-  - id: 10000
+  - id: 10000 # 小血瓶，要求HP 90% 以下才投放
     eventFunc:
       - preFunc: check2prop
         preFuncParams: [90]
         preFuncStrParams: ['curhp', '/', 'maxhp', '<']  
-  - id: 10001
+  - id: 10001 # 血瓶，要求HP 75% 以下才投放
     eventFunc:
       - preFunc: check2prop
         preFuncParams: [75]
         preFuncStrParams: ['curhp', '/', 'maxhp', '<']  
-  - id: 10002
+  - id: 10002 # 大血瓶，要求HP 50% 以下才投放
     eventFunc:
       - preFunc: check2prop
         preFuncParams: [50]
         preFuncStrParams: ['curhp', '/', 'maxhp', '<']    
-  - id: 5000
+  - id: 5000 # 骷髅射手，要求至少出现2个史莱姆 和 1个骷髅战士再出现
     eventFunc:
       - preFunc: needids
         preFuncParams: [2000, 2, 3000, 1]
     isEnding: true
-  - id: 10002 # 这个是保底事件，大血瓶
+  - id: 10002 # 极限情况下，有可能一个血瓶都无法出现，但怪物打完了，又打不过骷髅射手，譬如刚好75%的血量，这时需要投放一个 大血瓶
     eventFunc:
       - preFunc: empty

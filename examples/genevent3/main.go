@@ -22,22 +22,30 @@ func main() {
 		return
 	}
 
-	unit, err := battle3.MgrStatic.MgrCharacter.NewUnit(1000)
-	if err != nil {
-		goutils.Error("NewUnit",
-			zap.Error(err))
+	lst := []*battle3.Event{}
 
-		return
+	for i := 0; i < 10; i++ {
+		unit, err := battle3.MgrStatic.MgrCharacter.NewUnit(1000)
+		if err != nil {
+			goutils.Error("NewUnit",
+				zap.Error(err))
+
+			return
+		}
+
+		event, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit)
+		if err != nil {
+			goutils.Error("GenEvent",
+				zap.Error(err))
+
+			return
+		}
+
+		goutils.Info("event",
+			goutils.JSON("event", event))
+
+		lst = append(lst, event)
 	}
 
-	event, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit)
-	if err != nil {
-		goutils.Error("GenEvent",
-			zap.Error(err))
-
-		return
-	}
-
-	goutils.Info("event",
-		goutils.JSON("event", event))
+	battle3.SaveEvents("genevent3.xlsx", lst)
 }
