@@ -18,12 +18,50 @@ type CharacterData struct {
 }
 
 type CharacterDataMgr struct {
-	MapCharacter map[int]*CharacterData
+	mapCharacter map[int]*CharacterData
+}
+
+func (mgr *CharacterDataMgr) GetCharacterData(id int) (*CharacterData, error) {
+	if id >= MinCharacterID && id <= MaxCharacterID {
+		data, isok := mgr.mapCharacter[id]
+		if isok {
+			return data, nil
+		}
+	}
+
+	goutils.Error("CharacterDataMgr.GetCharacterData",
+		zap.Int("id", id),
+		zap.Error(ErrInvalidCharacterID))
+
+	return nil, ErrInvalidCharacterID
+}
+
+func (mgr *CharacterDataMgr) NewUnit(id int) (*Unit, error) {
+	if id >= MinCharacterID && id <= MaxCharacterID {
+		data, isok := mgr.mapCharacter[id]
+		if isok {
+			unit := NewUnit(data.HP, data.DPS)
+
+			if data.IsFirst {
+				unit.Props[PropTypeIsFirst] = 1
+			}
+
+			unit.Data = data
+
+			return unit, nil
+		}
+	}
+
+	goutils.Error("CharacterDataMgr.NewUnit",
+		zap.Int("id", id),
+		zap.Error(ErrInvalidCharacterID))
+
+	return nil, ErrInvalidCharacterID
 }
 
 func LoadCharacter(fn string) (*CharacterDataMgr, error) {
 	mgr := &CharacterDataMgr{
-		MapCharacter: make(map[int]*CharacterData),
+		mapCharacter: make(map[int]*CharacterData),
 	}
 
 	f, err := excelize.OpenFile(fn)
@@ -111,7 +149,7 @@ func LoadCharacter(fn string) (*CharacterDataMgr, error) {
 				}
 			}
 
-			mgr.MapCharacter[character.ID] = character
+			mgr.mapCharacter[character.ID] = character
 		}
 	}
 

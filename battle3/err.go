@@ -17,4 +17,12 @@ var (
 	ErrEquiped = errors.New("equiped")
 	// ErrCantEquip - can not equip
 	ErrCantEquip = errors.New("can not equip")
+	// ErrInvalidFuncEventParam - invalid FuncEvent parameter
+	ErrInvalidFuncEventParam = errors.New("invalid FuncEvent parameter")
+	// ErrInvalidCharacterID - invalid CharacterID
+	ErrInvalidCharacterID = errors.New("invalid CharacterID")
+	// ErrInvalidEventFunc - invalid EventFunc
+	ErrInvalidEventFunc = errors.New("invalid EventFunc")
+	// ErrNoEvent - no event
+	ErrNoEvent = errors.New("no event")
 )

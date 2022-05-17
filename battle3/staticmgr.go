@@ -11,6 +11,7 @@ type StaticMgr struct {
 	MgrCharacter *CharacterDataMgr
 	MgrItem      *ItemDataMgr
 	MgrPropFunc  *PropFuncMgr
+	MgrEventFunc *EventFuncMgr
 }
 
 func LoadAllStatic(fnpath string) (*StaticMgr, error) {
@@ -35,6 +36,7 @@ func LoadAllStatic(fnpath string) (*StaticMgr, error) {
 		MgrCharacter: mgrCharacter,
 		MgrItem:      mgrItem,
 		MgrPropFunc:  newPropFuncMgr(),
+		MgrEventFunc: newEventFuncMgr(),
 	}
 
 	mgr.MgrPropFunc.RegBasic(PropTypeHP, funcNormal)
@@ -60,6 +62,11 @@ func LoadAllStatic(fnpath string) (*StaticMgr, error) {
 	mgr.MgrPropFunc.Reg("addper", propAddPer)
 	mgr.MgrPropFunc.Reg("add", propAdd)
 	mgr.MgrPropFunc.Reg("rampage", propRampage)
+
+	mgr.MgrEventFunc.Reg("needids", eventNeedIDs)
+	mgr.MgrEventFunc.Reg("canwin", eventCanWin)
+	mgr.MgrEventFunc.Reg("check2prop", eventCheck2Prop)
+	mgr.MgrEventFunc.Reg("empty", eventEmpty)
 
 	return mgr, nil
 }

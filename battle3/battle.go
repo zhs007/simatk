@@ -21,8 +21,12 @@ func getWinner(units []*Unit) int {
 func StartBattle(src []*Unit) *BattleResult {
 	lst := []*Unit{src[0].ResetAndClone(), src[1].ResetAndClone()}
 
+	return startBattle(lst)
+}
+
+func startBattle(src []*Unit) *BattleResult {
 	ret := &BattleResult{
-		Units:           lst,
+		Units:           src,
 		ForceFirstIndex: -1, // 默认没有强制先手
 	}
 
@@ -46,9 +50,9 @@ func StartBattle(src []*Unit) *BattleResult {
 		curTurns++
 
 		// 先手攻击
-		iskilled := lst[firstIndex].Attack(lst[otherIndex], true)
+		iskilled := src[firstIndex].Attack(src[otherIndex], true)
 		if iskilled {
-			winner := getWinner(lst)
+			winner := getWinner(src)
 			if winner >= 0 {
 				ret.WinIndex = winner
 
@@ -57,9 +61,9 @@ func StartBattle(src []*Unit) *BattleResult {
 		}
 
 		// 后手攻击
-		iskilled = lst[otherIndex].Attack(lst[firstIndex], true)
+		iskilled = src[otherIndex].Attack(src[firstIndex], true)
 		if iskilled {
-			winner := getWinner(lst)
+			winner := getWinner(src)
 			if winner >= 0 {
 				ret.WinIndex = winner
 

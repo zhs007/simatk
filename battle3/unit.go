@@ -6,9 +6,11 @@ import (
 )
 
 type Unit struct {
-	Props        map[int]int  `json:"props"`
-	UnitType     int          `json:"unitType"`
-	LstEquipment []*Equipment `json:"-"`
+	Props        map[int]int    `json:"props"`
+	UnitType     int            `json:"unitType"`
+	LstEquipment []*Equipment   `json:"-"`
+	Nickname     string         `json:"-"`
+	Data         *CharacterData `json:"-"`
 }
 
 func NewUnit(hp int, dps int) *Unit {
@@ -157,6 +159,27 @@ func (unit *Unit) ResetAndClone() *Unit {
 	return NewUnit(unit.Props[PropTypeHP], unit.Props[PropTypeDPS])
 }
 
+func (unit *Unit) Clone() *Unit {
+	t := &Unit{
+		Props:    make(map[int]int),
+		UnitType: unit.UnitType,
+		Nickname: unit.Nickname,
+		Data:     unit.Data,
+	}
+
+	for k, v := range unit.Props {
+		t.Props[k] = v
+	}
+
+	for _, v := range unit.LstEquipment {
+		e := v.Clone()
+
+		t.LstEquipment = append(t.LstEquipment, e)
+	}
+
+	return t
+}
+
 func (unit *Unit) ChgProp(prop int, val int) (int, error) {
 	return MgrStatic.MgrPropFunc.ChgProp(unit, prop, val)
 }
@@ -253,4 +276,27 @@ func (unit *Unit) Equip(id int) error {
 	unit.LstEquipment = append(unit.LstEquipment, equ)
 
 	return nil
+}
+
+func (unit *Unit) Battle(id int) {
+	monster, err := MgrStatic.MgrCharacter.NewUnit(id)
+	if err != nil {
+		goutils.Error("Unit.Battle",
+			goutils.JSON("id", id),
+			zap.Error(ErrInvalidCharacterID))
+
+		return
+	}
+
+	startBattle([]*Unit{unit, monster})
+}
+
+func (unit *Unit) ProcEvent(id int) {
+	if IsMonster(id) {
+		unit.Battle(id)
+	} else if IsItem(id) {
+		unit.UseItem(id)
+	} else if IsEquipment(id) {
+		unit.Equip(id)
+	}
 }

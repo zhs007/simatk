@@ -4,10 +4,25 @@ events:
   - id: 3000
     totalNum: 3
   - id: 10000
+    eventFunc:
+      - preFunc: check2prop
+        preFuncParams: [90]
+        preFuncStrParams: ['curhp', '/', 'maxhp', '<']  
   - id: 10001
+    eventFunc:
+      - preFunc: check2prop
+        preFuncParams: [75]
+        preFuncStrParams: ['curhp', '/', 'maxhp', '<']  
   - id: 10002
+    eventFunc:
+      - preFunc: check2prop
+        preFuncParams: [50]
+        preFuncStrParams: ['curhp', '/', 'maxhp', '<']    
   - id: 5000
-    preFunc: needids
-    preFuncParams: [2000, 2, 3000, 1]
+    eventFunc:
+      - preFunc: needids
+        preFuncParams: [2000, 2, 3000, 1]
     isEnding: true
-    
+  - id: 10002 # 这个是保底事件，大血瓶
+    eventFunc:
+      - preFunc: empty

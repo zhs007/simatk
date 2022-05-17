@@ -5,8 +5,11 @@ const (
 	LeechVal     = 5  // 吸血率
 	FightBackVal = 15 // 反击率
 
-	MinItemID = 10000 // 最小ItemID
-	MaxItemID = 99999 //最大ItemID
+	MinCharacterID = 1000 // 最小 CharacterID
+	MaxCharacterID = 9999 // 最大 CharacterID
+
+	MinItemID = 10000 // 最小 ItemID
+	MaxItemID = 99999 // 最大 ItemID
 )
 
 // 只考虑HP和DPS的情况，所以只有2种倾向，一种是肉，一种是输出

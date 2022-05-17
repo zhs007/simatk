@@ -13,3 +13,15 @@ func GetHPAreaForUnitType(ut int, total int) (int, int) {
 
 	return total * 875 / 1000, total
 }
+
+func IsMonster(id int) bool {
+	return id >= 2000 && id < 9000
+}
+
+func IsItem(id int) bool {
+	return id >= 10000 && id < 20000
+}
+
+func IsEquipment(id int) bool {
+	return id >= 20000 && id < 30000
+}
