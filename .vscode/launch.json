@@ -39,6 +39,14 @@
             "mode": "auto",
             "cwd":"./",
             "program": "examples/genevent3/main.go"
+        },
+        {
+            "name": "genevent3ml",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd":"./",
+            "program": "examples/genevent3ml/main.go"
         }
     ]
 }

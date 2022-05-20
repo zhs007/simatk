@@ -23,7 +23,7 @@ func (ep *EventPool) onInit() {
 	}
 }
 
-func (ep *EventPool) GenEvent(lst []*Event, unit *Unit) (*Event, bool) {
+func (ep *EventPool) GenEvent(lst []*Event, unit *Unit) *Event {
 	curpool := &EventPool{}
 
 	for _, v := range ep.Events {
@@ -52,11 +52,12 @@ func (ep *EventPool) GenEvent(lst []*Event, unit *Unit) (*Event, bool) {
 		cr := rand.Int() % len(curpool.Events)
 
 		return &Event{
-			ID: curpool.Events[cr].ID,
-		}, curpool.Events[cr].IsEnding
+			ID:       curpool.Events[cr].ID,
+			IsEnding: curpool.Events[cr].IsEnding,
+		}
 	}
 
-	return nil, false
+	return nil
 }
 
 func LoadEventPool(fn string) (*EventPool, error) {

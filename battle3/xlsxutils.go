@@ -28,3 +28,18 @@ func SaveEvents(fn string, events [][]*Event) error {
 
 	return f.SaveAs(fn)
 }
+
+func SaveEvents2(fn string, events []*Event) error {
+	f := excelize.NewFile()
+
+	for i, v := range events {
+		sheet := fmt.Sprintf("%d", i+1)
+		f.NewSheet(sheet)
+
+		v.OutputExcel(f, sheet)
+	}
+
+	f.DeleteSheet("Sheet1")
+
+	return f.SaveAs(fn)
+}
