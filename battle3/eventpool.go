@@ -23,12 +23,12 @@ func (ep *EventPool) onInit() {
 	}
 }
 
-func (ep *EventPool) GenEvent(root *Event, unit *Unit) (*Event, bool) {
+func (ep *EventPool) GenEvent(lst []*Event, unit *Unit) (*Event, bool) {
 	curpool := &EventPool{}
 
 	for _, v := range ep.Events {
 		if v.TotalNum > 0 {
-			num := root.CountID(v.ID)
+			num := CountNumWithID(lst, v.ID)
 			if num >= v.TotalNum {
 				continue
 			}
@@ -36,7 +36,7 @@ func (ep *EventPool) GenEvent(root *Event, unit *Unit) (*Event, bool) {
 
 		isok := true
 		for _, f := range v.EventFunc {
-			if !MgrStatic.MgrEventFunc.Run(f.PreFunc, v.ID, f.PreFuncParams, f.PreFuncStrParams, unit, root, curpool) {
+			if !MgrStatic.MgrEventFunc.Run(f.PreFunc, v.ID, f.PreFuncParams, f.PreFuncStrParams, unit, lst, curpool) {
 				isok = false
 
 				break

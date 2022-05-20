@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func GenEvent(fn string, unit *Unit) (*Event, error) {
+func GenEvent(fn string, unit *Unit) ([]*Event, error) {
 	ep, err := LoadEventPool(fn)
 	if err != nil {
 		goutils.Error("GenEvent:LoadEventPool",
@@ -15,10 +15,10 @@ func GenEvent(fn string, unit *Unit) (*Event, error) {
 		return nil, err
 	}
 
-	root := &Event{}
+	lst := []*Event{}
 
 	for {
-		e, isending := ep.GenEvent(root, unit)
+		e, isending := ep.GenEvent(lst, unit)
 		if e == nil {
 			goutils.Error("GenEvent:GenEvent",
 				zap.Error(ErrNoEvent))
@@ -26,7 +26,7 @@ func GenEvent(fn string, unit *Unit) (*Event, error) {
 			return nil, ErrNoEvent
 		}
 
-		root.Add2Last(e.ID)
+		lst = append(lst, e)
 
 		unit.ProcEvent(e.ID)
 
@@ -35,5 +35,5 @@ func GenEvent(fn string, unit *Unit) (*Event, error) {
 		}
 	}
 
-	return root, nil
+	return lst, nil
 }

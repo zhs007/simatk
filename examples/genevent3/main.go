@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 
-	lst := []*battle3.Event{}
+	lst := [][]*battle3.Event{}
 
 	for i := 0; i < 10; i++ {
 		unit, err := battle3.MgrStatic.MgrCharacter.NewUnit(1000)
@@ -33,7 +33,7 @@ func main() {
 			return
 		}
 
-		event, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit)
+		lst0, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit)
 		if err != nil {
 			goutils.Error("GenEvent",
 				zap.Error(err))
@@ -42,9 +42,9 @@ func main() {
 		}
 
 		goutils.Info("event",
-			goutils.JSON("event", event))
+			goutils.JSON("event", lst0))
 
-		lst = append(lst, event)
+		lst = append(lst, lst0)
 	}
 
 	battle3.SaveEvents("genevent3.xlsx", lst)

@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type EventFunc func(id int, params []int, strParams []string, unit *Unit, root *Event, cur *EventPool) bool
+type EventFunc func(id int, params []int, strParams []string, unit *Unit, lst []*Event, cur *EventPool) bool
 
 type EventFuncMgr struct {
 	mapFunc map[string]EventFunc
@@ -16,10 +16,10 @@ func (mgr *EventFuncMgr) Reg(name string, funcEvent EventFunc) {
 }
 
 func (mgr *EventFuncMgr) Run(name string,
-	id int, params []int, strParams []string, unit *Unit, root *Event, cur *EventPool) bool {
+	id int, params []int, strParams []string, unit *Unit, lst []*Event, cur *EventPool) bool {
 	f, isok := mgr.mapFunc[name]
 	if isok {
-		return f(id, params, strParams, unit, root, cur)
+		return f(id, params, strParams, unit, lst, cur)
 	}
 
 	goutils.Error("EventFuncMgr.Run",
@@ -37,7 +37,7 @@ func newEventFuncMgr() *EventFuncMgr {
 
 // needids -
 // 需要哪些事件，各至少需要多少个
-func eventNeedIDs(id int, params []int, strParams []string, unit *Unit, root *Event, cur *EventPool) bool {
+func eventNeedIDs(id int, params []int, strParams []string, unit *Unit, lst []*Event, cur *EventPool) bool {
 	// params 一定是偶数长度
 	if len(params)%2 != 0 {
 		goutils.Error("eventNeedIDs",
@@ -48,7 +48,7 @@ func eventNeedIDs(id int, params []int, strParams []string, unit *Unit, root *Ev
 	}
 
 	for i := 0; i < len(params)/2; i++ {
-		n := root.CountID(params[i*2])
+		n := CountNumWithID(lst, params[i*2])
 		if n < params[i*2+1] {
 			return false
 		}
@@ -59,7 +59,7 @@ func eventNeedIDs(id int, params []int, strParams []string, unit *Unit, root *Ev
 
 // canwin -
 // 能战胜，默认的怪物应该都需要这个事件
-func eventCanWin(id int, params []int, strParams []string, unit *Unit, root *Event, cur *EventPool) bool {
+func eventCanWin(id int, params []int, strParams []string, unit *Unit, lst []*Event, cur *EventPool) bool {
 	monster, err := MgrStatic.MgrCharacter.NewUnit(id)
 	if err != nil {
 		goutils.Error("eventCanWin",
@@ -78,7 +78,7 @@ func eventCanWin(id int, params []int, strParams []string, unit *Unit, root *Eve
 // strParam[0]是第一个prop，strParam[1]是操作符，strParam[2]是第二个prop，strParam[3]是比较符
 // param[0]是数值
 // 如果操作符是 除，则结果要x100
-func eventCheck2Prop(id int, params []int, strParams []string, unit *Unit, root *Event, cur *EventPool) bool {
+func eventCheck2Prop(id int, params []int, strParams []string, unit *Unit, lst []*Event, cur *EventPool) bool {
 	if len(params) < 1 || len(strParams) < 4 {
 		goutils.Error("eventCheckPropOff",
 			goutils.JSON("params", params),
@@ -141,6 +141,6 @@ func eventCheck2Prop(id int, params []int, strParams []string, unit *Unit, root 
 
 // empty -
 // 一个事件都不符合条件
-func eventEmpty(id int, params []int, strParams []string, unit *Unit, root *Event, cur *EventPool) bool {
+func eventEmpty(id int, params []int, strParams []string, unit *Unit, lst []*Event, cur *EventPool) bool {
 	return len(cur.Events) == 0
 }
