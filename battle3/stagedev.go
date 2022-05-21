@@ -20,6 +20,48 @@ type StageDevData struct {
 	Equipments  []int  // 玩家装备
 }
 
+func (data *StageDevData) RemoveMonster(monster int) {
+	for i, v := range data.Monsters {
+		if v == monster {
+			data.MonsterNums[i]--
+
+			if data.MonsterNums[i] <= 0 {
+				data.Monsters = append(data.Monsters[:i], data.Monsters[i+1:]...)
+				data.MonsterNums = append(data.MonsterNums[:i], data.MonsterNums[i+1:]...)
+			}
+
+			return
+		}
+	}
+}
+
+func (data *StageDevData) GetTotalMonsterNum() int {
+	num := 0
+
+	for _, v := range data.MonsterNums {
+		num += v
+	}
+
+	return num
+}
+
+func (data *StageDevData) Clone() *StageDevData {
+	dst := &StageDevData{
+		Name:        data.Name,
+		Monsters:    make([]int, len(data.Monsters)),
+		MonsterNums: make([]int, len(data.MonsterNums)),
+		HP:          data.HP,
+		DPS:         data.DPS,
+		Equipments:  make([]int, len(data.Equipments)),
+	}
+
+	copy(dst.Monsters, data.Monsters)
+	copy(dst.MonsterNums, data.MonsterNums)
+	copy(dst.Equipments, data.Equipments)
+
+	return dst
+}
+
 type StageDevDataMgr struct {
 	lst []*StageDevData
 }
@@ -162,4 +204,29 @@ func LoadStageDevData(fn string) (*StageDevDataMgr, error) {
 	}
 
 	return mgr, nil
+}
+
+type FuncForEachStageDevData func(arr []int)
+
+func ForEach(data *StageDevData, arr []int, each FuncForEachStageDevData) {
+	monsterNum := data.GetTotalMonsterNum()
+	if monsterNum == 1 {
+		arr = append(arr, data.Monsters[0])
+
+		each(arr)
+
+		return
+	}
+
+	for _, v := range data.Monsters {
+		nd := data.Clone()
+		nd.RemoveMonster(v)
+
+		narr := make([]int, len(arr))
+		copy(narr, arr)
+
+		narr = append(arr, data.Monsters[0])
+
+		ForEach(nd, narr, each)
+	}
 }

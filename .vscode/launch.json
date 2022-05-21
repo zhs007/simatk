@@ -39,6 +39,14 @@
             "mode": "auto",
             "cwd":"./",
             "program": "examples/genevent3/main.go"
+        },
+        {
+            "name": "genlevelup3",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd":"./",
+            "program": "examples/genlevelup3/main.go"
         }
     ]
 }
