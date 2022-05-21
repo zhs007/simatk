@@ -12,6 +12,7 @@ type StaticMgr struct {
 	MgrItem      *ItemDataMgr
 	MgrPropFunc  *PropFuncMgr
 	MgrEventFunc *EventFuncMgr
+	MgrStageDev  *StageDevDataMgr
 }
 
 func LoadAllStatic(fnpath string) (*StaticMgr, error) {
@@ -32,11 +33,20 @@ func LoadAllStatic(fnpath string) (*StaticMgr, error) {
 		return nil, err
 	}
 
+	mgrStageDev, err := LoadStageDevData(path.Join(fnpath, "stagedev.xlsx"))
+	if err != nil {
+		goutils.Error("LoadAllStatic:LoadStageDevData",
+			zap.Error(err))
+
+		return nil, err
+	}
+
 	mgr := &StaticMgr{
 		MgrCharacter: mgrCharacter,
 		MgrItem:      mgrItem,
 		MgrPropFunc:  newPropFuncMgr(),
 		MgrEventFunc: newEventFuncMgr(),
+		MgrStageDev:  mgrStageDev,
 	}
 
 	mgr.MgrPropFunc.RegBasic(PropTypeHP, funcNormal)

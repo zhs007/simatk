@@ -11,7 +11,7 @@ func Test_LoadEventPool(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, ep)
 
-	assert.Equal(t, len(ep.Events), 6)
+	assert.Equal(t, len(ep.Events), 7)
 
 	t.Logf("Test_LoadEventPool OK")
 }

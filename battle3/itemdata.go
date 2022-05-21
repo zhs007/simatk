@@ -77,7 +77,9 @@ func LoadItem(fn string) (*ItemDataMgr, error) {
 		}
 	}()
 
-	rows, err := f.GetRows("Sheet1")
+	sheet := f.GetSheetName(0)
+
+	rows, err := f.GetRows(sheet)
 	if err != nil {
 		goutils.Error("LoadItem:GetRows",
 			zap.String("fn", fn),

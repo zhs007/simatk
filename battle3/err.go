@@ -25,4 +25,6 @@ var (
 	ErrInvalidEventFunc = errors.New("invalid EventFunc")
 	// ErrNoEvent - no event
 	ErrNoEvent = errors.New("no event")
+	// ErrInvalidData - invalid data
+	ErrInvalidData = errors.New("invalid data")
 )

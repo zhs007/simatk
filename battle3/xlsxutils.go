@@ -10,7 +10,7 @@ import (
 func SaveEvents(fn string, events []*Event) error {
 	f := excelize.NewFile()
 
-	sheet := "Sheet1"
+	sheet := f.GetSheetName(0)
 
 	for i, v := range events {
 		f.SetCellStr(sheet, goutils.Pos2Cell(i, 0), fmt.Sprintf("第%v种布局", i+1))

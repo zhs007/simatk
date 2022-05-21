@@ -80,7 +80,9 @@ func LoadCharacter(fn string) (*CharacterDataMgr, error) {
 		}
 	}()
 
-	rows, err := f.GetRows("Sheet1")
+	sheet := f.GetSheetName(0)
+
+	rows, err := f.GetRows(sheet)
 	if err != nil {
 		goutils.Error("LoadCharacter:GetRows",
 			zap.String("fn", fn),
