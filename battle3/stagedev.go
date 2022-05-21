@@ -24,6 +24,19 @@ type StageDevDataMgr struct {
 	lst []*StageDevData
 }
 
+func (mgr *StageDevDataMgr) GetData(index int) *StageDevData {
+	if index >= 0 && index < len(mgr.lst) {
+		return mgr.lst[index]
+	}
+
+	goutils.Error("StageDevDataMgr.GetData",
+		zap.Int("index", index),
+		zap.Int("len", len(mgr.lst)),
+		zap.Error(ErrInvalidStageDevIndex))
+
+	return nil
+}
+
 func LoadStageDevData(fn string) (*StageDevDataMgr, error) {
 	mgr := &StageDevDataMgr{}
 

@@ -27,4 +27,8 @@ var (
 	ErrNoEvent = errors.New("no event")
 	// ErrInvalidData - invalid data
 	ErrInvalidData = errors.New("invalid data")
+	// ErrInvalidStageDevIndex - invalid StageDev index
+	ErrInvalidStageDevIndex = errors.New("invalid StageDev index")
+	// ErrBattle - battle error
+	ErrBattle = errors.New("battle error")
 )
