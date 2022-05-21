@@ -1,5 +1,12 @@
 package battle3
 
+import (
+	"fmt"
+
+	"github.com/xuri/excelize/v2"
+	"github.com/zhs007/goutils"
+)
+
 type ForEachEventFunc func(*Event) bool
 
 type GenEventFuncData struct {
@@ -16,8 +23,19 @@ type GenEventData struct {
 }
 
 type Event struct {
-	ID       int      `yaml:"id"`
+	ID       int      `yaml:"id"` // 0 是入口
 	Children []*Event `yaml:"children"`
+	IsEnding bool     `yaml:"isEnding"`
+	x, y     int      `yaml:"-"` // 坐标，主要用于输出用，目前只用于Excel输出
+	index    int      `yaml:"-"` // 索引，单线流程的顺序索引
+}
+
+func (event *Event) CloneOnlyMe() *Event {
+	return &Event{
+		ID:       event.ID,
+		IsEnding: event.IsEnding,
+		index:    event.index,
+	}
 }
 
 func (event *Event) CountID(id int) int {
@@ -32,6 +50,10 @@ func (event *Event) CountID(id int) int {
 	}
 
 	return num
+}
+
+func (event *Event) AddChild(e *Event) {
+	event.Children = append(event.Children, e.CloneOnlyMe())
 }
 
 // 加到最深的子节点
@@ -56,7 +78,7 @@ func (event *Event) Add2Last(id int) {
 }
 
 func (event *Event) ForEach(funcForEach ForEachEventFunc) bool {
-	if event.ID > 0 {
+	if event.ID >= 0 {
 		if !funcForEach(event) {
 			return false
 		}
@@ -66,7 +88,140 @@ func (event *Event) ForEach(funcForEach ForEachEventFunc) bool {
 				return false
 			}
 		}
+
+		return true
 	}
 
-	return false
+	return true
+}
+
+func (event *Event) GetLeafNodes() []*Event {
+	if len(event.Children) == 0 {
+		return []*Event{event}
+	}
+
+	nodes := []*Event{}
+
+	for _, v := range event.Children {
+		lst := v.GetLeafNodes()
+		if len(lst) != 0 {
+			nodes = append(nodes, lst...)
+		}
+	}
+
+	return nodes
+}
+
+func (event *Event) GetNotValidLeafNodes() []*Event {
+	if len(event.Children) == 0 && IsLeafNode(event) {
+		return nil
+	}
+
+	nodes := []*Event{event}
+
+	for _, v := range event.Children {
+		lst := v.GetNotValidLeafNodes()
+		if len(lst) != 0 {
+			nodes = append(nodes, lst...)
+		}
+	}
+
+	return nodes
+}
+
+func (event *Event) GetValidLeafNodes() []*Event {
+	if len(event.Children) == 0 && !IsLeafNode(event) {
+		return []*Event{event}
+	}
+
+	nodes := []*Event{}
+
+	for _, v := range event.Children {
+		lst := v.GetValidLeafNodes()
+		if len(lst) != 0 {
+			nodes = append(nodes, lst...)
+		}
+	}
+
+	return nodes
+}
+
+// func (event *Event) rebuildY(parenty int) int {
+// 	event.y = parenty + 1
+// 	maxy := event.y
+// 	for _, v := range event.Children {
+// 		cy := v.rebuildY(event.y)
+// 		if cy > maxy {
+// 			maxy = cy
+// 		}
+// 	}
+
+// 	return maxy
+// }
+
+// func (event *Event) countY(y int) int {
+// 	if event.y == y {
+// 		return 1
+// 	}
+
+// 	cn := 0
+
+// 	for _, v := range event.Children {
+// 		cn += v.countY(y)
+// 	}
+
+// 	return cn
+// }
+
+func (event *Event) countXOff() int {
+	if len(event.Children) == 0 {
+		return 1
+	}
+
+	num := 0
+
+	for _, v := range event.Children {
+		num += v.countXOff()
+	}
+
+	return num
+}
+
+func (event *Event) rebuildPos(x, y int) {
+	event.x = x
+	event.y = y
+
+	off := 0
+	for _, v := range event.Children {
+		v.rebuildPos(x+off, y+1)
+		off += v.countXOff()
+	}
+}
+
+func (event *Event) GetName() string {
+	if event.ID == 0 {
+		return fmt.Sprintf("%d-root", event.index)
+	}
+
+	if IsItem(event.ID) || IsEquipment(event.ID) {
+		data, _ := MgrStatic.MgrItem.GetItemData(event.ID)
+		return fmt.Sprintf("%d-%v", event.index, data.Name)
+	} else if IsMonster(event.ID) {
+		data, _ := MgrStatic.MgrCharacter.GetCharacterData(event.ID)
+		return fmt.Sprintf("%d-%v", event.index, data.Name)
+	}
+
+	return fmt.Sprintf("%d-error", event.index)
+}
+
+func (event *Event) OutputExcel(f *excelize.File, sheet string) error {
+	event.rebuildPos(0, 0)
+
+	event.ForEach(func(e *Event) bool {
+		f.SetCellStr(sheet, goutils.Pos2Cell(e.x, e.y), e.GetName())
+
+		return true
+	})
+
+	return nil
 }
