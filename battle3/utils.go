@@ -1,6 +1,6 @@
 package battle3
 
-func GetHPAreaForUnitType(ut int, total int) (int, int) {
+func GetHPAreaForUnitType(ut UnitType, total int) (int, int) {
 	if ut == UnitTypeMoreDPS {
 		return 0, total * 125 / 1000
 	} else if ut == UnitTypeDPS {

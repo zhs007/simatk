@@ -12,17 +12,17 @@ const (
 	PropFuncStateOff = 2
 )
 
-type PropFunc func(target *Unit, addon *AddOn, state PropFuncState, targetProp []int, param []int, strParam []string) error
+type PropFunc func(target *Unit, addon *AddOn, state PropFuncState, targetProp []PropType, param []int, strParam []string) error
 
 type PropFuncMgr struct {
 	MapFunc      map[string]PropFunc
-	MapBasicFunc map[int]BasicPropFunc
+	MapBasicFunc map[PropType]BasicPropFunc
 }
 
 func newPropFuncMgr() *PropFuncMgr {
 	mgr := &PropFuncMgr{
 		MapFunc:      make(map[string]PropFunc),
-		MapBasicFunc: make(map[int]BasicPropFunc),
+		MapBasicFunc: make(map[PropType]BasicPropFunc),
 	}
 
 	return mgr
@@ -32,12 +32,12 @@ func (mgr *PropFuncMgr) Reg(name string, funcItem PropFunc) {
 	mgr.MapFunc[name] = funcItem
 }
 
-func (mgr *PropFuncMgr) RegBasic(prop int, funcBasic BasicPropFunc) {
+func (mgr *PropFuncMgr) RegBasic(prop PropType, funcBasic BasicPropFunc) {
 	mgr.MapBasicFunc[prop] = funcBasic
 }
 
 func (mgr *PropFuncMgr) Run(name string, target *Unit, addon *AddOn, state PropFuncState,
-	targetProp []int, param []int, strParam []string) error {
+	targetProp []PropType, param []int, strParam []string) error {
 
 	f, isok := mgr.MapFunc[name]
 	if !isok {
@@ -47,7 +47,7 @@ func (mgr *PropFuncMgr) Run(name string, target *Unit, addon *AddOn, state PropF
 	return f(target, addon, state, targetProp, param, strParam)
 }
 
-func (mgr *PropFuncMgr) ChgProp(unit *Unit, prop int, val int) (int, error) {
+func (mgr *PropFuncMgr) ChgProp(unit *Unit, prop PropType, val int) (int, error) {
 	f, isok := mgr.MapBasicFunc[prop]
 	if !isok {
 		return 0, ErrInvalidBasicPropFunc
@@ -61,7 +61,7 @@ func (mgr *PropFuncMgr) ChgProp(unit *Unit, prop int, val int) (int, error) {
 
 // addper
 // targetProp[i] += param[i] * Prop[strParam[i]] / 100
-func propAddPer(target *Unit, addon *AddOn, state PropFuncState, targetProp []int, param []int, strParam []string) error {
+func propAddPer(target *Unit, addon *AddOn, state PropFuncState, targetProp []PropType, param []int, strParam []string) error {
 	if len(targetProp) != len(param) || len(targetProp) != len(strParam) {
 		goutils.Error("propAddPer",
 			goutils.JSON("targetProp", targetProp),
@@ -103,7 +103,7 @@ func propAddPer(target *Unit, addon *AddOn, state PropFuncState, targetProp []in
 
 // add
 // targetProp[i] += param[i]
-func propAdd(target *Unit, addon *AddOn, state PropFuncState, targetProp []int, param []int, strParam []string) error {
+func propAdd(target *Unit, addon *AddOn, state PropFuncState, targetProp []PropType, param []int, strParam []string) error {
 	if len(targetProp) != len(param) {
 		goutils.Error("propAdd",
 			goutils.JSON("targetProp", targetProp),
@@ -136,7 +136,7 @@ func propAdd(target *Unit, addon *AddOn, state PropFuncState, targetProp []int, 
 
 // rampage
 // 狂暴，降低一个属性的50%，并把该数值的80%加到另外一个属性上
-func propRampage(target *Unit, addon *AddOn, state PropFuncState, targetProp []int, param []int, strParam []string) error {
+func propRampage(target *Unit, addon *AddOn, state PropFuncState, targetProp []PropType, param []int, strParam []string) error {
 	if len(targetProp) != 2 || len(param) != 2 {
 		goutils.Error("propAdd",
 			goutils.JSON("targetProp", targetProp),

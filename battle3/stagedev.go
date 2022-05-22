@@ -125,6 +125,10 @@ func LoadStageDevData(fn string) (*StageDevDataMgr, error) {
 				case "name":
 					stagedev.Name = colCell
 				case "monsters":
+					if colCell == "" {
+						continue
+					}
+
 					arr := strings.Split(colCell, "|")
 					if len(arr)%2 != 0 {
 						goutils.Error("LoadStageDevData:monsters",

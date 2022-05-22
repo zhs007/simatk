@@ -31,4 +31,6 @@ var (
 	ErrInvalidStageDevIndex = errors.New("invalid StageDev index")
 	// ErrBattle - battle error
 	ErrBattle = errors.New("battle error")
+	// ErrInvalidUnitType - invalid UnitType
+	ErrInvalidUnitType = errors.New("invalid UnitType")
 )

@@ -6,16 +6,16 @@ import (
 )
 
 type Unit struct {
-	Props        map[int]int    `json:"props"`
-	UnitType     int            `json:"unitType"`
-	LstEquipment []*Equipment   `json:"-"`
-	Nickname     string         `json:"-"`
-	Data         *CharacterData `json:"-"`
+	Props        map[PropType]int `json:"props"`
+	UnitType     UnitType         `json:"unitType"`
+	LstEquipment []*Equipment     `json:"-"`
+	Nickname     string           `json:"-"`
+	Data         *CharacterData   `json:"-"`
 }
 
 func NewUnit(hp int, dps int) *Unit {
 	unit := &Unit{
-		Props: make(map[int]int),
+		Props: make(map[PropType]int),
 	}
 
 	unit.Props[PropTypeHP] = hp
@@ -30,7 +30,7 @@ func NewUnit(hp int, dps int) *Unit {
 	return unit
 }
 
-func (unit *Unit) analyzeUnitType() int {
+func (unit *Unit) analyzeUnitType() UnitType {
 	total := unit.Props[PropTypeHP] + unit.Props[PropTypeDPS]
 	for ut := UnitTypeMoreHP; ut <= UnitTypeMoreDPS; ut++ {
 		minhp, maxhp := GetHPAreaForUnitType(ut, total)
@@ -161,7 +161,7 @@ func (unit *Unit) ResetAndClone() *Unit {
 
 func (unit *Unit) Clone() *Unit {
 	t := &Unit{
-		Props:    make(map[int]int),
+		Props:    make(map[PropType]int),
 		UnitType: unit.UnitType,
 		Nickname: unit.Nickname,
 		Data:     unit.Data,
@@ -180,7 +180,7 @@ func (unit *Unit) Clone() *Unit {
 	return t
 }
 
-func (unit *Unit) ChgProp(prop int, val int) (int, error) {
+func (unit *Unit) ChgProp(prop PropType, val int) (int, error) {
 	return MgrStatic.MgrPropFunc.ChgProp(unit, prop, val)
 }
 

@@ -9,15 +9,15 @@ import (
 )
 
 type ItemData struct {
-	ID         int      `yaml:"id"`
-	Name       string   `yaml:"name"`
-	SPName     string   `yaml:"spname"`
-	Type       string   `yaml:"type"`
-	ValType    []string `yaml:"valtype"`
-	TargetProp []int    `yaml:"-"`
-	ValFunc    string   `yaml:"valfunc"`
-	Val        []int    `yaml:"val"`
-	StrVal     []string `yaml:"strval"`
+	ID         int        `yaml:"id"`
+	Name       string     `yaml:"name"`
+	SPName     string     `yaml:"spname"`
+	Type       string     `yaml:"type"`
+	ValType    []string   `yaml:"valtype"`
+	TargetProp []PropType `yaml:"-"`
+	ValFunc    string     `yaml:"valfunc"`
+	Val        []int      `yaml:"val"`
+	StrVal     []string   `yaml:"strval"`
 }
 
 func (item *ItemData) onInit() error {

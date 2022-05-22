@@ -10,17 +10,17 @@ import (
 )
 
 type GenEnemyParam struct {
-	Title           string `json:"title"`
-	UnitType        int    `json:"unitType"`
-	MinTurns        int    `json:"minTurns"`
-	MaxTurns        int    `json:"maxTurns"`
-	MinLastHP       int    `json:"minLastHP"`
-	MaxLastHP       int    `json:"maxLastHP"`
-	StartTotalVal   int    `json:"startTotalVal"`
-	EndTotalVal     int    `json:"endTotalVal"`
-	IsWinner        bool   `json:"isWinner"`
-	DetailTurnOff   int    `json:"detailTurnOff"`
-	DetailLastHPOff int    `json:"detailLastHPOff"`
+	Title           string   `json:"title"`
+	UnitType        UnitType `json:"unitType"`
+	MinTurns        int      `json:"minTurns"`
+	MaxTurns        int      `json:"maxTurns"`
+	MinLastHP       int      `json:"minLastHP"`
+	MaxLastHP       int      `json:"maxLastHP"`
+	StartTotalVal   int      `json:"startTotalVal"`
+	EndTotalVal     int      `json:"endTotalVal"`
+	IsWinner        bool     `json:"isWinner"`
+	DetailTurnOff   int      `json:"detailTurnOff"`
+	DetailLastHPOff int      `json:"detailLastHPOff"`
 }
 
 type GenEnemyBattleResult struct {
