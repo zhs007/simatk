@@ -17,6 +17,8 @@ type StageDevData struct {
 	MonsterNums []int  // 怪物数量，和Monsters对应
 	HP          int    // 玩家HP
 	DPS         int    // 玩家DPS
+	UpAtk       int    // 加攻
+	DownAtk     int    // 减攻
 	Equipments  []int  // 玩家装备
 }
 
@@ -52,6 +54,8 @@ func (data *StageDevData) Clone() *StageDevData {
 		MonsterNums: make([]int, len(data.MonsterNums)),
 		HP:          data.HP,
 		DPS:         data.DPS,
+		UpAtk:       data.UpAtk,
+		DownAtk:     data.DownAtk,
 		Equipments:  make([]int, len(data.Equipments)),
 	}
 
@@ -178,6 +182,32 @@ func LoadStageDevData(fn string) (*StageDevDataMgr, error) {
 					}
 
 					stagedev.DPS = int(i64)
+				case "upatk":
+					i64, err := goutils.String2Int64(colCell)
+					if err != nil {
+						goutils.Error("LoadStageDevData:upatk",
+							zap.Int("x", x),
+							zap.Int("y", y),
+							zap.String("cell", colCell),
+							zap.Error(err))
+
+						return nil, err
+					}
+
+					stagedev.UpAtk = int(i64)
+				case "downatk":
+					i64, err := goutils.String2Int64(colCell)
+					if err != nil {
+						goutils.Error("LoadStageDevData:downatk",
+							zap.Int("x", x),
+							zap.Int("y", y),
+							zap.String("cell", colCell),
+							zap.Error(err))
+
+						return nil, err
+					}
+
+					stagedev.DownAtk = int(i64)
 				case "equip":
 					arr := strings.Split(colCell, "|")
 					for vi, cv := range arr {

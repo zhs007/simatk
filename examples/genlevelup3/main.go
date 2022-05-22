@@ -51,4 +51,24 @@ func main() {
 	}
 
 	retdps2.Output("./genlevelupdps32.json")
+
+	retdownatk, err := battle3.GenDownAtkLevelUp(0, 200)
+	if err != nil {
+		goutils.Error("GenDownAtkLevelUp",
+			zap.Error(err))
+
+		return
+	}
+
+	retdownatk.Output("./genlevelupdownatk3.json")
+
+	retdownatk2, err := battle3.GenDownAtkLevelUp2(0, 200)
+	if err != nil {
+		goutils.Error("GenDownAtkLevelUp2",
+			zap.Error(err))
+
+		return
+	}
+
+	retdownatk2.Output("./genlevelupdownatk32.json")
 }
