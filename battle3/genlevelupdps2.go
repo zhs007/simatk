@@ -70,9 +70,9 @@ func GenDPSLevelUp2(index int, off int) (*GenDPSLevelUp2Result, error) {
 					if ret.WinIndex == 1 {
 						return
 					}
-				}
 
-				winnum++
+					winnum++
+				}
 			})
 
 			ret.DPS = append(ret.DPS, data.DPS+dpsoff)

@@ -70,9 +70,9 @@ func GenHPLevelUp(index int, off int) (*GenHPLevelUpResult, error) {
 					if ret.WinIndex == 1 {
 						return
 					}
-				}
 
-				winnum++
+					winnum++
+				}
 			})
 
 			ret.HP = append(ret.HP, data.HP+hpoff)

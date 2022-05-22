@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 
-	retdps, err := battle3.GenDPSLevelUp(0, 100)
+	retdps, err := battle3.GenDPSLevelUp(0, 200)
 	if err != nil {
 		goutils.Error("GenDPSLevelUp",
 			zap.Error(err))
@@ -32,7 +32,7 @@ func main() {
 
 	retdps.Output("./genlevelupdps3.json")
 
-	rethp, err := battle3.GenHPLevelUp(0, 100)
+	rethp, err := battle3.GenHPLevelUp(0, 200)
 	if err != nil {
 		goutils.Error("GenHPLevelUp",
 			zap.Error(err))
@@ -42,7 +42,7 @@ func main() {
 
 	rethp.Output("./genleveluphp3.json")
 
-	retdps2, err := battle3.GenDPSLevelUp2(0, 100)
+	retdps2, err := battle3.GenDPSLevelUp2(0, 200)
 	if err != nil {
 		goutils.Error("GenDPSLevelUp2",
 			zap.Error(err))

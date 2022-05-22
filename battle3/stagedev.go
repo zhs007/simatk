@@ -225,7 +225,7 @@ func ForEach(data *StageDevData, arr []int, each FuncForEachStageDevData) {
 		narr := make([]int, len(arr))
 		copy(narr, arr)
 
-		narr = append(arr, data.Monsters[0])
+		narr = append(narr, v)
 
 		ForEach(nd, narr, each)
 	}
