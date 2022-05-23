@@ -33,4 +33,6 @@ var (
 	ErrBattle = errors.New("battle error")
 	// ErrInvalidUnitType - invalid UnitType
 	ErrInvalidUnitType = errors.New("invalid UnitType")
+	// ErrInvalidStageID - invalid StageID
+	ErrInvalidStageID = errors.New("invalid StageID")
 )

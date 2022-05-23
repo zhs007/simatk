@@ -10,8 +10,8 @@ func funcNormal(unit *Unit, prop PropType, val int) {
 		unit.Props[prop] += val
 	}
 
-	if unit.Props[prop]+val < 0 {
-		unit.Props[prop] = 0
+	if unit.Props[prop]+val < 1 {
+		unit.Props[prop] = 1
 	}
 }
 
@@ -63,4 +63,37 @@ func funcMaxHP(unit *Unit, prop PropType, val int) {
 	}
 
 	unit.Props[PropTypeMaxHP] += val
+}
+
+// HP，需要 >= 1，且改变后，还需要同样的改变MaxHP
+func funcHP(unit *Unit, prop PropType, val int) {
+	if val < 0 {
+		// 最大HP不能为0
+		if unit.Props[PropTypeHP]+val < 1 {
+			unit.Props[PropTypeHP] = 1
+		} else {
+			unit.Props[PropTypeHP] += val
+		}
+
+		funcMaxHP(unit, prop, val)
+
+		return
+	}
+
+	unit.Props[PropTypeHP] += val
+
+	funcMaxHP(unit, prop, val)
+}
+
+// 普通属性，一定大于0
+func funcDPS(unit *Unit, prop PropType, val int) {
+	if val > 0 {
+		unit.Props[PropTypeDPS] += val
+	}
+
+	if unit.Props[PropTypeDPS]+val < 1 {
+		unit.Props[PropTypeDPS] = 1
+	}
+
+	funcNormal(unit, PropTypeCurDPS, val)
 }
