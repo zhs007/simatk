@@ -155,9 +155,9 @@ func (unit *Unit) Reset() {
 	unit.Props[PropTypeCurDPS] = unit.Props[PropTypeDPS]
 }
 
-func (unit *Unit) ResetAndClone() *Unit {
-	return NewUnit(unit.Props[PropTypeHP], unit.Props[PropTypeDPS])
-}
+// func (unit *Unit) ResetAndClone() *Unit {
+// 	return NewUnit(unit.Props[PropTypeHP], unit.Props[PropTypeDPS])
+// }
 
 func (unit *Unit) Clone() *Unit {
 	t := &Unit{

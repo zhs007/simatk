@@ -236,11 +236,11 @@ func genEnemyWithTotaVal(hero *Unit, param *GenEnemyParam, totalval int, detailR
 		enemy := NewUnit(hp, dps)
 
 		// 如果是极致DPS，则一定先手
-		if param.UnitType == UnitTypeMoreDPS {
+		if param.UnitType == UnitTypeMoreDPS || param.UnitType == UnitTypeDPS {
 			enemy.Props[PropTypeIsFirst] = 1
 		}
 
-		arr := []*Unit{hero.ResetAndClone(), enemy}
+		arr := []*Unit{hero.Clone(), enemy}
 
 		ret0 := StartBattle(arr)
 		if param.IsWinner {

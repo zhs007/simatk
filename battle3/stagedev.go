@@ -20,6 +20,12 @@ type StageDevData struct {
 	UpAtk       int    // 加攻
 	DownAtk     int    // 减攻
 	Equipments  []int  // 玩家装备
+	MinTurn     []int  // 允许的回合数
+	MaxTurn     []int  // 允许的回合数
+	MinLastHP   []int  // 剩余血量百分比
+	MaxLastHP   []int  // 剩余血量百分比
+	MinTotalVal int    // 怪物总属性
+	MaxTotalVal int    // 怪物总属性
 }
 
 func (data *StageDevData) RemoveMonster(monster int) {
@@ -121,6 +127,8 @@ func LoadStageDevData(fn string) (*StageDevDataMgr, error) {
 			stagedev := &StageDevData{}
 
 			for x, colCell := range row {
+				colCell = strings.TrimSpace(colCell)
+
 				switch header[x] {
 				case "name":
 					stagedev.Name = colCell
@@ -213,6 +221,10 @@ func LoadStageDevData(fn string) (*StageDevDataMgr, error) {
 
 					stagedev.DownAtk = int(i64)
 				case "equip":
+					if colCell == "" {
+						continue
+					}
+
 					arr := strings.Split(colCell, "|")
 					for vi, cv := range arr {
 						i64, err := goutils.String2Int64(cv)
@@ -229,6 +241,114 @@ func LoadStageDevData(fn string) (*StageDevDataMgr, error) {
 						}
 
 						stagedev.Equipments = append(stagedev.Equipments, int(i64))
+					}
+				case "turn":
+					if colCell == "" {
+						continue
+					}
+
+					arr := strings.Split(colCell, "|")
+					if len(arr)%2 != 0 {
+						goutils.Error("LoadStageDevData:turn",
+							zap.Int("x", x),
+							zap.Int("y", y),
+							zap.String("cell", colCell),
+							zap.Error(ErrInvalidData))
+
+						return nil, ErrInvalidData
+					}
+
+					for vi, cv := range arr {
+						i64, err := goutils.String2Int64(cv)
+						if err != nil {
+							goutils.Error("LoadStageDevData:turn",
+								zap.Int("x", x),
+								zap.Int("y", y),
+								zap.Int("vi", vi),
+								zap.String("cell", colCell),
+								zap.String("cv", cv),
+								zap.Error(err))
+
+							return nil, err
+						}
+
+						if vi%2 == 0 {
+							stagedev.MinTurn = append(stagedev.MinTurn, int(i64))
+						} else {
+							stagedev.MaxTurn = append(stagedev.MaxTurn, int(i64))
+						}
+					}
+				case "lasthp":
+					if colCell == "" {
+						continue
+					}
+
+					arr := strings.Split(colCell, "|")
+					if len(arr)%2 != 0 {
+						goutils.Error("LoadStageDevData:lasthp",
+							zap.Int("x", x),
+							zap.Int("y", y),
+							zap.String("cell", colCell),
+							zap.Error(ErrInvalidData))
+
+						return nil, ErrInvalidData
+					}
+
+					for vi, cv := range arr {
+						i64, err := goutils.String2Int64(cv)
+						if err != nil {
+							goutils.Error("LoadStageDevData:lasthp",
+								zap.Int("x", x),
+								zap.Int("y", y),
+								zap.Int("vi", vi),
+								zap.String("cell", colCell),
+								zap.String("cv", cv),
+								zap.Error(err))
+
+							return nil, err
+						}
+
+						if vi%2 == 0 {
+							stagedev.MinLastHP = append(stagedev.MinLastHP, int(i64))
+						} else {
+							stagedev.MaxLastHP = append(stagedev.MaxLastHP, int(i64))
+						}
+					}
+				case "totalval":
+					if colCell == "" {
+						continue
+					}
+
+					arr := strings.Split(colCell, "|")
+					if len(arr) != 2 {
+						goutils.Error("LoadStageDevData:totalval",
+							zap.Int("x", x),
+							zap.Int("y", y),
+							zap.String("cell", colCell),
+							zap.Error(ErrInvalidData))
+
+						return nil, ErrInvalidData
+					}
+
+					for vi, cv := range arr {
+						i64, err := goutils.String2Int64(cv)
+						if err != nil {
+							goutils.Error("LoadStageDevData:totalval",
+								zap.Int("x", x),
+								zap.Int("y", y),
+								zap.Int("vi", vi),
+								zap.String("cell", colCell),
+								zap.String("cv", cv),
+								zap.Error(err))
+
+							return nil, err
+						}
+
+						if vi%2 == 0 {
+							stagedev.MinTotalVal = int(i64)
+						} else {
+							stagedev.MaxTotalVal = int(i64)
+						}
 					}
 				}
 			}

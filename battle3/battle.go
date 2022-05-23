@@ -19,7 +19,7 @@ func getWinner(units []*Unit) int {
 }
 
 func StartBattle(src []*Unit) *BattleResult {
-	lst := []*Unit{src[0].ResetAndClone(), src[1].ResetAndClone()}
+	lst := []*Unit{src[0].Clone(), src[1].Clone()}
 
 	return startBattle(lst)
 }

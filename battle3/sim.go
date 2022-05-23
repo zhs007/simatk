@@ -34,7 +34,7 @@ func Sim(totalval int, minhp int, mindps int, minspeed int, title string, fn str
 
 	units := genUnits(totalval, minhp, mindps, minspeed)
 	for i := 0; i < len(units); i++ {
-		node := NewStatsNode(units[i].ResetAndClone())
+		node := NewStatsNode(units[i].Clone())
 
 		for j := 0; j < len(units); j++ {
 			arr := []*Unit{units[i], units[j]}

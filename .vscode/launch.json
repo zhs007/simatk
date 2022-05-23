@@ -55,6 +55,14 @@
             "mode": "auto",
             "cwd": "./",
             "program": "examples/genevent3ml/main.go"
+        },
+        {
+            "name": "gensdenemy3",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "./",
+            "program": "examples/gensdenemy3/main.go"
         }
     ]
 }
