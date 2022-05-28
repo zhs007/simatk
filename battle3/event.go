@@ -26,8 +26,11 @@ type Event struct {
 	ID       int      `yaml:"id"` // 0 是入口
 	Children []*Event `yaml:"children"`
 	IsEnding bool     `yaml:"isEnding"`
-	x, y     int      `yaml:"-"` // 坐标，主要用于输出用，目前只用于Excel输出
-	index    int      `yaml:"-"` // 索引，单线流程的顺序索引
+	x, y     int      `yaml:"-"`       // 坐标，主要用于输出用，目前只用于Excel输出
+	index    int      `yaml:"-"`       // 索引，单线流程的顺序索引
+	StartHP  int      `yaml:"startHP"` // 初始HP
+	EndHP    int      `yaml:"endHP"`   // 结束HP
+	MaxHP    int      `yaml:"maxHP"`   // 最大HP
 }
 
 func (event *Event) CloneOnlyMe() *Event {

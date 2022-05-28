@@ -27,3 +27,13 @@ func CountWidth(lst []*Event) int {
 func IsLeafNode(e *Event) bool {
 	return e.IsEnding || IsItem(e.ID) || IsEquipment(e.ID)
 }
+
+func CountAvgLastHPPer(lst []*Event) int {
+	lasthp := 0
+
+	for _, v := range lst {
+		lasthp += v.EndHP * 100 / v.MaxHP
+	}
+
+	return lasthp / len(lst)
+}

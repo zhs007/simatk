@@ -31,7 +31,10 @@ func GenEvent(fn string, unit *Unit) ([]*Event, error) {
 		lst = append(lst, e)
 		e.index = len(lst)
 
+		e.StartHP = unit.Props[PropTypeCurHP]
 		unit.ProcEvent(e.ID)
+		e.EndHP = unit.Props[PropTypeCurHP]
+		e.MaxHP = unit.Props[PropTypeMaxHP]
 
 		if e.IsEnding {
 			break

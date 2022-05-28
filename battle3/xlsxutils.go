@@ -13,15 +13,19 @@ func SaveEvents(fn string, events [][]*Event) error {
 	sheet := f.GetSheetName(0)
 
 	for i, v := range events {
-		f.SetCellStr(sheet, goutils.Pos2Cell(i, 0), fmt.Sprintf("第%v种布局", i+1))
+		avglasthpper := CountAvgLastHPPer(v)
+
+		f.SetCellStr(sheet, goutils.Pos2Cell(i, 0), fmt.Sprintf("第%v种布局 %v", i+1, avglasthpper))
 
 		for j, event := range v {
 			if IsItem(event.ID) || IsEquipment(event.ID) {
 				data, _ := MgrStatic.MgrItem.GetItemData(event.ID)
-				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1), data.Name)
+				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1),
+					fmt.Sprintf("%v %v%%->%v%%", data.Name, event.StartHP*100/event.MaxHP, event.EndHP*100/event.MaxHP))
 			} else if IsMonster(event.ID) {
 				data, _ := MgrStatic.MgrCharacter.GetCharacterData(event.ID)
-				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1), data.Name)
+				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1),
+					fmt.Sprintf("%v %v%%->%v%%", data.Name, event.StartHP*100/event.MaxHP, event.EndHP*100/event.MaxHP))
 			}
 		}
 	}
