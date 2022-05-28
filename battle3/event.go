@@ -23,14 +23,32 @@ type GenEventData struct {
 }
 
 type Event struct {
-	ID       int      `yaml:"id"` // 0 是入口
-	Children []*Event `yaml:"children"`
-	IsEnding bool     `yaml:"isEnding"`
-	x, y     int      `yaml:"-"`       // 坐标，主要用于输出用，目前只用于Excel输出
-	index    int      `yaml:"-"`       // 索引，单线流程的顺序索引
-	StartHP  int      `yaml:"startHP"` // 初始HP
-	EndHP    int      `yaml:"endHP"`   // 结束HP
-	MaxHP    int      `yaml:"maxHP"`   // 最大HP
+	ID         int      `yaml:"id"` // 0 是入口
+	Children   []*Event `yaml:"children"`
+	IsEnding   bool     `yaml:"isEnding"`
+	x, y       int      `yaml:"-"`       // 坐标，主要用于输出用，目前只用于Excel输出
+	index      int      `yaml:"-"`       // 索引，单线流程的顺序索引
+	StartHP    int      `yaml:"startHP"` // 初始HP
+	EndHP      int      `yaml:"endHP"`   // 结束HP
+	MaxHP      int      `yaml:"maxHP"`   // 最大HP
+	isFinished bool     `yaml:"-"`       // 跑流程用，表示通过了，或者道具被拿走了
+	TotalNum   int      `yaml:"-"`       // AI跑了多少次
+	WinNum     int      `yaml:"-"`       // AI通关多少次
+}
+
+func (event *Event) Clone() *Event {
+	ne := &Event{
+		ID:       event.ID,
+		IsEnding: event.IsEnding,
+		index:    event.index,
+	}
+
+	for _, v := range event.Children {
+		nv := v.Clone()
+		ne.Children = append(ne.Children, nv)
+	}
+
+	return ne
 }
 
 func (event *Event) CloneOnlyMe() *Event {
@@ -39,6 +57,24 @@ func (event *Event) CloneOnlyMe() *Event {
 		IsEnding: event.IsEnding,
 		index:    event.index,
 	}
+}
+
+// 获得可以达到的全部event
+func (event *Event) BuildNextEvents() []*Event {
+	if event.ID == 0 || event.isFinished {
+		lst := []*Event{}
+
+		for _, v := range event.Children {
+			nlst := v.BuildNextEvents()
+			if len(nlst) > 0 {
+				lst = append(lst, nlst...)
+			}
+		}
+
+		return lst
+	}
+
+	return []*Event{event}
 }
 
 func (event *Event) CountID(id int) int {
@@ -203,6 +239,10 @@ func (event *Event) rebuildPos(x, y int) {
 
 func (event *Event) GetName() string {
 	if event.ID == 0 {
+		if event.TotalNum > 0 {
+			return fmt.Sprintf("%d-root %v", event.index, event.WinNum*100/event.TotalNum)
+		}
+
 		return fmt.Sprintf("%d-root", event.index)
 	}
 

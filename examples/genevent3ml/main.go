@@ -30,7 +30,7 @@ func main() {
 		return
 	}
 
-	lst0, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit)
+	lst0, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit.Clone())
 	if err != nil {
 		goutils.Error("GenEvent",
 			zap.Error(err))
@@ -45,6 +45,9 @@ func main() {
 
 	for i := 0; i < 10; i++ {
 		event0 := battle3.GenMultiLineEvent(lst0)
+		winnum := battle3.CalcWinTimesWithAI1(event0, 100, unit.Clone())
+		event0.TotalNum = 100
+		event0.WinNum = winnum
 
 		goutils.Info("multi-line event",
 			goutils.JSON("event", event0))
