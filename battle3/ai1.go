@@ -2,7 +2,7 @@ package battle3
 
 import "math/rand"
 
-// 跑流程，返回 -1 表示失败，0 表示路径打通，
+// 随机跑流程
 func calcWithAI1(event *Event, unit *Unit) bool {
 	for {
 		lst := event.BuildNextEvents()

@@ -29,7 +29,7 @@ func GenEvent(fn string, unit *Unit) ([]*Event, error) {
 		}
 
 		lst = append(lst, e)
-		e.index = len(lst)
+		e.Index = len(lst)
 
 		e.StartHP = unit.Props[PropTypeCurHP]
 		unit.ProcEvent(e.ID)
@@ -97,15 +97,14 @@ func GenMultiLineEvent(lst []*Event) *Event {
 
 		// 如果宽度满了
 		if lastleafnum < width { // 如果剩余叶子数不足
-			// 这里需要考虑还没有被封住的叶子节点数量，如果这个数量大于剩下的叶子数，则不能覆盖已经被封掉的叶子节点了
+			// 这里需要考虑还没有被封住的叶子节点数量，尽可能的不要重新开启已经被封住的叶子节点
 			lstLeaf2 := root.GetValidLeafNodes()
-			if len(lstLeaf2) > lastleafnum {
+			if len(lstLeaf2) > 0 {
 				cr := rand.Int() % len(lstLeaf2)
 				lstLeaf2[cr].AddChild(v)
 
+				continue
 			}
-
-			continue
 		}
 
 		cr := rand.Int() % len(lstLeaf)

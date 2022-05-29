@@ -27,7 +27,7 @@ type Event struct {
 	Children   []*Event `yaml:"children"`
 	IsEnding   bool     `yaml:"isEnding"`
 	x, y       int      `yaml:"-"`       // 坐标，主要用于输出用，目前只用于Excel输出
-	index      int      `yaml:"-"`       // 索引，单线流程的顺序索引
+	Index      int      `yaml:"index"`   // 索引，单线流程的顺序索引
 	StartHP    int      `yaml:"startHP"` // 初始HP
 	EndHP      int      `yaml:"endHP"`   // 结束HP
 	MaxHP      int      `yaml:"maxHP"`   // 最大HP
@@ -40,7 +40,7 @@ func (event *Event) Clone() *Event {
 	ne := &Event{
 		ID:       event.ID,
 		IsEnding: event.IsEnding,
-		index:    event.index,
+		Index:    event.Index,
 	}
 
 	for _, v := range event.Children {
@@ -55,7 +55,7 @@ func (event *Event) CloneOnlyMe() *Event {
 	return &Event{
 		ID:       event.ID,
 		IsEnding: event.IsEnding,
-		index:    event.index,
+		Index:    event.Index,
 	}
 }
 
@@ -240,21 +240,21 @@ func (event *Event) rebuildPos(x, y int) {
 func (event *Event) GetName() string {
 	if event.ID == 0 {
 		if event.TotalNum > 0 {
-			return fmt.Sprintf("%d-root %v", event.index, event.WinNum*100/event.TotalNum)
+			return fmt.Sprintf("%d-root %v", event.Index, event.WinNum*100/event.TotalNum)
 		}
 
-		return fmt.Sprintf("%d-root", event.index)
+		return fmt.Sprintf("%d-root", event.Index)
 	}
 
 	if IsItem(event.ID) || IsEquipment(event.ID) {
 		data, _ := MgrStatic.MgrItem.GetItemData(event.ID)
-		return fmt.Sprintf("%d-%v", event.index, data.Name)
+		return fmt.Sprintf("%d-%v", event.Index, data.Name)
 	} else if IsMonster(event.ID) {
 		data, _ := MgrStatic.MgrCharacter.GetCharacterData(event.ID)
-		return fmt.Sprintf("%d-%v", event.index, data.Name)
+		return fmt.Sprintf("%d-%v", event.Index, data.Name)
 	}
 
-	return fmt.Sprintf("%d-error", event.index)
+	return fmt.Sprintf("%d-error", event.Index)
 }
 
 func (event *Event) OutputExcel(f *excelize.File, sheet string) error {
@@ -267,4 +267,18 @@ func (event *Event) OutputExcel(f *excelize.File, sheet string) error {
 	})
 
 	return nil
+}
+
+func (event *Event) CountNodes() int {
+	num := 0
+
+	if event.ID > 0 {
+		num++
+	}
+
+	for _, v := range event.Children {
+		num += v.CountNodes()
+	}
+
+	return num
 }

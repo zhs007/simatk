@@ -45,6 +45,16 @@ func main() {
 
 	for i := 0; i < 10; i++ {
 		event0 := battle3.GenMultiLineEvent(lst0)
+
+		num := event0.CountNodes()
+		if num != len(lst0) {
+			goutils.Info("multi-line event",
+				goutils.JSON("event", event0),
+				goutils.JSON("lst", lst0))
+
+			return
+		}
+
 		winnum := battle3.CalcWinTimesWithAI1(event0, 100, unit.Clone())
 		event0.TotalNum = 100
 		event0.WinNum = winnum
