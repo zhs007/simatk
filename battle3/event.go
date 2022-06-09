@@ -282,3 +282,25 @@ func (event *Event) CountNodes() int {
 
 	return num
 }
+
+// 获得可以达到的全部event，增加一个外部接口来判断
+func (event *Event) BuildNextEventsEx(eachEvent ForEachEventFunc) []*Event {
+	if event.ID == 0 || event.isFinished {
+		lst := []*Event{}
+
+		for _, v := range event.Children {
+			nlst := v.BuildNextEventsEx(eachEvent)
+			if len(nlst) > 0 {
+				lst = append(lst, nlst...)
+			}
+		}
+
+		return lst
+	}
+
+	if eachEvent(event) {
+		return []*Event{event}
+	}
+
+	return nil
+}

@@ -55,7 +55,7 @@ func main() {
 			return
 		}
 
-		winnum := battle3.CalcWinTimesWithAI1(event0, 100, unit.Clone())
+		winnum := battle3.CalcWinTimesWithAI2(event0, 100, unit.Clone())
 		event0.TotalNum = 100
 		event0.WinNum = winnum
 
