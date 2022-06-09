@@ -22,5 +22,7 @@ genlevelupdps32.json
 genleveluphp3.json
 genlevelupdownatk3.json
 genlevelupdownatk32.json
-genenemy3ml.xlsx
+genevent3ml.xlsx
+gen*.json
+gen*.xlsx
 *-level*.xlsx
