@@ -33,7 +33,10 @@ func main() {
 			return
 		}
 
-		lst0, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit)
+		// unit.ProcStageAward(battle3.MgrStatic.MgrStage.GetData(1))
+
+		// lst0, err := battle3.GenEvent("./gamedata/mt/stage002.yaml", unit)
+		lst0, err := battle3.GenEventWithStage(unit, 1, 2)
 		if err != nil {
 			goutils.Error("GenEvent",
 				zap.Error(err))

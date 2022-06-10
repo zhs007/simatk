@@ -17,15 +17,30 @@ func SaveEvents(fn string, events [][]*Event) error {
 
 		f.SetCellStr(sheet, goutils.Pos2Cell(i, 0), fmt.Sprintf("第%v种布局 %v", i+1, avglasthpper))
 
+		off := 0
 		for j, event := range v {
 			if IsItem(event.ID) || IsEquipment(event.ID) {
 				data, _ := MgrStatic.MgrItem.GetItemData(event.ID)
-				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1),
+				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1+off),
 					fmt.Sprintf("%v %v%%->%v%%", data.Name, event.StartHP*100/event.MaxHP, event.EndHP*100/event.MaxHP))
 			} else if IsMonster(event.ID) {
 				data, _ := MgrStatic.MgrCharacter.GetCharacterData(event.ID)
-				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1),
+				f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1+off),
 					fmt.Sprintf("%v %v%%->%v%%", data.Name, event.StartHP*100/event.MaxHP, event.EndHP*100/event.MaxHP))
+			}
+
+			for _, ee := range event.Awards {
+				off++
+
+				if IsItem(ee.ID) || IsEquipment(ee.ID) {
+					data, _ := MgrStatic.MgrItem.GetItemData(ee.ID)
+					f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1+off),
+						fmt.Sprintf("%v %v%%->%v%%", data.Name, ee.StartHP*100/ee.MaxHP, ee.EndHP*100/ee.MaxHP))
+				} else if IsMonster(ee.ID) {
+					data, _ := MgrStatic.MgrCharacter.GetCharacterData(ee.ID)
+					f.SetCellStr(sheet, goutils.Pos2Cell(i, j+1+off),
+						fmt.Sprintf("%v %v%%->%v%%", data.Name, ee.StartHP*100/ee.MaxHP, ee.EndHP*100/ee.MaxHP))
+				}
 			}
 		}
 	}

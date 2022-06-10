@@ -34,6 +34,7 @@ type Event struct {
 	isFinished bool     `yaml:"-"`       // 跑流程用，表示通过了，或者道具被拿走了
 	TotalNum   int      `yaml:"-"`       // AI跑了多少次
 	WinNum     int      `yaml:"-"`       // AI通关多少次
+	Awards     []*Event `yaml:"awards"`
 }
 
 func (event *Event) Clone() *Event {
@@ -92,7 +93,14 @@ func (event *Event) CountID(id int) int {
 }
 
 func (event *Event) AddChild(e *Event) {
-	event.Children = append(event.Children, e.CloneOnlyMe())
+	ne := e.CloneOnlyMe()
+	event.Children = append(event.Children, ne)
+
+	if len(e.Awards) > 0 {
+		for _, v := range e.Awards {
+			ne.AddChild(v)
+		}
+	}
 }
 
 // 加到最深的子节点

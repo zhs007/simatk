@@ -300,3 +300,13 @@ func (unit *Unit) ProcEvent(id int) {
 		unit.Equip(id)
 	}
 }
+
+// 这个接口不用于最终环境，只用于生成局面下
+func (unit *Unit) ProcStageAward(sd *StageData) {
+	// 先变1血
+	unit.ChgProp(PropTypeCurHP, -unit.Props[PropTypeCurHP]+1)
+
+	for _, v := range sd.Award {
+		unit.ProcEvent(v)
+	}
+}

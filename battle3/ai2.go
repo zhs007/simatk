@@ -10,8 +10,13 @@ func calcWithAI2(event *Event, unit *Unit) bool {
 			nu.ProcEvent(e.ID)
 			return nu.Props[PropTypeCurHP] > 0
 		})
-		if len(lst) == 0 {
+
+		if len(event.BuildNextEvents()) == 0 {
 			return true
+		}
+
+		if len(lst) == 0 {
+			return false
 		}
 
 		cr := rand.Int() % len(lst)

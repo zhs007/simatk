@@ -1,7 +1,9 @@
 package battle3
 
 import (
+	"fmt"
 	"math/rand"
+	"path"
 
 	"github.com/zhs007/goutils"
 	"go.uber.org/zap"
@@ -112,4 +114,56 @@ func GenMultiLineEvent(lst []*Event) *Event {
 	}
 
 	return root
+}
+
+func GenEventWithStage(unit *Unit, startStage int, endStage int) ([]*Event, error) {
+	lst := []*Event{}
+
+	for i := startStage; i <= endStage; i++ {
+		fn := fmt.Sprintf("stage%03d.yaml", i)
+		lst0, err := GenEvent(path.Join(MgrStatic.CfgPath, fn), unit)
+		if err != nil {
+			goutils.Error("GenEventWithStage:GenEvent",
+				zap.Error(err))
+
+			return nil, err
+		}
+
+		sd := MgrStatic.MgrStage.GetData(i)
+
+		lst = append(lst, lst0...)
+
+		for _, v := range sd.Award {
+			e := &Event{
+				ID: v,
+			}
+
+			e.StartHP = unit.Props[PropTypeCurHP]
+			unit.ProcEvent(e.ID)
+			e.EndHP = unit.Props[PropTypeCurHP]
+			e.MaxHP = unit.Props[PropTypeMaxHP]
+
+			// lst = append(lst, e)
+			lst[len(lst)-1].Awards = append(lst[len(lst)-1].Awards, e)
+		}
+
+		// unit.ProcStageAward(sd)
+	}
+
+	si := 0
+	for _, v := range lst {
+		v.isFinished = false
+		v.Index = si
+		si++
+
+		for _, vv := range v.Awards {
+			v.isFinished = false
+			vv.Index = si
+			si++
+		}
+	}
+
+	lst[len(lst)-1].isFinished = true
+
+	return lst, nil
 }

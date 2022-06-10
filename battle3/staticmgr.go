@@ -14,6 +14,7 @@ type StaticMgr struct {
 	MgrEventFunc *EventFuncMgr
 	MgrStageDev  *StageDevDataMgr
 	MgrStage     *StageDataMgr
+	CfgPath      string
 }
 
 func LoadAllStatic(fnpath string) (*StaticMgr, error) {
@@ -57,6 +58,7 @@ func LoadAllStatic(fnpath string) (*StaticMgr, error) {
 		MgrEventFunc: newEventFuncMgr(),
 		MgrStageDev:  mgrStageDev,
 		MgrStage:     mgrStage,
+		CfgPath:      fnpath,
 	}
 
 	mgr.MgrPropFunc.RegBasic(PropTypeHP, funcHP)

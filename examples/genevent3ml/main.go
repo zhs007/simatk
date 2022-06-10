@@ -30,7 +30,8 @@ func main() {
 		return
 	}
 
-	lst0, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit.Clone())
+	// lst0, err := battle3.GenEvent("./gamedata/mt/stage001.yaml", unit.Clone())
+	lst0, err := battle3.GenEventWithStage(unit, 1, 2)
 	if err != nil {
 		goutils.Error("GenEvent",
 			zap.Error(err))
@@ -47,7 +48,7 @@ func main() {
 		event0 := battle3.GenMultiLineEvent(lst0)
 
 		num := event0.CountNodes()
-		if num != len(lst0) {
+		if num != battle3.CountEventNum(lst0) {
 			goutils.Info("multi-line event",
 				goutils.JSON("event", event0),
 				goutils.JSON("lst", lst0))

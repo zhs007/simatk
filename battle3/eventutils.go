@@ -37,3 +37,15 @@ func CountAvgLastHPPer(lst []*Event) int {
 
 	return lasthp / len(lst)
 }
+
+func CountEventNum(lst []*Event) int {
+	num := 0
+
+	for _, v := range lst {
+		num++
+
+		num += len(v.Awards)
+	}
+
+	return num
+}
