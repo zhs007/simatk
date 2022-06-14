@@ -11,6 +11,7 @@ func calcWithAI2(event *Event, unit *Unit) bool {
 			return nu.Props[PropTypeCurHP] > 0
 		})
 
+		// 这里不能只检查lst
 		if len(event.BuildNextEvents()) == 0 {
 			return true
 		}
@@ -26,9 +27,10 @@ func calcWithAI2(event *Event, unit *Unit) bool {
 		}
 
 		lst[cr].isFinished = true
-		if lst[cr].IsEnding {
-			return true
-		}
+		// // 这里可以改成全清才算成功
+		// if lst[cr].IsEnding {
+		// 	return true
+		// }
 	}
 }
 

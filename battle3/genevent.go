@@ -167,3 +167,7 @@ func GenEventWithStage(unit *Unit, startStage int, endStage int) ([]*Event, erro
 
 	return lst, nil
 }
+
+func AddEventDifficulty(e *Event) (*Event, error) {
+	return e, nil
+}
