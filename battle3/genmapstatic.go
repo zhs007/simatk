@@ -26,6 +26,10 @@ func (params *GenMapStatic) GenWall() int {
 	return params.Wall.GenVal()
 }
 
+func (params *GenMapStatic) IsFloor(v int) bool {
+	return goutils.IndexOfIntSlice(params.Floor.Vals, v, 0) >= 0
+}
+
 func LoadGenMapStatic(fn string) (*GenMapStatic, error) {
 	data, err := ioutil.ReadFile(fn)
 	if err != nil {

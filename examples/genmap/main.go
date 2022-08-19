@@ -22,7 +22,21 @@ func main() {
 		return
 	}
 
-	mapdata := battle3.NewMap(10, 10)
+	params, err := battle3.LoadGenMapParams("./gamedata/mt/genmap001.yaml")
+	if err != nil {
+		goutils.Error("LoadGenMapParams",
+			zap.Error(err))
+
+		return
+	}
+
+	mapdata, err := battle3.NewMap(params)
+	if err != nil {
+		goutils.Error("NewMap",
+			zap.Error(err))
+
+		return
+	}
 
 	mapdata.Save("./map001.xlsx")
 }

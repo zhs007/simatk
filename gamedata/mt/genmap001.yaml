@@ -1,0 +1,10 @@
+width: 11
+height: 11
+rooms:
+  - width: 3
+    height: 3
+    num: 2
+  - width: 3
+    height: 2
+    num: 1
+isEnclosingWall: true
