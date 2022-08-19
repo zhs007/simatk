@@ -1,0 +1,6 @@
+floor:
+  vals: [1, 2]
+  weights: [100, 50]
+wall:
+  vals: [10]
+  weights: [100]

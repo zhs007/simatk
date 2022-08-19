@@ -63,6 +63,14 @@
             "mode": "auto",
             "cwd": "./",
             "program": "examples/gensdenemy3/main.go"
+        },
+        {
+            "name": "genmap",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "./",
+            "program": "examples/genmap/main.go"
         }
     ]
 }
