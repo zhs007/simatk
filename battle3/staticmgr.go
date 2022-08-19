@@ -14,7 +14,7 @@ type StaticMgr struct {
 	MgrEventFunc *EventFuncMgr
 	MgrStageDev  *StageDevDataMgr
 	MgrStage     *StageDataMgr
-	ParamsGenMap *GenMapParams
+	StaticGenMap *GenMapStatic
 	CfgPath      string
 }
 
@@ -52,7 +52,7 @@ func LoadAllStatic(fnpath string) (*StaticMgr, error) {
 		return nil, err
 	}
 
-	paramsGenMap, err := LoadGenMapParams(path.Join(fnpath, "genmapparams.yaml"))
+	staticGenMap, err := LoadGenMapStatic(path.Join(fnpath, "genmapstatic.yaml"))
 	if err != nil {
 		goutils.Error("LoadAllStatic:LoadGenMapParams",
 			zap.Error(err))
@@ -68,7 +68,7 @@ func LoadAllStatic(fnpath string) (*StaticMgr, error) {
 		MgrStageDev:  mgrStageDev,
 		MgrStage:     mgrStage,
 		CfgPath:      fnpath,
-		ParamsGenMap: paramsGenMap,
+		StaticGenMap: staticGenMap,
 	}
 
 	mgr.MgrPropFunc.RegBasic(PropTypeHP, funcHP)

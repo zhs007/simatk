@@ -8,34 +8,34 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type GenMapParams struct {
+type GenMapStatic struct {
 	Floor *RandWeights `yaml:"floor"`
 	Wall  *RandWeights `yaml:"wall"`
 }
 
-func (params *GenMapParams) onLoad() {
+func (params *GenMapStatic) onLoad() {
 	params.Floor.onLoad()
 	params.Wall.onLoad()
 }
 
-func (params *GenMapParams) GenFloor() int {
+func (params *GenMapStatic) GenFloor() int {
 	return params.Floor.GenVal()
 }
 
-func (params *GenMapParams) GenWall() int {
+func (params *GenMapStatic) GenWall() int {
 	return params.Wall.GenVal()
 }
 
-func LoadGenMapParams(fn string) (*GenMapParams, error) {
+func LoadGenMapStatic(fn string) (*GenMapStatic, error) {
 	data, err := ioutil.ReadFile(fn)
 	if err != nil {
 		return nil, err
 	}
 
-	params := &GenMapParams{}
+	params := &GenMapStatic{}
 	err = yaml.Unmarshal(data, params)
 	if err != nil {
-		goutils.Error("LoadGenMapParams:Unmarshal",
+		goutils.Error("LoadGenMapStatic:Unmarshal",
 			zap.String("fn", fn),
 			zap.Error(err))
 

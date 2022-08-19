@@ -11,18 +11,18 @@ type MapData struct {
 	Data [][]int `yaml:"data"`
 }
 
-func NewMap(w, h int, params *GenMapParams) *MapData {
+func NewMap(w, h int) *MapData {
 	md := &MapData{}
 
 	for y := 0; y < h; y++ {
 		arr := []int{}
 		for x := 0; x < w; x++ {
 			if y == 0 || y == h-1 {
-				arr = append(arr, params.GenWall())
+				arr = append(arr, MgrStatic.StaticGenMap.GenWall())
 			} else if x == 0 || x == w-1 {
-				arr = append(arr, params.GenWall())
+				arr = append(arr, MgrStatic.StaticGenMap.GenWall())
 			} else {
-				arr = append(arr, params.GenFloor())
+				arr = append(arr, MgrStatic.StaticGenMap.GenFloor())
 			}
 		}
 

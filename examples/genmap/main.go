@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 
-	mapdata := battle3.NewMap(10, 10, battle3.MgrStatic.ParamsGenMap)
+	mapdata := battle3.NewMap(10, 10)
 
 	mapdata.Save("./map001.xlsx")
 }
