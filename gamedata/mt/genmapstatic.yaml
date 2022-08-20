@@ -4,3 +4,6 @@ floor:
 wall:
   vals: [10]
   weights: [100]
+road:
+  vals: [20]
+  weights: [100]

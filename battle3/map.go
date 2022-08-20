@@ -131,10 +131,10 @@ func (md *MapData) isRoomWall(sx, sy int, w, h int, dir int) bool {
 	// 如果一面是墙，至少有一个角是墙，且墙的区域不少于一半
 
 	if dir == 0 {
-		if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy][sx]) || !MgrStatic.StaticGenMap.IsFloor(md.Data[sy][sx+w+1]) {
+		if MgrStatic.StaticGenMap.IsWall(md.Data[sy][sx]) || MgrStatic.StaticGenMap.IsWall(md.Data[sy][sx+w+1]) {
 			n := 0
 			for tx := 1; tx <= w; tx++ {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy][sx+tx]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy][sx+tx]) {
 					n++
 				}
 			}
@@ -142,10 +142,10 @@ func (md *MapData) isRoomWall(sx, sy int, w, h int, dir int) bool {
 			return n >= w/2
 		}
 	} else if dir == 2 {
-		if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+h+1][sx]) || !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+h+1][sx+w+1]) {
+		if MgrStatic.StaticGenMap.IsWall(md.Data[sy+h+1][sx]) || MgrStatic.StaticGenMap.IsWall(md.Data[sy+h+1][sx+w+1]) {
 			n := 0
 			for tx := 1; tx <= w; tx++ {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+h+1][sx+tx]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy+h+1][sx+tx]) {
 					n++
 				}
 			}
@@ -153,10 +153,10 @@ func (md *MapData) isRoomWall(sx, sy int, w, h int, dir int) bool {
 			return n >= w/2
 		}
 	} else if dir == 1 {
-		if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy][sx+w+1]) || !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+h+1][sx+w+1]) {
+		if MgrStatic.StaticGenMap.IsWall(md.Data[sy][sx+w+1]) || MgrStatic.StaticGenMap.IsWall(md.Data[sy+h+1][sx+w+1]) {
 			n := 0
 			for ty := 1; ty <= h; ty++ {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+ty][sx+w+1]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy+ty][sx+w+1]) {
 					n++
 				}
 			}
@@ -164,10 +164,10 @@ func (md *MapData) isRoomWall(sx, sy int, w, h int, dir int) bool {
 			return n >= h/2
 		}
 	} else if dir == 3 {
-		if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy][sx]) || !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+h+1][sx]) {
+		if MgrStatic.StaticGenMap.IsWall(md.Data[sy][sx]) || MgrStatic.StaticGenMap.IsWall(md.Data[sy+h+1][sx]) {
 			n := 0
 			for ty := 1; ty <= h; ty++ {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+ty][sx]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy+ty][sx]) {
 					n++
 				}
 			}
@@ -193,7 +193,7 @@ func (md *MapData) isRoomDoubleWall(sx, sy int, w, h int, dir int) bool {
 
 		for tx := 1; tx <= w; tx++ {
 			if md.IsValidPos(sx+tx, sy-1) {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy-1][sx+tx]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy-1][sx+tx]) {
 					return true
 				}
 			}
@@ -207,7 +207,7 @@ func (md *MapData) isRoomDoubleWall(sx, sy int, w, h int, dir int) bool {
 
 		for tx := 1; tx <= w; tx++ {
 			if md.IsValidPos(sx+tx, sy+h+2) {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+h+2][sx+tx]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy+h+2][sx+tx]) {
 					return true
 				}
 			}
@@ -221,7 +221,7 @@ func (md *MapData) isRoomDoubleWall(sx, sy int, w, h int, dir int) bool {
 
 		for ty := 1; ty <= h; ty++ {
 			if md.IsValidPos(sx+w+2, sy+ty) {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+ty][sx+w+2]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy+ty][sx+w+2]) {
 					return true
 				}
 			}
@@ -235,7 +235,7 @@ func (md *MapData) isRoomDoubleWall(sx, sy int, w, h int, dir int) bool {
 
 		for ty := 1; ty <= h; ty++ {
 			if md.IsValidPos(sx-1, sy+ty) {
-				if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+ty][sx-1]) {
+				if MgrStatic.StaticGenMap.IsWall(md.Data[sy+ty][sx-1]) {
 					return true
 				}
 			}
@@ -272,7 +272,7 @@ func (md *MapData) isValidRoomPos(sx, sy int, w, h int) bool {
 
 	for tx := 1; tx <= w; tx++ {
 		for ty := 1; ty <= h; ty++ {
-			if !MgrStatic.StaticGenMap.IsFloor(md.Data[sy+ty][sx+tx]) {
+			if MgrStatic.StaticGenMap.IsWall(md.Data[sy+ty][sx+tx]) {
 				return false
 			}
 		}

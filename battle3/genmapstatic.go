@@ -11,11 +11,13 @@ import (
 type GenMapStatic struct {
 	Floor *RandWeights `yaml:"floor"`
 	Wall  *RandWeights `yaml:"wall"`
+	Road  *RandWeights `yaml:"road"`
 }
 
 func (params *GenMapStatic) onLoad() {
 	params.Floor.onLoad()
 	params.Wall.onLoad()
+	params.Road.onLoad()
 }
 
 func (params *GenMapStatic) GenFloor() int {
@@ -26,8 +28,16 @@ func (params *GenMapStatic) GenWall() int {
 	return params.Wall.GenVal()
 }
 
+func (params *GenMapStatic) GenRoad() int {
+	return params.Road.GenVal()
+}
+
 func (params *GenMapStatic) IsFloor(v int) bool {
 	return goutils.IndexOfIntSlice(params.Floor.Vals, v, 0) >= 0
+}
+
+func (params *GenMapStatic) IsWall(v int) bool {
+	return goutils.IndexOfIntSlice(params.Wall.Vals, v, 0) >= 0
 }
 
 func LoadGenMapStatic(fn string) (*GenMapStatic, error) {
