@@ -7,3 +7,9 @@ wall:
 road:
   vals: [20]
   weights: [100]
+start:
+  vals: [30]
+  weights: [100]
+exit:
+  vals: [40]
+  weights: [100]

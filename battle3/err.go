@@ -37,4 +37,6 @@ var (
 	ErrInvalidStageID = errors.New("invalid StageID")
 	// ErrCannotGenMap - cannot gen map
 	ErrCannotGenMap = errors.New("cannot gen map")
+	// ErrInvalidExitPos - invalid exit position
+	ErrInvalidExitPos = errors.New("invalid exit position")
 )

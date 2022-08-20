@@ -25,3 +25,11 @@ func IsItem(id int) bool {
 func IsEquipment(id int) bool {
 	return id >= 20000 && id < 30000
 }
+
+func AbsInt(v int) int {
+	if v < 0 {
+		return -v
+	}
+
+	return v
+}

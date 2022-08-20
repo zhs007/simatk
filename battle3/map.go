@@ -6,6 +6,7 @@ import (
 
 	"github.com/xuri/excelize/v2"
 	"github.com/zhs007/goutils"
+	"go.uber.org/zap"
 )
 
 type RoomData struct {
@@ -27,6 +28,51 @@ func (rd *RoomData) Clone() *RoomData {
 type MapData struct {
 	Data  [][]int     `yaml:"data"`
 	Rooms []*RoomData `yaml:"rooms"`
+	Start []int       `yaml:"start"`
+	Exit  []int       `yaml:"exit"`
+}
+
+func (md *MapData) calcInstance(sx, sy int, cx, cy int) int {
+	dx := AbsInt(sx - cx)
+	dy := AbsInt(sy - cy)
+
+	return dx + dy
+}
+
+func (md *MapData) initStartExit(params *GenMapParams) error {
+	// 如果没有起点，那么默认起点随机在屏幕最下面
+	if len(params.StartPos) != 2 {
+		y := params.Height - 1
+
+		md.Start = []int{rand.Int()%(params.Width-2) + 1, y}
+	} else {
+		md.Start = params.StartPos
+	}
+
+	// 如果没有终点，终点应该距离起点至少宽高中更大的距离（水平位移加垂直位移，不是直线距离）
+	if len(params.ExitPos) != 2 {
+		arr := []int{}
+		for y := 1; y < params.Height-1; y++ {
+			for x := 1; x < params.Width-1; x++ {
+				d := md.calcInstance(md.Start[0], md.Start[1], x, y)
+				if d >= params.Height-2 && d >= params.Width-2 {
+					arr = append(arr, x, y)
+				}
+			}
+		}
+
+		if len(arr) <= 0 {
+			return ErrInvalidExitPos
+		}
+
+		r := rand.Int() % (len(arr) / 2)
+
+		md.Exit = []int{arr[r*2], arr[r*2+1]}
+	} else {
+		md.Exit = params.ExitPos
+	}
+
+	return nil
 }
 
 func (md *MapData) IsValidPos(x, y int) bool {
@@ -55,7 +101,24 @@ func (md *MapData) GenRoomPos(w, h int) []int {
 
 			if md.isValidRoomArea(x, y, w, h) {
 				if md.isValidRoomPos(x, y, w, h) {
-					arr = append(arr, x, y)
+					arr = append(arr, x, y, w, h)
+				}
+			}
+		}
+	}
+
+	if w != h {
+		for y, arr1 := range md.Data {
+			for x := range arr1 {
+				// 房间不可能重复位置
+				if md.isRoomPos(x, y) {
+					continue
+				}
+
+				if md.isValidRoomArea(x, y, h, w) {
+					if md.isValidRoomPos(x, y, h, w) {
+						arr = append(arr, x, y, h, w)
+					}
 				}
 			}
 		}
@@ -71,14 +134,16 @@ func (md *MapData) GenRooms(lst []int) *MapData {
 	lst = lst[2:]
 
 	arr := md.GenRoomPos(w, h)
-	if len(arr) >= 2 {
+	if len(arr) >= 4 {
 	retry:
-		ri := rand.Int() % (len(arr) / 2)
-		x := arr[ri*2]
-		y := arr[ri*2+1]
+		ri := rand.Int() % (len(arr) / 4)
+		x := arr[ri*4]
+		y := arr[ri*4+1]
+		tw := arr[ri*4+2]
+		th := arr[ri*4+3]
 
 		nmd := md.Clone()
-		nmd.SetRoom(x, y, w, h)
+		nmd.SetRoom(x, y, tw, th)
 		if len(lst) == 0 {
 			return nmd
 		}
@@ -88,8 +153,8 @@ func (md *MapData) GenRooms(lst []int) *MapData {
 			return nnmd
 		}
 
-		arr = arr[2:]
-		if len(arr) >= 2 {
+		arr = arr[4:]
+		if len(arr) >= 4 {
 			goto retry
 		}
 	}
@@ -314,6 +379,17 @@ func NewMap(params *GenMapParams) (*MapData, error) {
 		md.Data = append(md.Data, arr)
 	}
 
+	err := md.initStartExit(params)
+	if err != nil {
+		goutils.Error("NewMap:initStartExit",
+			zap.Error(err))
+
+		return nil, err
+	}
+
+	md.Data[md.Start[1]][md.Start[0]] = MgrStatic.StaticGenMap.GenStart()
+	md.Data[md.Exit[1]][md.Exit[0]] = MgrStatic.StaticGenMap.GenExit()
+
 	lst := []int{}
 	for ri := range params.Rooms {
 		rd := params.Rooms[ri]
@@ -324,8 +400,14 @@ func NewMap(params *GenMapParams) (*MapData, error) {
 
 	nmd := md.GenRooms(lst)
 	if nmd == nil {
+		goutils.Error("NewMap:GenRooms",
+			zap.Error(ErrCannotGenMap))
+
 		return nil, ErrCannotGenMap
 	}
+
+	nmd.Data[md.Start[1]][md.Start[0]] = MgrStatic.StaticGenMap.GenStart()
+	nmd.Data[md.Exit[1]][md.Exit[0]] = MgrStatic.StaticGenMap.GenExit()
 
 	return nmd, nil
 }

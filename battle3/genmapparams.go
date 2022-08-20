@@ -19,6 +19,8 @@ type GenMapParams struct {
 	Height          int               `yaml:"height"`
 	Rooms           []*GenMapRoomData `yaml:"rooms"`
 	IsEnclosingWall bool              `yaml:"isEnclosingWall"`
+	StartPos        []int             `yaml:"startPos"`
+	ExitPos         []int             `yaml:"exitPos"`
 }
 
 func (params *GenMapParams) IsWall(x, y int) bool {

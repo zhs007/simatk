@@ -8,3 +8,4 @@ rooms:
     height: 2
     num: 1
 isEnclosingWall: true
+startPos: [5, 10]
