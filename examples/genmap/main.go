@@ -30,9 +30,9 @@ func main() {
 		return
 	}
 
-	mapdata, err := battle3.NewMap(params)
+	mapdata, err := battle3.GenMap(params)
 	if err != nil {
-		goutils.Error("NewMap",
+		goutils.Error("GenMap",
 			zap.Error(err))
 
 		return
