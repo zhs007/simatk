@@ -13,9 +13,9 @@ func GenMap(params *GenMapParams) (*MapData, error) {
 		arr := []int{}
 		for x := 0; x < params.Width; x++ {
 			if params.IsWall(x, y) {
-				arr = append(arr, MgrStatic.StaticGenMap.GenWall())
+				arr = append(arr, MgrStatic.StaticGenMap.Wall.GenVal())
 			} else {
-				arr = append(arr, MgrStatic.StaticGenMap.GenFloor())
+				arr = append(arr, MgrStatic.StaticGenMap.Floor.GenVal())
 			}
 		}
 
@@ -30,8 +30,8 @@ func GenMap(params *GenMapParams) (*MapData, error) {
 		return nil, err
 	}
 
-	md.Data[md.Start[1]][md.Start[0]] = MgrStatic.StaticGenMap.GenStart()
-	md.Data[md.Exit[1]][md.Exit[0]] = MgrStatic.StaticGenMap.GenExit()
+	md.Data[md.Start[1]][md.Start[0]] = MgrStatic.StaticGenMap.Start.GenVal()
+	md.Data[md.Exit[1]][md.Exit[0]] = MgrStatic.StaticGenMap.Exit.GenVal()
 
 	lst := []int{}
 	for ri := range params.Rooms {
@@ -49,8 +49,12 @@ func GenMap(params *GenMapParams) (*MapData, error) {
 		return nil, ErrCannotGenMap
 	}
 
-	nmd.Data[md.Start[1]][md.Start[0]] = MgrStatic.StaticGenMap.GenStart()
-	nmd.Data[md.Exit[1]][md.Exit[0]] = MgrStatic.StaticGenMap.GenExit()
+	nmd.Data[md.Start[1]][md.Start[0]] = MgrStatic.StaticGenMap.Start.GenVal()
+	nmd.Data[md.Exit[1]][md.Exit[0]] = MgrStatic.StaticGenMap.Exit.GenVal()
+
+	for _, v := range nmd.Rooms {
+		nmd.genRoomDoor(v.X, v.Y, v.Width, v.Height)
+	}
 
 	return nmd, nil
 }

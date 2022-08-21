@@ -14,6 +14,7 @@ type GenMapStatic struct {
 	Road  *RandWeights `yaml:"road"`
 	Start *RandWeights `yaml:"start"`
 	Exit  *RandWeights `yaml:"exit"`
+	Door  *RandWeights `yaml:"door"`
 }
 
 func (params *GenMapStatic) onLoad() {
@@ -22,26 +23,7 @@ func (params *GenMapStatic) onLoad() {
 	params.Road.onLoad()
 	params.Start.onLoad()
 	params.Exit.onLoad()
-}
-
-func (params *GenMapStatic) GenFloor() int {
-	return params.Floor.GenVal()
-}
-
-func (params *GenMapStatic) GenWall() int {
-	return params.Wall.GenVal()
-}
-
-func (params *GenMapStatic) GenRoad() int {
-	return params.Road.GenVal()
-}
-
-func (params *GenMapStatic) GenStart() int {
-	return params.Start.GenVal()
-}
-
-func (params *GenMapStatic) GenExit() int {
-	return params.Exit.GenVal()
+	params.Door.onLoad()
 }
 
 func (params *GenMapStatic) IsFloor(v int) bool {
@@ -50,6 +32,16 @@ func (params *GenMapStatic) IsFloor(v int) bool {
 
 func (params *GenMapStatic) IsWall(v int) bool {
 	return goutils.IndexOfIntSlice(params.Wall.Vals, v, 0) >= 0
+}
+
+func (params *GenMapStatic) IsRoomFloor(v int) bool {
+	return goutils.IndexOfIntSlice(params.Wall.Vals, v, 0) >= 0 ||
+		goutils.IndexOfIntSlice(params.Start.Vals, v, 0) >= 0 ||
+		goutils.IndexOfIntSlice(params.Exit.Vals, v, 0) >= 0
+}
+
+func (params *GenMapStatic) IsDoor(v int) bool {
+	return goutils.IndexOfIntSlice(params.Door.Vals, v, 0) >= 0
 }
 
 func LoadGenMapStatic(fn string) (*GenMapStatic, error) {

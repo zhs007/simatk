@@ -13,3 +13,6 @@ start:
 exit:
   vals: [40]
   weights: [100]
+door:
+  vals: [50]
+  weights: [100]

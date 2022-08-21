@@ -185,6 +185,111 @@ func (md *MapData) GenRooms(lst []int) *MapData {
 	return nil
 }
 
+func (md *MapData) hasRoomDoor(sx, sy int, w, h int, dir int) bool {
+	// 0 - up
+	// 1 - right
+	// 2 - down
+	// 3 - left
+
+	if dir == 0 {
+		for tx := 1; tx <= w; tx++ {
+			if MgrStatic.StaticGenMap.IsDoor(md.Data[sy][sx+tx]) {
+				return true
+			}
+		}
+	} else if dir == 2 {
+		for tx := 1; tx <= w; tx++ {
+			if MgrStatic.StaticGenMap.IsDoor(md.Data[sy+h+1][sx+tx]) {
+				return true
+			}
+		}
+	} else if dir == 1 {
+		for ty := 1; ty <= h; ty++ {
+			if MgrStatic.StaticGenMap.IsDoor(md.Data[sy+ty][sx+w+1]) {
+				return true
+			}
+		}
+	} else if dir == 3 {
+		for ty := 1; ty <= h; ty++ {
+			if MgrStatic.StaticGenMap.IsDoor(md.Data[sy+ty][sx]) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (md *MapData) genRoomDoorPos(sx, sy int, w, h int) (int, int) {
+	// 一面墙就一扇门
+	// 不能在外墙上
+	// 在墙的中间区域
+
+	arr := []int{}
+
+	if sy > 0 && !md.hasRoomDoor(sx, sy, w, h, 0) {
+		ss := w/4 + 1
+		es := 3 * w / 4
+		if ss == es {
+			es++
+		}
+
+		for tx := ss; tx < es; tx++ {
+			arr = append(arr, sx+tx, sy)
+		}
+	}
+
+	if sy < len(md.Data)-h-2 && !md.hasRoomDoor(sx, sy, w, h, 2) {
+		ss := w/4 + 1
+		es := 3 * w / 4
+		if ss == es {
+			es++
+		}
+
+		for tx := ss; tx < es; tx++ {
+			arr = append(arr, sx+tx, sy+h+1)
+		}
+	}
+
+	if sx > 0 && !md.hasRoomDoor(sx, sy, w, h, 3) {
+		ss := h/4 + 1
+		es := 3 * h / 4
+		if ss == es {
+			es++
+		}
+
+		for ty := ss; ty < es; ty++ {
+			arr = append(arr, sx, sy+ty)
+		}
+	}
+
+	if sx < len(md.Data[0])-w-2 && !md.hasRoomDoor(sx, sy, w, h, 1) {
+		ss := h/4 + 1
+		es := 3 * h / 4
+		if ss == es {
+			es++
+		}
+
+		for ty := ss; ty < es; ty++ {
+			arr = append(arr, sx+w+1, sy+ty)
+		}
+	}
+
+	if len(arr) >= 2 {
+		r := rand.Int() % (len(arr) / 2)
+		return arr[r*2], arr[r*2+1]
+	}
+
+	return -1, -1
+}
+
+func (md *MapData) genRoomDoor(sx, sy int, w, h int) {
+	tx, ty := md.genRoomDoorPos(sx, sy, w, h)
+	if tx != -1 && ty != -1 {
+		md.Data[ty][tx] = MgrStatic.StaticGenMap.Door.GenVal()
+	}
+}
+
 func (md *MapData) SetRoom(sx, sy int, w, h int) {
 	md.Rooms = append(md.Rooms, &RoomData{
 		Width:  w,
@@ -196,7 +301,7 @@ func (md *MapData) SetRoom(sx, sy int, w, h int) {
 	for tx := 0; tx <= w+1; tx++ {
 		for ty := 0; ty <= h+1; ty++ {
 			if tx == 0 || tx == w+1 || ty == 0 || ty == h+1 {
-				md.Data[ty+sy][tx+sx] = MgrStatic.StaticGenMap.GenWall()
+				md.Data[ty+sy][tx+sx] = MgrStatic.StaticGenMap.Wall.GenVal()
 			}
 		}
 	}
