@@ -38,5 +38,7 @@ func main() {
 		return
 	}
 
-	mapdata.Save("./map001.xlsx")
+	mapdata.ToXlsx("./map001.xlsx")
+	mapdata.ToYaml("./map001.yaml")
+	mapdata.ToJson("./map001.json")
 }

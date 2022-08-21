@@ -2,17 +2,21 @@ package battle3
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/xuri/excelize/v2"
 	"github.com/zhs007/goutils"
+	"go.uber.org/zap"
+	"gopkg.in/yaml.v2"
 )
 
 type RoomData struct {
-	Width  int `yaml:"width"`
-	Height int `yaml:"height"`
-	X      int `yaml:"x"`
-	Y      int `yaml:"y"`
+	Width  int `yaml:"width" json:"width"`
+	Height int `yaml:"height" json:"height"`
+	X      int `yaml:"x" json:"x"`
+	Y      int `yaml:"y" json:"y"`
 }
 
 func (rd *RoomData) Clone() *RoomData {
@@ -25,10 +29,30 @@ func (rd *RoomData) Clone() *RoomData {
 }
 
 type MapData struct {
-	Data  [][]int     `yaml:"data"`
-	Rooms []*RoomData `yaml:"rooms"`
-	Start []int       `yaml:"start"`
-	Exit  []int       `yaml:"exit"`
+	Data  [][]int     `yaml:"data" json:"data"`
+	Rooms []*RoomData `yaml:"rooms" json:"rooms"`
+	Start []int       `yaml:"start" json:"start"`
+	Exit  []int       `yaml:"exit" json:"exit"`
+}
+
+func (md *MapData) Clone() *MapData {
+	nmd := &MapData{}
+
+	for _, arr := range md.Data {
+		narr := make([]int, len(arr))
+		copy(narr, arr)
+
+		nmd.Data = append(nmd.Data, narr)
+	}
+
+	for _, v := range md.Rooms {
+		nmd.Rooms = append(nmd.Rooms, v.Clone())
+	}
+
+	nmd.Start = goutils.CloneIntArr(md.Start)
+	nmd.Exit = goutils.CloneIntArr(md.Exit)
+
+	return nmd
 }
 
 func (md *MapData) calcInstance(sx, sy int, cx, cy int) int {
@@ -345,23 +369,6 @@ func (md *MapData) isValidRoomPos(sx, sy int, w, h int) bool {
 	return true
 }
 
-func (md *MapData) Clone() *MapData {
-	nmd := &MapData{}
-
-	for _, arr := range md.Data {
-		narr := make([]int, len(arr))
-		copy(narr, arr)
-
-		nmd.Data = append(nmd.Data, narr)
-	}
-
-	for _, v := range md.Rooms {
-		nmd.Rooms = append(nmd.Rooms, v.Clone())
-	}
-
-	return nmd
-}
-
 // func NewMap(params *GenMapParams) (*MapData, error) {
 // 	md := &MapData{}
 
@@ -411,7 +418,7 @@ func (md *MapData) Clone() *MapData {
 // 	return nmd, nil
 // }
 
-func (md *MapData) Save(fn string) error {
+func (md *MapData) ToXlsx(fn string) error {
 	f := excelize.NewFile()
 
 	sheet := f.GetSheetName(0)
@@ -423,4 +430,50 @@ func (md *MapData) Save(fn string) error {
 	}
 
 	return f.SaveAs(fn)
+}
+
+func (md *MapData) ToYaml(fn string) error {
+	data, err := yaml.Marshal(md)
+	if err != nil {
+		goutils.Error("MapData:ToYaml:Marshal",
+			zap.String("fn", fn),
+			zap.Error(err))
+
+		return err
+	}
+
+	err = ioutil.WriteFile(fn, data, 0644)
+	if err != nil {
+		goutils.Error("MapData:ToYaml:WriteFile",
+			zap.String("fn", fn),
+			zap.Error(err))
+
+		return err
+	}
+
+	return nil
+}
+
+func (md *MapData) ToJson(fn string) error {
+	json := jsoniter.ConfigCompatibleWithStandardLibrary
+
+	data, err := json.Marshal(md)
+	if err != nil {
+		goutils.Error("MapData:ToJson:Marshal",
+			zap.String("fn", fn),
+			zap.Error(err))
+
+		return err
+	}
+
+	err = ioutil.WriteFile(fn, data, 0644)
+	if err != nil {
+		goutils.Error("MapData:ToJson:WriteFile",
+			zap.String("fn", fn),
+			zap.Error(err))
+
+		return err
+	}
+
+	return nil
 }

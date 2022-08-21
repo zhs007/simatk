@@ -43,8 +43,8 @@ github.com/xuri/excelize/v2 v2.6.0/go.mod h1:Q1YetlHesXEKwGFfeJn7PfEZz2IvHb6wdOe
 github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 h1:OAmKAfT06//esDdpi/DZ8Qsdt4+M5+ltca05dA5bG2M=
 github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22/go.mod h1:WwHg+CVyzlv/TX9xqBFXEZAuxOPxn2k1GNHwG41IIUQ=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-github.com/zhs007/goutils v0.1.48 h1:7QuT3OW1fgE6FRiNbpmBz4T/JpKrSdqH75vBn/kBC3Q=
-github.com/zhs007/goutils v0.1.48/go.mod h1:GomJyN3cVfOT/2njNZE5tp2HOzHng3v7czh20M1xH4Y=
+github.com/zhs007/goutils v0.1.49 h1:9splt45DpB+S4Fxmu0iVOvriS3e3n8nsWcKYitmr8t0=
+github.com/zhs007/goutils v0.1.49/go.mod h1:GomJyN3cVfOT/2njNZE5tp2HOzHng3v7czh20M1xH4Y=
 go.uber.org/atomic v1.7.0 h1:ADUqmZGgLDDfbSL9ZmPxKTybcoEYHgpYfELNoN+7hsw=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/goleak v1.1.10/go.mod h1:8a7PlsEVH3e/a/GLqe5IIrQx6GzcnRmZEufDUTk4A7A=
