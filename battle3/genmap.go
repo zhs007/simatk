@@ -49,6 +49,16 @@ func GenMap(params *GenMapParams) (*MapData, error) {
 		return nil, ErrCannotGenMap
 	}
 
+	for y, arr := range nmd.Data {
+		for x, v := range arr {
+			if MgrStatic.StaticGenMap.IsRoomFloor(v) && !nmd.IsInRoom(x, y) {
+				nr := nmd.getMinRoom(x, y)
+
+				nmd.SetRoom(nr.X, nr.Y, nr.Width, nr.Height)
+			}
+		}
+	}
+
 	nmd.Data[md.Start[1]][md.Start[0]] = MgrStatic.StaticGenMap.Start.GenVal()
 	nmd.Data[md.Exit[1]][md.Exit[0]] = MgrStatic.StaticGenMap.Exit.GenVal()
 

@@ -19,6 +19,10 @@ type RoomData struct {
 	Y      int `yaml:"y" json:"y"`
 }
 
+func (rd *RoomData) IsInRoom(x, y int) bool {
+	return x >= rd.X && x <= rd.X+rd.Width+1 && y >= rd.Y && y <= rd.Y+rd.Height+1
+}
+
 func (rd *RoomData) Clone() *RoomData {
 	return &RoomData{
 		Width:  rd.Width,
@@ -581,4 +585,68 @@ func (md *MapData) ToJson(fn string) error {
 	}
 
 	return nil
+}
+
+func (md *MapData) IsInRoom(x, y int) bool {
+	for _, v := range md.Rooms {
+		if v.IsInRoom(x, y) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (md *MapData) getMinRoom(x, y int) *RoomData {
+	// 因为传入参数是最初发现的可用点，所以不需要太复杂的判断就能得到sx和sy
+	sx := x
+	for tx := x; tx > 0 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][tx]); tx-- {
+		sx = tx
+	}
+	sx--
+
+	sy := y
+	for ty := y; ty > 0 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[ty][x]); ty-- {
+		sy = ty
+	}
+	sy--
+
+	// 取到ex和ey
+	ex := x
+	ey := y
+	// xend := false
+	// yend := false
+	// ti := 1
+
+	// for !xend && !yend {
+	// 	if !xend {
+	// 		if !(ex+1 < len(md.Data[0])-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][ex+1])) {
+	// 			xend = true
+	// 		} else {
+	// 			ex++
+	// 		}
+	// 	}
+
+	// 	for tx := x; tx < len(md.Data[0])-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][tx]); tx++ {
+	// 		ex = tx
+	// 	}
+	// }
+
+	// for tx := x; tx < len(md.Data[0])-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][tx]); tx++ {
+	// 	ex = tx
+	// }
+
+	// for ty := y; ty < len(md.Data)-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[ty][x]); ty++ {
+	// 	ey = ty
+	// }
+
+	// for ty := ey; ty > y; ty-- {
+	// }
+
+	return &RoomData{
+		X:      sx,
+		Y:      sy,
+		Width:  ex - sx,
+		Height: ey - sy,
+	}
 }
