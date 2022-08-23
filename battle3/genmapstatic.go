@@ -34,8 +34,20 @@ func (params *GenMapStatic) IsWall(v int) bool {
 	return goutils.IndexOfIntSlice(params.Wall.Vals, v, 0) >= 0
 }
 
+// 门不能挨着门、起点、终点
+func (params *GenMapStatic) IsNotNearWall(v int) bool {
+	return goutils.IndexOfIntSlice(params.Start.Vals, v, 0) >= 0 ||
+		goutils.IndexOfIntSlice(params.Exit.Vals, v, 0) >= 0 ||
+		goutils.IndexOfIntSlice(params.Door.Vals, v, 0) >= 0
+}
+
+// 不能作为房间墙壁的，出口、入口等
+func (params *GenMapStatic) IsNonRoomWall(v int) bool {
+	return goutils.IndexOfIntSlice(params.Start.Vals, v, 0) >= 0 || goutils.IndexOfIntSlice(params.Exit.Vals, v, 0) >= 0
+}
+
 func (params *GenMapStatic) IsRoomFloor(v int) bool {
-	return goutils.IndexOfIntSlice(params.Wall.Vals, v, 0) >= 0 ||
+	return goutils.IndexOfIntSlice(params.Floor.Vals, v, 0) >= 0 ||
 		goutils.IndexOfIntSlice(params.Start.Vals, v, 0) >= 0 ||
 		goutils.IndexOfIntSlice(params.Exit.Vals, v, 0) >= 0
 }

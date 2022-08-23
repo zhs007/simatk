@@ -39,6 +39,22 @@ type MapData struct {
 	Exit  []int       `yaml:"exit" json:"exit"`
 }
 
+func (md *MapData) GetWidth() int {
+	if md.Data == nil {
+		return 0
+	}
+
+	return len(md.Data[0])
+}
+
+func (md *MapData) GetHeight() int {
+	if md.Data == nil {
+		return 0
+	}
+
+	return len(md.Data)
+}
+
 func (md *MapData) Clone() *MapData {
 	nmd := &MapData{}
 
@@ -103,7 +119,7 @@ func (md *MapData) initStartExit(params *GenMapParams) error {
 }
 
 func (md *MapData) IsValidPos(x, y int) bool {
-	return y >= 0 && y < len(md.Data) && x >= 0 && x < len(md.Data[y])
+	return y >= 0 && y < md.GetHeight() && x >= 0 && x < md.GetWidth()
 }
 
 func (md *MapData) isRoomPos(x, y int) bool {
@@ -224,10 +240,54 @@ func (md *MapData) hasRoomDoor(sx, sy int, w, h int, dir int) bool {
 	return false
 }
 
+func (md *MapData) isValidRoomDoorPos(x, y int) bool {
+	if x == 0 || y == 0 || x == md.GetWidth()-1 || y == md.GetHeight()-1 {
+		return false
+	}
+
+	if !MgrStatic.StaticGenMap.IsWall(md.Data[y][x]) {
+		return false
+	}
+
+	wallnum := 0
+	if !MgrStatic.StaticGenMap.IsWall(md.Data[y-1][x]) {
+		wallnum++
+	}
+	if !MgrStatic.StaticGenMap.IsWall(md.Data[y+1][x]) {
+		wallnum++
+	}
+	if !MgrStatic.StaticGenMap.IsWall(md.Data[y][x-1]) {
+		wallnum++
+	}
+	if !MgrStatic.StaticGenMap.IsWall(md.Data[y][x+1]) {
+		wallnum++
+	}
+	if wallnum != 2 {
+		return false
+	}
+
+	if !MgrStatic.StaticGenMap.IsNotNearWall(md.Data[y-1][x]) {
+		return false
+	}
+	if !MgrStatic.StaticGenMap.IsNotNearWall(md.Data[y+1][x]) {
+		return false
+	}
+	if !MgrStatic.StaticGenMap.IsNotNearWall(md.Data[y][x-1]) {
+		return false
+	}
+	if !MgrStatic.StaticGenMap.IsNotNearWall(md.Data[y][x+1]) {
+		return false
+	}
+
+	return true
+}
+
 func (md *MapData) genRoomDoorPos(sx, sy int, w, h int) (int, int) {
 	// 一面墙就一扇门
 	// 不能在外墙上
 	// 在墙的中间区域
+	// 门四周不能超过3面墙
+	// 门四周不能有门、起点、终点
 
 	arr := []int{}
 
@@ -239,11 +299,13 @@ func (md *MapData) genRoomDoorPos(sx, sy int, w, h int) (int, int) {
 		}
 
 		for tx := ss; tx < es; tx++ {
-			arr = append(arr, sx+tx, sy)
+			if md.isValidRoomDoorPos(sx+tx, sy) {
+				arr = append(arr, sx+tx, sy)
+			}
 		}
 	}
 
-	if sy < len(md.Data)-h-2 && !md.hasRoomDoor(sx, sy, w, h, 2) {
+	if sy < md.GetHeight()-h-2 && !md.hasRoomDoor(sx, sy, w, h, 2) {
 		ss := w/4 + 1
 		es := 3 * w / 4
 		if ss == es {
@@ -251,7 +313,9 @@ func (md *MapData) genRoomDoorPos(sx, sy int, w, h int) (int, int) {
 		}
 
 		for tx := ss; tx < es; tx++ {
-			arr = append(arr, sx+tx, sy+h+1)
+			if md.isValidRoomDoorPos(sx+tx, sy) {
+				arr = append(arr, sx+tx, sy)
+			}
 		}
 	}
 
@@ -267,7 +331,7 @@ func (md *MapData) genRoomDoorPos(sx, sy int, w, h int) (int, int) {
 		}
 	}
 
-	if sx < len(md.Data[0])-w-2 && !md.hasRoomDoor(sx, sy, w, h, 1) {
+	if sx < md.GetWidth()-w-2 && !md.hasRoomDoor(sx, sy, w, h, 1) {
 		ss := h/4 + 1
 		es := 3 * h / 4
 		if ss == es {
@@ -398,7 +462,7 @@ func (md *MapData) isRoomDoubleWall(sx, sy int, w, h int, dir int) bool {
 
 		return false
 	} else if dir == 2 {
-		if sy+h+1 >= len(md.Data) {
+		if sy+h+1 >= md.GetHeight() {
 			return false
 		}
 
@@ -412,7 +476,7 @@ func (md *MapData) isRoomDoubleWall(sx, sy int, w, h int, dir int) bool {
 
 		return false
 	} else if dir == 1 {
-		if sx+w+1 >= len(md.Data[0]) {
+		if sx+w+1 >= md.GetWidth() {
 			return false
 		}
 
@@ -447,6 +511,7 @@ func (md *MapData) isRoomDoubleWall(sx, sy int, w, h int, dir int) bool {
 func (md *MapData) isValidRoomPos(sx, sy int, w, h int) bool {
 	// 至少有1面临墙（但可以不用全是墙）
 	// 不允许出现双墙连起来的情况
+	// 且房间的墙不允许是入口或出口（地图外墙除外）
 
 	haswall := false
 	for dir := 0; dir < 4; dir++ {
@@ -470,6 +535,38 @@ func (md *MapData) isValidRoomPos(sx, sy int, w, h int) bool {
 	for tx := 1; tx <= w; tx++ {
 		for ty := 1; ty <= h; ty++ {
 			if MgrStatic.StaticGenMap.IsWall(md.Data[sy+ty][sx+tx]) {
+				return false
+			}
+		}
+	}
+
+	if sx != 0 {
+		for ty := 0; ty <= h+1; ty++ {
+			if MgrStatic.StaticGenMap.IsNonRoomWall(md.Data[sy+ty][sx]) {
+				return false
+			}
+		}
+	}
+
+	if sx+w+1 != md.GetWidth()-1 {
+		for ty := 0; ty <= h+1; ty++ {
+			if MgrStatic.StaticGenMap.IsNonRoomWall(md.Data[sy+ty][sx+w+1]) {
+				return false
+			}
+		}
+	}
+
+	if sy != 0 {
+		for tx := 0; tx <= w+1; tx++ {
+			if MgrStatic.StaticGenMap.IsNonRoomWall(md.Data[sy][sx+tx]) {
+				return false
+			}
+		}
+	}
+
+	if sy+h+1 != md.GetHeight()-1 {
+		for tx := 0; tx <= w+1; tx++ {
+			if MgrStatic.StaticGenMap.IsNonRoomWall(md.Data[sy+h+1][sx+tx]) {
 				return false
 			}
 		}
@@ -598,6 +695,10 @@ func (md *MapData) IsInRoom(x, y int) bool {
 }
 
 func (md *MapData) getMinRoom(x, y int) *RoomData {
+	if x == 0 || y == 0 || x == md.GetWidth()-1 || y == md.GetHeight()-1 {
+		return nil
+	}
+
 	// 因为传入参数是最初发现的可用点，所以不需要太复杂的判断就能得到sx和sy
 	sx := x
 	for tx := x; tx > 0 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][tx]); tx-- {
@@ -614,34 +715,79 @@ func (md *MapData) getMinRoom(x, y int) *RoomData {
 	// 取到ex和ey
 	ex := x
 	ey := y
-	// xend := false
-	// yend := false
-	// ti := 1
+	xend := false
+	yend := false
+	ti := 1
 
-	// for !xend && !yend {
-	// 	if !xend {
-	// 		if !(ex+1 < len(md.Data[0])-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][ex+1])) {
-	// 			xend = true
-	// 		} else {
-	// 			ex++
-	// 		}
-	// 	}
+	for !xend || !yend {
+		if !xend && !yend {
+			if ex+1 < md.GetWidth()-1 && ey+1 < md.GetHeight()-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[ey+1][ex+1]) {
+				for i := 0; i < ti; i++ {
+					if !MgrStatic.StaticGenMap.IsRoomFloor(md.Data[ey+1][x+i]) {
+						yend = true
+					}
 
-	// 	for tx := x; tx < len(md.Data[0])-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][tx]); tx++ {
-	// 		ex = tx
-	// 	}
-	// }
+					if !MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y+i][ex+1]) {
+						xend = true
+					}
+				}
+			} else {
+				if ex+1 >= md.GetWidth()-1 {
+					xend = true
+				} else {
+					for i := 0; i < ti; i++ {
+						if !MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y+i][ex+1]) {
+							xend = true
+						}
+					}
+				}
 
-	// for tx := x; tx < len(md.Data[0])-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[y][tx]); tx++ {
-	// 	ex = tx
-	// }
+				if ey+1 >= md.GetHeight()-1 {
+					yend = true
+				} else {
+					for i := 0; i < ti; i++ {
+						if !MgrStatic.StaticGenMap.IsRoomFloor(md.Data[ey+1][x+i]) {
+							yend = true
+						}
+					}
+				}
+			}
+		} else if !xend {
+			if ex+1 >= md.GetWidth()-1 {
+				xend = true
+			}
 
-	// for ty := y; ty < len(md.Data)-1 && MgrStatic.StaticGenMap.IsRoomFloor(md.Data[ty][x]); ty++ {
-	// 	ey = ty
-	// }
+			for i := y; i <= ey; i++ {
+				if !MgrStatic.StaticGenMap.IsRoomFloor(md.Data[i][ex+1]) {
+					xend = true
+				}
+			}
+		} else if !yend {
+			if ey+1 >= md.GetHeight()-1 {
+				yend = true
+			}
 
-	// for ty := ey; ty > y; ty-- {
-	// }
+			for i := x; i <= ex; i++ {
+				if !MgrStatic.StaticGenMap.IsRoomFloor(md.Data[ey+1][i]) {
+					yend = true
+				}
+			}
+		}
+
+		if !xend {
+			ex++
+		}
+
+		if !yend {
+			ey++
+		}
+
+		ti++
+	}
+
+	if ex-sx == 1 || ey-sy == 1 {
+		return nil
+	}
 
 	return &RoomData{
 		X:      sx,
