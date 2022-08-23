@@ -796,3 +796,75 @@ func (md *MapData) getMinRoom(x, y int) *RoomData {
 		Height: ey - sy,
 	}
 }
+
+// 判断这个地图是否合法
+func (md *MapData) IsValidMap() bool {
+	// 统计所有的非墙壁地块数量
+	// 从start开始统计可到达的地块数量
+	// 如果2个值相等，表示地图全部位置可到达，则可以看作地图合法
+
+	wallnum := 0
+	for _, arr := range md.Data {
+		for _, v := range arr {
+			if !MgrStatic.StaticGenMap.IsWall(v) {
+				wallnum++
+			}
+		}
+	}
+
+	validnum := md.CalcValidTileNum(md.Start[0], md.Start[1])
+
+	return wallnum == validnum
+}
+
+func (md *MapData) CalcValidTileNum(sx, sy int) int {
+	lst := []int{sx, sy}
+
+	lst = md.calcNearValidTile(sx, sy, lst)
+
+	return len(lst) / 2
+}
+
+func (md *MapData) calcNearValidTile(sx, sy int, lst []int) []int {
+	if sx > 0 {
+		if !MgrStatic.StaticGenMap.IsWall(md.Data[sy][sx-1]) {
+			if goutils.IndexOfInt2Slice(lst, sx-1, sy, 0) < 0 {
+				lst = append(lst, sx-1, sy)
+
+				lst = md.calcNearValidTile(sx-1, sy, lst)
+			}
+		}
+	}
+
+	if sx < md.GetWidth()-1 {
+		if !MgrStatic.StaticGenMap.IsWall(md.Data[sy][sx+1]) {
+			if goutils.IndexOfInt2Slice(lst, sx+1, sy, 0) < 0 {
+				lst = append(lst, sx+1, sy)
+
+				lst = md.calcNearValidTile(sx+1, sy, lst)
+			}
+		}
+	}
+
+	if sy > 0 {
+		if !MgrStatic.StaticGenMap.IsWall(md.Data[sy-1][sx]) {
+			if goutils.IndexOfInt2Slice(lst, sx, sy-1, 0) < 0 {
+				lst = append(lst, sx, sy-1)
+
+				lst = md.calcNearValidTile(sx, sy-1, lst)
+			}
+		}
+	}
+
+	if sy < md.GetHeight()-1 {
+		if !MgrStatic.StaticGenMap.IsWall(md.Data[sy+1][sx]) {
+			if goutils.IndexOfInt2Slice(lst, sx, sy+1, 0) < 0 {
+				lst = append(lst, sx, sy+1)
+
+				lst = md.calcNearValidTile(sx, sy+1, lst)
+			}
+		}
+	}
+
+	return lst
+}

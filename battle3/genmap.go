@@ -69,5 +69,12 @@ func GenMap(params *GenMapParams) (*MapData, error) {
 		nmd.genRoomDoor(v.X, v.Y, v.Width, v.Height)
 	}
 
+	if !nmd.IsValidMap() {
+		goutils.Error("NewMap:IsValidMap",
+			zap.Error(ErrCannotGenMap))
+
+		return nil, ErrCannotGenMap
+	}
+
 	return nmd, nil
 }
