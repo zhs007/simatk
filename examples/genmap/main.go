@@ -30,15 +30,26 @@ func main() {
 		return
 	}
 
-	mapdata, err := battle3.GenMap(params)
-	if err != nil {
-		goutils.Error("GenMap",
-			zap.Error(err))
+	var md *battle3.MapData
+	for i := 0; i < 100; i++ {
+		mapdata0, err := battle3.GenMap(params)
+		if err != nil {
+			goutils.Error("GenMap",
+				zap.Error(err))
 
-		return
+			continue
+		} else {
+			md = mapdata0
+
+			break
+		}
 	}
 
-	mapdata.ToXlsx("./map001.xlsx")
-	mapdata.ToYaml("./map001.yaml")
-	mapdata.ToJson("./map001.json")
+	if md != nil {
+		md.ToXlsx("./map001.xlsx")
+		md.ToYaml("./map001.yaml")
+		md.ToJson("./map001.json")
+	} else {
+		goutils.Error("GenMap:100")
+	}
 }
