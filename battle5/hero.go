@@ -11,6 +11,14 @@ func (hero *Hero) Attack(toHero *Hero) bool {
 	return toHero.Props[PropTypeCurHP] <= 0
 }
 
+func (hero *Hero) Clone() *Hero {
+	return NewHero(hero.Props[PropTypeHP],
+		hero.Props[PropTypeAtk],
+		hero.Props[PropTypeDef],
+		hero.Props[PropTypeMagic],
+		hero.Props[PropTypeSpeed])
+}
+
 func NewHero(hp int, atk int, def int, magic int, speed int) *Hero {
 	hero := &Hero{
 		Props: make(map[PropType]int),
