@@ -9,28 +9,39 @@ import (
 )
 
 // 模拟战斗
-func simHeroBattles(hero *Hero, maxpropval int, minpropval int) (int, int, int, int) {
+func simHeroBattles(hero *Hero, totalval int, maxpropval int, minpropval int) (int, int, int, int) {
 	var totalnum, winnum, losenum, drawnum int
 
-	if maxpropval > minpropval {
-		for hp := minpropval; hp < maxpropval; hp++ {
-			for atk := minpropval; atk < maxpropval; atk++ {
-				for def := minpropval; def < maxpropval; def++ {
-					for magic := minpropval; magic < maxpropval; magic++ {
-						for speed := minpropval; speed < maxpropval; speed++ {
-							target := NewHero(hp, atk, def, magic, speed)
+	lastval := totalval - minpropval*4
 
-							ret := SimBattle(hero.Clone(), target)
-							if ret == 1 {
-								winnum++
-							} else if ret == -1 {
-								losenum++
-							} else {
-								drawnum++
-							}
+	if lastval > 0 {
+		for hp := minpropval; hp < maxpropval && hp < lastval; hp++ {
+			lastval0 := totalval - minpropval*3 - hp
 
-							totalnum++
+			for atk := minpropval; atk < maxpropval && atk < lastval0; atk++ {
+				lastval1 := totalval - minpropval*2 - hp - atk
+
+				for def := minpropval; def < maxpropval && def < lastval1; def++ {
+					lastval2 := totalval - minpropval - hp - atk - def
+
+					for magic := minpropval; magic < maxpropval && magic < lastval2; magic++ {
+						speed := totalval - hp - atk - def - magic
+
+						// for speed := minpropval; speed < maxpropval && speed < lastval3; speed++ {
+
+						target := NewHero(hp, atk, def, magic, speed)
+
+						ret := SimBattle(hero.Clone(), target)
+						if ret == 1 {
+							winnum++
+						} else if ret == -1 {
+							losenum++
+						} else {
+							drawnum++
 						}
+
+						totalnum++
+						// }
 					}
 				}
 			}
@@ -40,8 +51,10 @@ func simHeroBattles(hero *Hero, maxpropval int, minpropval int) (int, int, int, 
 	return totalnum, winnum, drawnum, losenum
 }
 
-func SimAllBattles(fn string, maxpropval int, minpropval int) error {
-	if maxpropval > minpropval {
+func SimAllBattles(fn string, totalval int, maxpropval int, minpropval int) error {
+	lastval := totalval - minpropval*4
+
+	if lastval > 0 {
 		f := excelize.NewFile()
 
 		sheet := f.GetSheetName(0)
@@ -75,33 +88,41 @@ func SimAllBattles(fn string, maxpropval int, minpropval int) error {
 
 		startnum := 0
 		endnum := 0
-		for hp := minpropval; hp < maxpropval; hp++ {
+		for hp := minpropval; hp < maxpropval && hp < lastval; hp++ {
 			startnum++
 			go func(curhp int) {
-				for atk := minpropval; atk < maxpropval; atk++ {
-					for def := minpropval; def < maxpropval; def++ {
-						for magic := minpropval; magic < maxpropval; magic++ {
-							for speed := minpropval; speed < maxpropval; speed++ {
-								num++
+				lastval0 := totalval - minpropval*3 - curhp
 
-								hero := NewHero(curhp, atk, def, magic, speed)
+				for atk := minpropval; atk < maxpropval && atk < lastval0; atk++ {
+					lastval1 := totalval - minpropval*2 - curhp - atk
 
-								total, win, draw, lose := simHeroBattles(hero, maxpropval, minpropval)
+					for def := minpropval; def < maxpropval && def < lastval1; def++ {
+						lastval2 := totalval - minpropval - curhp - atk - def
 
-								chanexcel <- []int{curhp, atk, def, magic, speed, total, win, draw, lose}
+						for magic := minpropval; magic < maxpropval && magic < lastval2; magic++ {
+							speed := totalval - curhp - atk - def - magic
 
-								// f.SetCellInt(sheet, goutils.Pos2Cell(0, num), hp)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(1, num), atk)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(2, num), def)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(3, num), magic)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(4, num), speed)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(5, num), total)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(6, num), win)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(7, num), draw)
-								// f.SetCellInt(sheet, goutils.Pos2Cell(8, num), lose)
+							// for speed := minpropval; speed < maxpropval && speed < lastval3; speed++ {
+							num++
 
-								fmt.Printf("%v %v %v %v %v\n", curhp, atk, def, magic, speed)
-							}
+							hero := NewHero(curhp, atk, def, magic, speed)
+
+							total, win, draw, lose := simHeroBattles(hero, totalval, maxpropval, minpropval)
+
+							chanexcel <- []int{curhp, atk, def, magic, speed, total, win, draw, lose}
+
+							// f.SetCellInt(sheet, goutils.Pos2Cell(0, num), hp)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(1, num), atk)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(2, num), def)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(3, num), magic)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(4, num), speed)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(5, num), total)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(6, num), win)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(7, num), draw)
+							// f.SetCellInt(sheet, goutils.Pos2Cell(8, num), lose)
+
+							fmt.Printf("%v %v %v %v %v\n", curhp, atk, def, magic, speed)
+							// }
 						}
 					}
 				}

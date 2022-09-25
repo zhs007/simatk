@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	battle5.SimAllBattles("./battle5.xlsx", 20, 10)
+	battle5.SimAllBattles("./battle5.xlsx", 80, 20, 10)
 }

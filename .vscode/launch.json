@@ -71,6 +71,14 @@
             "mode": "auto",
             "cwd": "./",
             "program": "examples/genmap/main.go"
+        },
+        {
+            "name": "simbattle5",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "./",
+            "program": "examples/simbattle5/main.go"
         }
     ]
 }
