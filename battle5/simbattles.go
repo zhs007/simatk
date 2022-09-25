@@ -2,6 +2,7 @@ package battle5
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/xuri/excelize/v2"
 	"github.com/zhs007/goutils"
@@ -55,33 +56,76 @@ func SimAllBattles(fn string, maxpropval int, minpropval int) error {
 		f.SetCellStr(sheet, goutils.Pos2Cell(8, 0), "lose")
 
 		num := 0
+		xlsxnum := 0
 
+		chanexcel := make(chan []int, 100)
+		go func() {
+			for {
+				lst := <-chanexcel
+
+				xlsxnum++
+
+				for i, v := range lst {
+					f.SetCellInt(sheet, goutils.Pos2Cell(i, xlsxnum), v)
+				}
+			}
+		}()
+
+		chanend := make(chan int, 100)
+
+		startnum := 0
+		endnum := 0
 		for hp := minpropval; hp < maxpropval; hp++ {
-			for atk := minpropval; atk < maxpropval; atk++ {
-				for def := minpropval; def < maxpropval; def++ {
-					for magic := minpropval; magic < maxpropval; magic++ {
-						for speed := minpropval; speed < maxpropval; speed++ {
-							num++
+			startnum++
+			go func(curhp int) {
+				for atk := minpropval; atk < maxpropval; atk++ {
+					for def := minpropval; def < maxpropval; def++ {
+						for magic := minpropval; magic < maxpropval; magic++ {
+							for speed := minpropval; speed < maxpropval; speed++ {
+								num++
 
-							hero := NewHero(hp, atk, def, magic, speed)
+								hero := NewHero(curhp, atk, def, magic, speed)
 
-							total, win, draw, lose := simHeroBattles(hero, maxpropval, minpropval)
+								total, win, draw, lose := simHeroBattles(hero, maxpropval, minpropval)
 
-							f.SetCellInt(sheet, goutils.Pos2Cell(0, num), hp)
-							f.SetCellInt(sheet, goutils.Pos2Cell(1, num), atk)
-							f.SetCellInt(sheet, goutils.Pos2Cell(2, num), def)
-							f.SetCellInt(sheet, goutils.Pos2Cell(3, num), magic)
-							f.SetCellInt(sheet, goutils.Pos2Cell(4, num), speed)
-							f.SetCellInt(sheet, goutils.Pos2Cell(5, num), total)
-							f.SetCellInt(sheet, goutils.Pos2Cell(6, num), win)
-							f.SetCellInt(sheet, goutils.Pos2Cell(7, num), draw)
-							f.SetCellInt(sheet, goutils.Pos2Cell(8, num), lose)
+								chanexcel <- []int{curhp, atk, def, magic, speed, total, win, draw, lose}
 
-							fmt.Printf("%v %v %v %v %v\n", hp, atk, def, magic, speed)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(0, num), hp)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(1, num), atk)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(2, num), def)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(3, num), magic)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(4, num), speed)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(5, num), total)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(6, num), win)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(7, num), draw)
+								// f.SetCellInt(sheet, goutils.Pos2Cell(8, num), lose)
+
+								fmt.Printf("%v %v %v %v %v\n", curhp, atk, def, magic, speed)
+							}
 						}
 					}
 				}
+
+				chanend <- 1
+			}(hp)
+		}
+
+		for {
+			<-chanend
+
+			endnum++
+
+			if endnum == startnum && startnum == maxpropval-minpropval {
+				break
 			}
+		}
+
+		for {
+			if num == xlsxnum {
+				break
+			}
+
+			time.Sleep(time.Second)
 		}
 
 		f.SaveAs(fn)
