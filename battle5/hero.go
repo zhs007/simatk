@@ -5,8 +5,17 @@ type Hero struct {
 }
 
 func (hero *Hero) Attack(toHero *Hero) bool {
-	atk := hero.Props[PropTypeCurAtk] * hero.Props[PropTypeCurAtk] / (hero.Props[PropTypeCurAtk] + toHero.Props[PropTypeCurDef])
-	toHero.Props[PropTypeCurHP] -= atk
+	if hero.Props[PropTypeCurAtk] > hero.Props[PropTypeCurMagic] {
+		atk := hero.Props[PropTypeCurAtk] * hero.Props[PropTypeCurAtk] / (hero.Props[PropTypeCurAtk] + toHero.Props[PropTypeCurDef])
+		if atk > 0 {
+			toHero.Props[PropTypeCurHP] -= atk
+		}
+	} else {
+		atk := hero.Props[PropTypeCurMagic] * hero.Props[PropTypeCurMagic] / (hero.Props[PropTypeCurMagic] + toHero.Props[PropTypeCurMagic])
+		if atk > 0 {
+			toHero.Props[PropTypeCurHP] -= atk
+		}
+	}
 
 	return toHero.Props[PropTypeCurHP] <= 0
 }

@@ -9,22 +9,22 @@ import (
 )
 
 // 模拟战斗
-func simHeroBattles(hero *Hero, totalval int, maxpropval int, minpropval int) (int, int, int, int) {
+func simHeroBattles(hero *Hero, totalval int, minpropval int) (int, int, int, int) {
 	var totalnum, winnum, losenum, drawnum int
 
 	lastval := totalval - minpropval*4
 
 	if lastval > 0 {
-		for hp := minpropval; hp < maxpropval && hp < lastval; hp++ {
+		for hp := minpropval; hp < lastval; hp++ {
 			lastval0 := totalval - minpropval*3 - hp
 
-			for atk := minpropval; atk < maxpropval && atk < lastval0; atk++ {
+			for atk := minpropval; atk < lastval0; atk++ {
 				lastval1 := totalval - minpropval*2 - hp - atk
 
-				for def := minpropval; def < maxpropval && def < lastval1; def++ {
+				for def := minpropval; def < lastval1; def++ {
 					lastval2 := totalval - minpropval - hp - atk - def
 
-					for magic := minpropval; magic < maxpropval && magic < lastval2; magic++ {
+					for magic := minpropval; magic < lastval2; magic++ {
 						speed := totalval - hp - atk - def - magic
 
 						// for speed := minpropval; speed < maxpropval && speed < lastval3; speed++ {
@@ -51,7 +51,7 @@ func simHeroBattles(hero *Hero, totalval int, maxpropval int, minpropval int) (i
 	return totalnum, winnum, drawnum, losenum
 }
 
-func SimAllBattles(fn string, totalval int, maxpropval int, minpropval int) error {
+func SimAllBattles(fn string, totalval int, minpropval int) error {
 	lastval := totalval - minpropval*4
 
 	if lastval > 0 {
@@ -88,18 +88,18 @@ func SimAllBattles(fn string, totalval int, maxpropval int, minpropval int) erro
 
 		startnum := 0
 		endnum := 0
-		for hp := minpropval; hp < maxpropval && hp < lastval; hp++ {
+		for hp := minpropval; hp < lastval; hp++ {
 			startnum++
 			go func(curhp int) {
 				lastval0 := totalval - minpropval*3 - curhp
 
-				for atk := minpropval; atk < maxpropval && atk < lastval0; atk++ {
+				for atk := minpropval; atk < lastval0; atk++ {
 					lastval1 := totalval - minpropval*2 - curhp - atk
 
-					for def := minpropval; def < maxpropval && def < lastval1; def++ {
+					for def := minpropval; def < lastval1; def++ {
 						lastval2 := totalval - minpropval - curhp - atk - def
 
-						for magic := minpropval; magic < maxpropval && magic < lastval2; magic++ {
+						for magic := minpropval; magic < lastval2; magic++ {
 							speed := totalval - curhp - atk - def - magic
 
 							// for speed := minpropval; speed < maxpropval && speed < lastval3; speed++ {
@@ -107,7 +107,7 @@ func SimAllBattles(fn string, totalval int, maxpropval int, minpropval int) erro
 
 							hero := NewHero(curhp, atk, def, magic, speed)
 
-							total, win, draw, lose := simHeroBattles(hero, totalval, maxpropval, minpropval)
+							total, win, draw, lose := simHeroBattles(hero, totalval, minpropval)
 
 							chanexcel <- []int{curhp, atk, def, magic, speed, total, win, draw, lose}
 
@@ -136,7 +136,7 @@ func SimAllBattles(fn string, totalval int, maxpropval int, minpropval int) erro
 
 			endnum++
 
-			if endnum == startnum && startnum == maxpropval-minpropval {
+			if endnum == startnum && startnum == lastval-minpropval {
 				break
 			}
 		}
