@@ -7,10 +7,10 @@ import (
 )
 
 func Test_Attack(t *testing.T) {
-	h0 := NewHero(10, 10, 39, 10, 10)
+	h0 := NewHero(10, 10, 39, 10, 10, false)
 	assert.NotNil(t, h0)
 
-	h1 := NewHero(10, 10, 10, 10, 39)
+	h1 := NewHero(10, 10, 10, 10, 39, false)
 	assert.NotNil(t, h1)
 
 	ret := SimBattle(h0, h1)
@@ -20,10 +20,10 @@ func Test_Attack(t *testing.T) {
 }
 
 func Test_Attack1(t *testing.T) {
-	h0 := NewHero(10, 11, 39, 10, 10)
+	h0 := NewHero(10, 11, 39, 10, 10, false)
 	assert.NotNil(t, h0)
 
-	h1 := NewHero(10, 11, 10, 10, 39)
+	h1 := NewHero(10, 11, 10, 10, 39, false)
 	assert.NotNil(t, h1)
 
 	ret := SimBattle(h0, h1)

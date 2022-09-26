@@ -5,7 +5,7 @@ type Hero struct {
 }
 
 func (hero *Hero) Attack(toHero *Hero) bool {
-	if hero.Props[PropTypeCurAtk] > hero.Props[PropTypeCurMagic] {
+	if hero.Props[PropTypeAttackType] == 0 {
 		atk := hero.Props[PropTypeCurAtk] * hero.Props[PropTypeCurAtk] / (hero.Props[PropTypeCurAtk] + toHero.Props[PropTypeCurDef])
 		if atk > 0 {
 			toHero.Props[PropTypeCurHP] -= atk
@@ -25,10 +25,11 @@ func (hero *Hero) Clone() *Hero {
 		hero.Props[PropTypeAtk],
 		hero.Props[PropTypeDef],
 		hero.Props[PropTypeMagic],
-		hero.Props[PropTypeSpeed])
+		hero.Props[PropTypeSpeed],
+		hero.Props[PropTypeAttackType] == 1)
 }
 
-func NewHero(hp int, atk int, def int, magic int, speed int) *Hero {
+func NewHero(hp int, atk int, def int, magic int, speed int, isMagicAtk bool) *Hero {
 	hero := &Hero{
 		Props: make(map[PropType]int),
 	}
@@ -38,6 +39,12 @@ func NewHero(hp int, atk int, def int, magic int, speed int) *Hero {
 	hero.Props[PropTypeDef] = def
 	hero.Props[PropTypeMagic] = magic
 	hero.Props[PropTypeSpeed] = speed
+
+	if isMagicAtk {
+		hero.Props[PropTypeAttackType] = 1
+	} else {
+		hero.Props[PropTypeAttackType] = 0
+	}
 
 	hero.Props[PropTypeMaxHP] = hp
 	hero.Props[PropTypeCurHP] = hp
