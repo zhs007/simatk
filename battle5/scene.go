@@ -6,6 +6,16 @@ type Scene struct {
 	Heros  [][]*HeroList
 }
 
+func (scene *Scene) AddHero(hero *Hero) {
+	if scene.Width == 7 && scene.Height == 3 {
+		if hero.TeamIndex == 0 {
+			scene.Heros[hero.SY-1][3-hero.SX].AddHero(hero)
+		} else {
+			scene.Heros[hero.SY-1][3+hero.SX].AddHero(hero)
+		}
+	}
+}
+
 func NewScene(w, h int) *Scene {
 	scene := &Scene{
 		Width:  w,

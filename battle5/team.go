@@ -1,7 +1,8 @@
 package battle5
 
 type Team struct {
-	Heros *HeroList
+	Heros     *HeroList
+	TeamIndex int
 }
 
 func (team *Team) AutoSetPos() {
@@ -34,12 +35,17 @@ func (team *Team) AutoSetPos() {
 	}
 }
 
-func NewTeam(lst []*HeroData) *Team {
+func NewTeam(index int, lst []*HeroData) *Team {
 	team := &Team{
-		Heros: NewHeroList(),
+		Heros:     NewHeroList(),
+		TeamIndex: index,
 	}
 
 	team.Heros.Init(lst)
+
+	for _, v := range team.Heros.Heros {
+		v.TeamIndex = index
+	}
 
 	return team
 }

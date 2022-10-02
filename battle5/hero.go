@@ -1,10 +1,11 @@
 package battle5
 
 type Hero struct {
-	ID     int
-	Props  map[PropType]int
-	SX, SY int // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
-	X, Y   int // 坐标
+	ID        int
+	Props     map[PropType]int
+	SX, SY    int // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
+	X, Y      int // 坐标
+	TeamIndex int
 }
 
 func (hero *Hero) Attack(toHero *Hero) bool {

@@ -6,8 +6,15 @@ type Battle struct {
 }
 
 func (battle *Battle) SetTeam(index int, lst []*HeroData, autoSetPos bool) {
-	battle.Teams[index] = NewTeam(lst)
-	battle.Teams[index].AutoSetPos()
+	battle.Teams[index] = NewTeam(index, lst)
+
+	if autoSetPos {
+		battle.Teams[index].AutoSetPos()
+	}
+
+	for _, v := range battle.Teams[index].Heros.Heros {
+		battle.Scene.AddHero(v)
+	}
 }
 
 func NewBattle(w, h int) *Battle {

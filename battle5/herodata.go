@@ -1,6 +1,8 @@
 package battle5
 
 import (
+	"strings"
+
 	"github.com/xuri/excelize/v2"
 	"github.com/zhs007/goutils"
 	"go.uber.org/zap"
@@ -17,7 +19,9 @@ type HeroData struct {
 	MovDistance int
 	AtkDistance int
 	Place       int
+	Info        string
 	X, Y        int
+	Skills      []int
 }
 
 func (hd *HeroData) Clone() *HeroData {
@@ -32,8 +36,10 @@ func (hd *HeroData) Clone() *HeroData {
 		MovDistance: hd.MovDistance,
 		AtkDistance: hd.AtkDistance,
 		Place:       hd.Place,
+		Info:        hd.Info,
 		X:           hd.X,
 		Y:           hd.Y,
+		Skills:      goutils.CloneIntArr(hd.Skills),
 	}
 }
 
@@ -204,6 +210,24 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 					}
 
 					hd.Place = int(i64)
+				case "info":
+					hd.Info = colCell
+				case "skills":
+					arr := strings.Split(colCell, "|")
+					for _, v := range arr {
+						i64, err := goutils.String2Int64(v)
+						if err != nil {
+							goutils.Error("LoadHeroData:skills",
+								zap.Int("x", x),
+								zap.Int("y", y),
+								zap.String("cell", colCell),
+								zap.Error(err))
+
+							return nil, err
+						}
+
+						hd.Skills = append(hd.Skills, int(i64))
+					}
 				}
 			}
 

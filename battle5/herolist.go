@@ -14,6 +14,10 @@ func (hl *HeroList) Init(lst []*HeroData) {
 	}
 }
 
+func (hl *HeroList) AddHero(h *Hero) {
+	hl.Heros = append(hl.Heros, h)
+}
+
 func NewHeroList() *HeroList {
 	heros := &HeroList{}
 
