@@ -14,11 +14,19 @@ func SimBattle(hero0 *Hero, hero1 *Hero) int {
 	turn := 0
 	for {
 		if lst[first].Attack(lst[second]) {
-			return 1
+			if first == 0 {
+				return 1
+			}
+
+			return -1
 		}
 
 		if lst[second].Attack(lst[first]) {
-			return -1
+			if first == 0 {
+				return -1
+			}
+
+			return 1
 		}
 
 		turn++
