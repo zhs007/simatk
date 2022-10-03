@@ -9,7 +9,7 @@ import (
 )
 
 type HeroData struct {
-	ID          int
+	ID          HeroID
 	Name        string
 	HP          int
 	Atk         int
@@ -44,12 +44,12 @@ func (hd *HeroData) Clone() *HeroData {
 }
 
 type HeroDataMgr struct {
-	mapHeros map[int]*HeroData
+	mapHeros map[HeroID]*HeroData
 }
 
 func LoadHeroData(fn string) (*HeroDataMgr, error) {
 	mgr := &HeroDataMgr{
-		mapHeros: make(map[int]*HeroData),
+		mapHeros: make(map[HeroID]*HeroData),
 	}
 
 	f, err := excelize.OpenFile(fn)
@@ -103,7 +103,7 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 						return nil, err
 					}
 
-					hd.ID = int(i64)
+					hd.ID = HeroID(i64)
 				case "name":
 					hd.Name = colCell
 				case "hp":

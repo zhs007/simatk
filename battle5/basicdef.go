@@ -1,5 +1,13 @@
 package battle5
 
+const (
+	MaxTurn = 10 // 最大回合数为10
+
+	SceneWidth  = 7 // 宽度
+	SceneHeight = 3 // 高度
+)
+
+type HeroID int
 type PropType int
 
 const (
@@ -26,9 +34,15 @@ const (
 
 	PropTypeCurMovDistance PropType = 120 // 当前移动距离
 	PropTypeCurAtkDistance PropType = 121 // 当前攻击距离
+
+	PropTypeTeamSpeedVal PropType = 150 // 队伍速度值，快的队里这个值大于慢的队
 )
 
 // 关于位置
 // (x3,y1) (x2,y1) (x1,y1)
 // (x3,y2) (x2,y2) (x1,y2)
 // (x3,y3) (x2,y3) (x1,y3)
+type Pos struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
