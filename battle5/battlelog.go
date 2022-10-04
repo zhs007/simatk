@@ -1,5 +1,13 @@
 package battle5
 
+import (
+	"fmt"
+	"os"
+
+	"github.com/zhs007/goutils"
+	"go.uber.org/zap"
+)
+
 type BattleLogNodeID int
 type BattleLogNodeType int
 
@@ -24,6 +32,7 @@ type BattleLogNode struct {
 	Children      []*BattleLogNode  `json:"children,omitempty"`
 	Props         []PropType        `json:"props,omitempty"`
 	PropVals      []int             `json:"propvals,omitempty"`
+	srcHero       *Hero             `json:"-"`
 }
 
 func (bln *BattleLogNode) SetSrcPos(hero *Hero) {
@@ -40,10 +49,56 @@ func (bln *BattleLogNode) SetTargetPos(hero *Hero) {
 	}
 }
 
+func (bln *BattleLogNode) genTABs(tab string, tabnum int) string {
+	str := ""
+
+	for i := 0; i < tabnum; i++ {
+		str += tab
+	}
+
+	return str
+}
+
+type FuncOnText func(string)
+
+func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
+	str := bln.genTABs(tab, tabnum)
+
+	switch bln.Type {
+	case BLNTBattleStart:
+		str += "战斗开始\n"
+	case BLNTBattleReady:
+		str += "准备阶段\n"
+	case BLNTHeroComeIn:
+		str += fmt.Sprintf("%v(%v) 入场，坐标 (%v, %v) \n",
+			bln.srcHero.Data.Name,
+			bln.srcHero.Data.ID,
+			bln.srcHero.SX,
+			bln.srcHero.SY)
+
+		for i, v := range bln.Props {
+			str += fmt.Sprintf("%v%v (%v): %v \n",
+				bln.genTABs(tab, tabnum+1),
+				MapPropTypeStr[v],
+				v,
+				bln.PropVals[i])
+		}
+	}
+
+	if ontext != nil {
+		ontext(str)
+	}
+
+	for _, v := range bln.Children {
+		v.GenString(tab, tabnum+1, ontext)
+	}
+}
+
 type BattleLog struct {
 	Root      *BattleLogNode  `json:"root"`
 	HashCode  string          `json:"hashcode"`
 	curNodeID BattleLogNodeID `json:"-"`
+	tab       string          `json:"-"`
 }
 
 func (bl *BattleLog) GenNodeID() BattleLogNodeID {
@@ -80,8 +135,9 @@ func (bl *BattleLog) BattleReady(parent *BattleLogNode) *BattleLogNode {
 
 func (bl *BattleLog) HeroComeIn(parent *BattleLogNode, hero *Hero) *BattleLogNode {
 	node := &BattleLogNode{
-		NodeID: bl.GenNodeID(),
-		Type:   BLNTHeroComeIn,
+		NodeID:  bl.GenNodeID(),
+		Type:    BLNTHeroComeIn,
+		srcHero: hero,
 	}
 
 	for proptype, v := range hero.Props {
@@ -112,8 +168,38 @@ func (bl *BattleLog) StartTurn(parent *BattleLogNode, turn int) *BattleLogNode {
 	return node
 }
 
+func (bl *BattleLog) SaveText(fn string) error {
+	if bl.Root == nil {
+		return nil
+	}
+
+	f, err := os.Create(fn)
+	if err != nil {
+		goutils.Error("BattleLog.SaveText",
+			zap.String("fn", fn),
+			zap.Error(err))
+
+		return err
+	}
+	defer f.Close()
+
+	bl.Root.GenString(bl.tab, 0, func(str string) {
+		_, err := f.WriteString(str)
+		if err != nil {
+			goutils.Error("BattleLog.SaveText:WriteString",
+				zap.String("fn", fn),
+				zap.Error(err))
+
+			return
+		}
+	})
+
+	return nil
+}
+
 func NewBattleLog() *BattleLog {
 	return &BattleLog{
 		curNodeID: 1,
+		tab:       "  ",
 	}
 }

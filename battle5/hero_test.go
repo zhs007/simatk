@@ -14,7 +14,7 @@ func Test_Attack(t *testing.T) {
 	assert.NotNil(t, h1)
 
 	ret := SimBattle(h0, h1)
-	assert.Equal(t, ret, -1)
+	assert.Equal(t, ret, 1)
 
 	t.Logf("Test_Attack OK")
 }

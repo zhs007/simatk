@@ -3,10 +3,11 @@ package battle5
 type Hero struct {
 	ID               HeroID
 	Props            map[PropType]int
-	SX, SY           int // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
-	X, Y             int // 坐标
-	TeamIndex        int // 队伍索引，0-进攻方，1-防守方
-	RealBattleHeroID int // 战斗里hero的唯一标识
+	SX, SY           int       // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
+	X, Y             int       // 坐标
+	TeamIndex        int       // 队伍索引，0-进攻方，1-防守方
+	RealBattleHeroID int       // 战斗里hero的唯一标识
+	Data             *HeroData // 直接读表数据
 }
 
 func (hero *Hero) IsAlive() bool {
@@ -84,6 +85,7 @@ func NewHeroEx(hd *HeroData) *Hero {
 		SY:    -1,
 		X:     -1,
 		Y:     -1,
+		Data:  hd,
 	}
 
 	hero.Props[PropTypeHP] = hd.HP

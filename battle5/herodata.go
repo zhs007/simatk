@@ -215,18 +215,21 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 				case "skills":
 					arr := strings.Split(colCell, "|")
 					for _, v := range arr {
-						i64, err := goutils.String2Int64(v)
-						if err != nil {
-							goutils.Error("LoadHeroData:skills",
-								zap.Int("x", x),
-								zap.Int("y", y),
-								zap.String("cell", colCell),
-								zap.Error(err))
+						v = strings.TrimSpace(v)
+						if v != "" {
+							i64, err := goutils.String2Int64(v)
+							if err != nil {
+								goutils.Error("LoadHeroData:skills",
+									zap.Int("x", x),
+									zap.Int("y", y),
+									zap.String("cell", colCell),
+									zap.Error(err))
 
-							return nil, err
+								return nil, err
+							}
+
+							hd.Skills = append(hd.Skills, int(i64))
 						}
-
-						hd.Skills = append(hd.Skills, int(i64))
 					}
 				}
 			}
