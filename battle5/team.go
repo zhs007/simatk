@@ -157,7 +157,7 @@ func NewTeam(battle *Battle, index int, lst []*HeroData) *Team {
 		needUpdAlive: true,
 	}
 
-	team.Heros.Init(lst)
+	team.Heros.Init(battle, lst)
 
 	for _, v := range team.Heros.Heros {
 		v.TeamIndex = index

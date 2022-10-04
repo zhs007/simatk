@@ -19,3 +19,9 @@ func NewLibFuncParams(battle *Battle, src *Hero, target []*Hero) *LibFuncParams 
 }
 
 type FuncLib func(*LibFuncParams) (bool, error)
+
+type FuncData struct {
+	FuncName string
+	Vals     []int
+	StrVals  []string
+}

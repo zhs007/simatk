@@ -8,8 +8,9 @@ import (
 )
 
 type StaticMgr struct {
-	MgrHeroData *HeroDataMgr
-	MgrFunc     *FuncMgr
+	MgrHeroData  *HeroDataMgr
+	MgrSkillData *SkillDataMgr
+	MgrFunc      *FuncMgr
 }
 
 var MgrStatic *StaticMgr
@@ -31,6 +32,17 @@ func NewStaticMgr(dir string) (*StaticMgr, error) {
 	}
 
 	mgr.MgrHeroData = mgrherodata
+
+	mgrskilldata, err := LoadSkillData(path.Join(dir, "skills.xlsx"))
+	if err != nil {
+		goutils.Error("NewStaticMgr:LoadSkillData",
+			zap.String("dir", dir),
+			zap.Error(err))
+
+		return nil, err
+	}
+
+	mgr.MgrSkillData = mgrskilldata
 
 	return mgr, nil
 }

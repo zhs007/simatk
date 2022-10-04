@@ -7,14 +7,14 @@ import (
 	"github.com/zhs007/goutils"
 )
 
-func Test_LoadHeroData(t *testing.T) {
+func Test_LoadSkillData(t *testing.T) {
 	goutils.InitLogger("", "", "debug", true, "")
 
-	mgr, err := LoadHeroData("../gamedata/battle5/heros.xlsx")
+	mgr, err := LoadSkillData("../gamedata/battle5/skills.xlsx")
 	assert.NoError(t, err)
 	assert.NotNil(t, mgr)
 
-	assert.Equal(t, len(mgr.mapHeros), 6)
+	assert.Equal(t, len(mgr.mapSkills), 1)
 
-	t.Logf("Test_LoadHeroData OK")
+	t.Logf("Test_LoadSkillData OK")
 }

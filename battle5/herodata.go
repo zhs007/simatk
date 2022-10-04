@@ -21,7 +21,7 @@ type HeroData struct {
 	Place       int
 	Info        string
 	X, Y        int
-	Skills      []int
+	Skills      []SkillID
 }
 
 func (hd *HeroData) Clone() *HeroData {
@@ -39,7 +39,7 @@ func (hd *HeroData) Clone() *HeroData {
 		Info:        hd.Info,
 		X:           hd.X,
 		Y:           hd.Y,
-		Skills:      goutils.CloneIntArr(hd.Skills),
+		Skills:      append([]SkillID{}, hd.Skills...),
 	}
 }
 
@@ -232,7 +232,7 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 								return nil, err
 							}
 
-							hd.Skills = append(hd.Skills, int(i64))
+							hd.Skills = append(hd.Skills, SkillID(i64))
 						}
 					}
 				}

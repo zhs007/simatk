@@ -8,10 +8,20 @@ type Hero struct {
 	TeamIndex        int       // 队伍索引，0-进攻方，1-防守方
 	RealBattleHeroID int       // 战斗里hero的唯一标识
 	Data             *HeroData // 直接读表数据
+	Skills           []*Skill  // 技能
+	battle           *Battle
 }
 
 func (hero *Hero) IsAlive() bool {
 	return hero.Props[PropTypeCurHP] > 0
+}
+
+func (hero *Hero) UseSkill(skill *Skill) {
+	if skill != nil {
+		if skill.Data.Atk != nil {
+			MgrStatic.MgrFunc.Run(skill.Data.Atk.FuncName, NewLibFuncParams(hero.battle, hero, nil))
+		}
+	}
 }
 
 func (hero *Hero) Attack(toHero *Hero) bool {
@@ -77,15 +87,16 @@ func NewHero(hp int, atk int, def int, magic int, speed int, isMagicAtk bool) *H
 	return hero
 }
 
-func NewHeroEx(hd *HeroData) *Hero {
+func NewHeroEx(battle *Battle, hd *HeroData) *Hero {
 	hero := &Hero{
-		ID:    HeroID(hd.ID),
-		Props: make(map[PropType]int),
-		SX:    -1,
-		SY:    -1,
-		X:     -1,
-		Y:     -1,
-		Data:  hd,
+		ID:     HeroID(hd.ID),
+		Props:  make(map[PropType]int),
+		SX:     -1,
+		SY:     -1,
+		X:      -1,
+		Y:      -1,
+		Data:   hd,
+		battle: battle,
 	}
 
 	hero.Props[PropTypeHP] = hd.HP
@@ -107,6 +118,13 @@ func NewHeroEx(hd *HeroData) *Hero {
 
 	hero.Props[PropTypeCurMovDistance] = hd.MovDistance
 	hero.Props[PropTypeCurAtkDistance] = hd.AtkDistance
+
+	for _, v := range hd.Skills {
+		sd := MgrStatic.MgrSkillData.GetSkillData(v)
+		skill := NewSkill(sd)
+
+		hero.Skills = append(hero.Skills, skill)
+	}
 
 	return hero
 }

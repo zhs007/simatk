@@ -8,6 +8,7 @@ const (
 )
 
 type HeroID int
+type SkillID int
 type PropType int
 
 const (

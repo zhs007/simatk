@@ -24,11 +24,11 @@ func (hl *HeroList) ForEach(oneach FuncEachHero) {
 	}
 }
 
-func (hl *HeroList) Init(lst []*HeroData) {
+func (hl *HeroList) Init(battle *Battle, lst []*HeroData) {
 	hl.Heros = []*Hero{}
 
 	for _, v := range lst {
-		h := NewHeroEx(v)
+		h := NewHeroEx(battle, v)
 
 		hl.Heros = append(hl.Heros, h)
 	}
