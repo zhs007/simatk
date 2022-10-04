@@ -9,10 +9,14 @@ type Scene struct {
 func (scene *Scene) AddHero(hero *Hero) {
 	if scene.Width == 7 && scene.Height == 3 {
 		if hero.TeamIndex == 0 {
-			scene.Heros[hero.SY-1][3-hero.SX].AddHero(hero)
+			hero.Y = hero.SY - 1
+			hero.X = 3 - hero.SX
 		} else {
-			scene.Heros[hero.SY-1][3+hero.SX].AddHero(hero)
+			hero.Y = hero.SY - 1
+			hero.X = 3 + hero.SX
 		}
+
+		scene.Heros[hero.Y][hero.X].AddHero(hero)
 	}
 }
 

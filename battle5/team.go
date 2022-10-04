@@ -151,9 +151,10 @@ func (team *Team) AutoSetPos() {
 
 func NewTeam(battle *Battle, index int, lst []*HeroData) *Team {
 	team := &Team{
-		Heros:     NewHeroList(),
-		TeamIndex: index,
-		battle:    battle,
+		Heros:        NewHeroList(),
+		TeamIndex:    index,
+		battle:       battle,
+		needUpdAlive: true,
 	}
 
 	team.Heros.Init(lst)

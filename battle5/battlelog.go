@@ -70,11 +70,13 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 	case BLNTBattleReady:
 		str += "准备阶段\n"
 	case BLNTHeroComeIn:
-		str += fmt.Sprintf("%v(%v) 入场，坐标 (%v, %v) \n",
+		str += fmt.Sprintf("%v.%v(%v.%v) 入场，坐标 (%v, %v) \n",
+			bln.srcHero.TeamIndex+1,
 			bln.srcHero.Data.Name,
 			bln.srcHero.Data.ID,
-			bln.srcHero.SX,
-			bln.srcHero.SY)
+			bln.srcHero.RealBattleHeroID,
+			bln.srcHero.X,
+			bln.srcHero.Y)
 
 		for i, v := range bln.Props {
 			str += fmt.Sprintf("%v%v (%v): %v \n",

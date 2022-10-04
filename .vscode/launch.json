@@ -79,6 +79,14 @@
             "mode": "auto",
             "cwd": "./",
             "program": "examples/simbattle5/main.go"
+        },
+        {
+            "name": "battle5log",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "./",
+            "program": "examples/battle5log/main.go"
         }
     ]
 }

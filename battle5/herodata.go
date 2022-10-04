@@ -47,6 +47,10 @@ type HeroDataMgr struct {
 	mapHeros map[HeroID]*HeroData
 }
 
+func (mgr *HeroDataMgr) GetHeroData(id HeroID) *HeroData {
+	return mgr.mapHeros[id]
+}
+
 func LoadHeroData(fn string) (*HeroDataMgr, error) {
 	mgr := &HeroDataMgr{
 		mapHeros: make(map[HeroID]*HeroData),

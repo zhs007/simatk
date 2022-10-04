@@ -26,7 +26,11 @@ func (battle *Battle) SetTeam(index int, lst []*HeroData, autoSetPos bool) {
 	}
 
 	for _, v := range battle.mapTeams[index].Heros.Heros {
+		v.RealBattleHeroID = battle.GenRealHeroID()
+
 		battle.Scene.AddHero(v)
+
+		battle.mapHeros[v.RealBattleHeroID] = v
 	}
 }
 
@@ -79,10 +83,12 @@ func (battle *Battle) StartBattle() {
 }
 
 func (battle *Battle) battleReady(parent *BattleLogNode) {
+	ready := battle.Log.BattleReady(parent)
+
 	lst := battle.GenCurHeroList()
 
 	lst.ForEach(func(h *Hero) {
-		battle.Log.HeroComeIn(parent, h)
+		battle.Log.HeroComeIn(ready, h)
 	})
 }
 
@@ -99,6 +105,32 @@ func NewBattle(w, h int) *Battle {
 		curHeroID: 1,
 		mapHeros:  make(map[int]*Hero),
 	}
+
+	return battle
+}
+
+func NewBattleEx(mgr *StaticMgr, team0 []HeroID, team1 []HeroID, w, h int) *Battle {
+	battle := NewBattle(w, h)
+
+	lst0 := []*HeroData{}
+	for _, v := range team0 {
+		hd := mgr.MgrHeroData.GetHeroData(v)
+		if hd != nil {
+			lst0 = append(lst0, hd)
+		}
+	}
+
+	battle.SetTeam(0, lst0, true)
+
+	lst1 := []*HeroData{}
+	for _, v := range team1 {
+		hd := mgr.MgrHeroData.GetHeroData(v)
+		if hd != nil {
+			lst1 = append(lst1, hd)
+		}
+	}
+
+	battle.SetTeam(1, lst1, true)
 
 	return battle
 }
