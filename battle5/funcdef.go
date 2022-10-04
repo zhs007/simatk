@@ -4,6 +4,8 @@ type FuncEachHero func(*Hero)
 
 type FuncOnText func(string)
 
+type FuncIsLess func(i, j int) bool
+
 type LibFuncParams struct {
 	Src    *Hero
 	Target []*Hero
@@ -18,10 +20,10 @@ func NewLibFuncParams(battle *Battle, src *Hero, target []*Hero) *LibFuncParams 
 	}
 }
 
-type FuncLib func(*LibFuncParams) (bool, error)
+type FuncLib func(*FuncData, *LibFuncParams) (bool, error)
 
 type FuncData struct {
-	FuncName string
-	Vals     []int
-	StrVals  []string
+	FuncName string   `json:"name,omitempty"`
+	Vals     []int    `json:"vals,omitempty"`
+	StrVals  []string `json:"strvals,omitempty"`
 }

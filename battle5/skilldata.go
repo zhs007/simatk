@@ -13,6 +13,7 @@ type SkillData struct {
 	Name string
 	Info string
 	Atk  *FuncData
+	Find *FuncData
 }
 
 type SkillDataMgr struct {
@@ -62,6 +63,7 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 		} else {
 			sd := &SkillData{}
 			atkfunc := &FuncData{}
+			findfunc := &FuncData{}
 
 			for x, colCell := range row {
 				switch header[x] {
@@ -117,6 +119,41 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					}
 
 					sd.Atk = atkfunc
+				case "findfunc":
+					findfunc.FuncName = colCell
+
+					sd.Find = findfunc
+				case "findval":
+					arr := strings.Split(colCell, "|")
+					for _, v := range arr {
+						v = strings.TrimSpace(v)
+						if v != "" {
+							i64, err := goutils.String2Int64(v)
+							if err != nil {
+								goutils.Error("LoadSkillData:skills",
+									zap.Int("x", x),
+									zap.Int("y", y),
+									zap.String("cell", colCell),
+									zap.Error(err))
+
+								return nil, err
+							}
+
+							findfunc.Vals = append(findfunc.Vals, int(i64))
+						}
+					}
+
+					sd.Find = findfunc
+				case "findstrval":
+					arr := strings.Split(colCell, "|")
+					for _, v := range arr {
+						v = strings.TrimSpace(v)
+						if v != "" {
+							findfunc.StrVals = append(findfunc.StrVals, v)
+						}
+					}
+
+					sd.Find = findfunc
 				}
 			}
 

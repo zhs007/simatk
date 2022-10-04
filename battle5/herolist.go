@@ -8,6 +8,10 @@ type HeroList struct {
 	Heros []*Hero
 }
 
+func (hl *HeroList) GetNum() int {
+	return len(hl.Heros)
+}
+
 func (hl *HeroList) Clone() *HeroList {
 	lst := NewHeroList()
 
@@ -36,6 +40,10 @@ func (hl *HeroList) Init(battle *Battle, lst []*HeroData) {
 
 func (hl *HeroList) AddHero(h *Hero) {
 	hl.Heros = append(hl.Heros, h)
+}
+
+func (hl *HeroList) Sort(isless FuncIsLess) {
+	sort.Slice(hl.Heros, isless)
 }
 
 func (hl *HeroList) SortInBattle() {

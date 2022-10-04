@@ -16,16 +16,18 @@ func (mgr *FuncMgr) RegFunc(name string, f FuncLib) {
 func (mgr *FuncMgr) Init() {
 	mgr.RegFunc("basicatk", basicAtk)
 	mgr.RegFunc("basicmatk", basicMAtk)
+
+	mgr.RegFunc("findnear", findNear)
 }
 
-func (mgr *FuncMgr) Run(name string, params *LibFuncParams) (bool, error) {
-	f, isok := mgr.MapFunc[name]
+func (mgr *FuncMgr) Run(fd *FuncData, params *LibFuncParams) (bool, error) {
+	f, isok := mgr.MapFunc[fd.FuncName]
 	if isok {
-		return f(params)
+		return f(fd, params)
 	}
 
 	goutils.Error("FuncMgr.Run",
-		zap.String("name", name),
+		goutils.JSON("duncdata", fd),
 		zap.Error(ErrInvalidFuncName))
 
 	return false, ErrInvalidFuncName
