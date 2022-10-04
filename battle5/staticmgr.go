@@ -9,12 +9,17 @@ import (
 
 type StaticMgr struct {
 	MgrHeroData *HeroDataMgr
+	MgrFunc     *FuncMgr
 }
 
 var MgrStatic *StaticMgr
 
 func NewStaticMgr(dir string) (*StaticMgr, error) {
-	mgr := &StaticMgr{}
+	mgr := &StaticMgr{
+		MgrFunc: NewFuncMgr(),
+	}
+
+	mgr.MgrFunc.Init()
 
 	mgrherodata, err := LoadHeroData(path.Join(dir, "heros.xlsx"))
 	if err != nil {

@@ -59,8 +59,6 @@ func (bln *BattleLogNode) genTABs(tab string, tabnum int) string {
 	return str
 }
 
-type FuncOnText func(string)
-
 func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 	str := bln.genTABs(tab, tabnum)
 
