@@ -52,11 +52,11 @@ func (hl *HeroList) SortInBattle() {
 		if hl.Heros[i].Props[PropTypeCurSpeed] == hl.Heros[j].Props[PropTypeCurSpeed] {
 			// 如果队伍速度也一样，只可能是同一队，那么优先x小的，再优先y小的
 			if hl.Heros[i].Props[PropTypeTeamSpeedVal] == hl.Heros[j].Props[PropTypeTeamSpeedVal] {
-				if hl.Heros[i].SX == hl.Heros[j].SX {
-					return hl.Heros[i].SY <= hl.Heros[j].SY
+				if hl.Heros[i].StaticPos.X == hl.Heros[j].StaticPos.X {
+					return hl.Heros[i].StaticPos.Y <= hl.Heros[j].StaticPos.Y
 				}
 
-				return hl.Heros[i].SX < hl.Heros[j].SX
+				return hl.Heros[i].StaticPos.X < hl.Heros[j].StaticPos.X
 			}
 
 			return hl.Heros[i].Props[PropTypeTeamSpeedVal] > hl.Heros[j].Props[PropTypeTeamSpeedVal]

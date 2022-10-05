@@ -128,23 +128,23 @@ func (team *Team) AutoSetPos() {
 		}
 	}
 
-	for _, arr := range lst {
+	for x, arr := range lst {
 		arr.SortInAutoSetPos()
 
 		if len(arr.Heros) == 3 {
 			for i, v := range arr.Heros {
-				v.SX = v.Props[PropTypePlace]
-				v.SY = i + 1
+				v.StaticPos.X = x + 1
+				v.StaticPos.Y = i + 1
 			}
 		} else if len(arr.Heros) == 2 {
-			arr.Heros[0].SX = arr.Heros[0].Props[PropTypePlace]
-			arr.Heros[0].SY = 1
+			arr.Heros[0].StaticPos.X = x + 1
+			arr.Heros[0].StaticPos.Y = 1
 
-			arr.Heros[1].SX = arr.Heros[1].Props[PropTypePlace]
-			arr.Heros[1].SY = 1
+			arr.Heros[1].StaticPos.X = x + 1
+			arr.Heros[1].StaticPos.Y = 1
 		} else if len(arr.Heros) == 1 {
-			arr.Heros[0].SX = arr.Heros[0].Props[PropTypePlace]
-			arr.Heros[0].SY = 2
+			arr.Heros[0].StaticPos.X = x + 1
+			arr.Heros[0].StaticPos.Y = 2
 		}
 	}
 }

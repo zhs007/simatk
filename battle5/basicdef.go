@@ -47,3 +47,31 @@ type Pos struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
+
+func (pos *Pos) CalcDistance(target *Pos) int {
+	ox := target.X - pos.X
+	oy := target.Y - pos.Y
+
+	if ox < 0 {
+		ox = -ox
+	}
+
+	if oy < 0 {
+		oy = -oy
+	}
+
+	return ox + oy
+
+	// if ox >= oy {
+	// 	return ox
+	// }
+
+	// return oy
+}
+
+func (pos *Pos) Clone() *Pos {
+	return &Pos{
+		X: pos.X,
+		Y: pos.Y,
+	}
+}

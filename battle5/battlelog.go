@@ -49,10 +49,7 @@ type BattleLogNode struct {
 // }
 
 func (bln *BattleLogNode) SetSrc(hero *Hero) {
-	bln.SrcPos = &Pos{
-		X: hero.X,
-		Y: hero.Y,
-	}
+	bln.SrcPos = hero.Pos.Clone()
 
 	bln.SrcTeam = hero.TeamIndex + 1
 	bln.srcHero = hero
@@ -61,10 +58,7 @@ func (bln *BattleLogNode) SetSrc(hero *Hero) {
 }
 
 func (bln *BattleLogNode) SetTarget(hero *Hero) {
-	bln.TargetPos = &Pos{
-		X: hero.X,
-		Y: hero.Y,
-	}
+	bln.TargetPos = hero.Pos.Clone()
 
 	bln.TargetTeam = hero.TeamIndex + 1
 	bln.targetHero = hero
@@ -73,10 +67,7 @@ func (bln *BattleLogNode) SetTarget(hero *Hero) {
 }
 
 func (bln *BattleLogNode) SetTargetPos(hero *Hero) {
-	bln.TargetPos = &Pos{
-		X: hero.X,
-		Y: hero.Y,
-	}
+	bln.TargetPos = hero.Pos.Clone()
 }
 
 func (bln *BattleLogNode) genTABs(tab string, tabnum int) string {

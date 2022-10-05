@@ -3,8 +3,8 @@ package battle5
 type Hero struct {
 	ID               HeroID
 	Props            map[PropType]int
-	SX, SY           int       // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
-	X, Y             int       // 坐标
+	StaticPos        *Pos      // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
+	Pos              *Pos      // 坐标
 	TeamIndex        int       // 队伍索引，0-进攻方，1-防守方
 	RealBattleHeroID int       // 战斗里hero的唯一标识
 	Data             *HeroData // 直接读表数据
@@ -60,19 +60,19 @@ func (hero *Hero) GetEnemyTeamIndex() int {
 
 // 判断谁距离本边更近，1表示h0更近，0表示一样近，-1表示h1更近
 func (hero *Hero) cmpNearMySide(h0 *Hero, h1 *Hero) int {
-	if h0.X == h1.X {
+	if h0.Pos.X == h1.Pos.X {
 		return 0
 	}
 
 	if hero.TeamIndex == 0 {
-		if h0.X < h1.X {
+		if h0.Pos.X < h1.Pos.X {
 			return 1
 		}
 
 		return -1
 	}
 
-	if h0.X < h1.X {
+	if h0.Pos.X < h1.Pos.X {
 		return -1
 	}
 
@@ -81,19 +81,19 @@ func (hero *Hero) cmpNearMySide(h0 *Hero, h1 *Hero) int {
 
 // 判断谁距离敌方更近，1表示h0更近，0表示一样近，-1表示h1更近
 func (hero *Hero) cmpNearEnemySide(h0 *Hero, h1 *Hero) int {
-	if h0.X == h1.X {
+	if h0.Pos.X == h1.Pos.X {
 		return 0
 	}
 
 	if hero.TeamIndex == 1 {
-		if h0.X < h1.X {
+		if h0.Pos.X < h1.Pos.X {
 			return 1
 		}
 
 		return -1
 	}
 
-	if h0.X < h1.X {
+	if h0.Pos.X < h1.Pos.X {
 		return -1
 	}
 
@@ -110,22 +110,7 @@ func (hero *Hero) FindNear(lst *HeroList, num int) *HeroList {
 		if hero.RealBattleHeroID == h.RealBattleHeroID {
 			h.tmpDistance = 0
 		} else {
-			ox := h.X - hero.X
-			oy := h.Y - hero.Y
-
-			if ox < 0 {
-				ox = -ox
-			}
-
-			if oy < 0 {
-				oy = -oy
-			}
-
-			if ox >= oy {
-				h.tmpDistance = ox
-			} else {
-				h.tmpDistance = oy
-			}
+			h.tmpDistance = hero.Pos.CalcDistance(h.Pos)
 		}
 	})
 
@@ -136,7 +121,7 @@ func (hero *Hero) FindNear(lst *HeroList, num int) *HeroList {
 			nearmyside := hero.cmpNearMySide(lst.Heros[i], lst.Heros[j])
 			if nearmyside == 0 {
 				// 优先y轴小的
-				return lst.Heros[i].Y <= lst.Heros[j].Y
+				return lst.Heros[i].Pos.Y <= lst.Heros[j].Pos.Y
 			}
 
 			return nearmyside == 1
@@ -158,22 +143,7 @@ func (hero *Hero) FindFar(lst *HeroList, num int) *HeroList {
 		if hero.RealBattleHeroID == h.RealBattleHeroID {
 			h.tmpDistance = 0
 		} else {
-			ox := h.X - hero.X
-			oy := h.Y - hero.Y
-
-			if ox < 0 {
-				ox = -ox
-			}
-
-			if oy < 0 {
-				oy = -oy
-			}
-
-			if ox >= oy {
-				h.tmpDistance = ox
-			} else {
-				h.tmpDistance = oy
-			}
+			h.tmpDistance = hero.Pos.CalcDistance(h.Pos)
 		}
 	})
 
@@ -184,7 +154,7 @@ func (hero *Hero) FindFar(lst *HeroList, num int) *HeroList {
 			nearmyside := hero.cmpNearEnemySide(lst.Heros[i], lst.Heros[j])
 			if nearmyside == 0 {
 				// 优先y轴小的
-				return lst.Heros[i].Y <= lst.Heros[j].Y
+				return lst.Heros[i].Pos.Y <= lst.Heros[j].Pos.Y
 			}
 
 			return nearmyside == 1
@@ -206,6 +176,15 @@ func (hero *Hero) FindTarget() *HeroList {
 	return hero.targetMove
 }
 
+// 移动
+func (hero *Hero) Move2Target(target *Hero) {
+	// 优先x轴移动
+	ox := target.Pos.X - hero.Pos.X
+	if ox == 0 {
+		// oy := target.Pos.Y - hero.Pos.Y
+	}
+}
+
 func (hero *Hero) Clone() *Hero {
 	if hero.Data == nil {
 		return NewHero(hero.Props[PropTypeHP],
@@ -221,10 +200,8 @@ func (hero *Hero) Clone() *Hero {
 	}
 
 	nh.ID = hero.ID
-	nh.SX = hero.SX
-	nh.SY = hero.SY
-	nh.X = hero.X
-	nh.Y = hero.Y
+	nh.StaticPos = hero.StaticPos.Clone()
+	nh.Pos = hero.Pos.Clone()
 	nh.TeamIndex = hero.TeamIndex
 	nh.RealBattleHeroID = hero.RealBattleHeroID
 	nh.Data = hero.Data
@@ -247,10 +224,6 @@ func (hero *Hero) Clone() *Hero {
 func NewHero(hp int, atk int, def int, magic int, speed int, isMagicAtk bool) *Hero {
 	hero := &Hero{
 		Props: make(map[PropType]int),
-		SX:    -1,
-		SY:    -1,
-		X:     -1,
-		Y:     -1,
 	}
 
 	hero.Props[PropTypeHP] = hp
@@ -286,12 +259,16 @@ func NewHeroEx(battle *Battle, hd *HeroData) *Hero {
 	hero := &Hero{
 		ID:     HeroID(hd.ID),
 		Props:  make(map[PropType]int),
-		SX:     -1,
-		SY:     -1,
-		X:      -1,
-		Y:      -1,
 		Data:   hd,
 		battle: battle,
+		StaticPos: &Pos{
+			X: -1,
+			Y: -1,
+		},
+		Pos: &Pos{
+			X: -1,
+			Y: -1,
+		},
 	}
 
 	hero.Props[PropTypeHP] = hd.HP
