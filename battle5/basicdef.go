@@ -48,6 +48,16 @@ type Pos struct {
 	Y int `json:"y"`
 }
 
+func (pos *Pos) SetXY(x, y int) {
+	pos.X = x
+	pos.Y = y
+}
+
+func (pos *Pos) Set(p *Pos) {
+	pos.X = p.X
+	pos.Y = p.Y
+}
+
 func (pos *Pos) CalcDistance(target *Pos) int {
 	ox := target.X - pos.X
 	oy := target.Y - pos.Y
@@ -61,17 +71,18 @@ func (pos *Pos) CalcDistance(target *Pos) int {
 	}
 
 	return ox + oy
-
-	// if ox >= oy {
-	// 	return ox
-	// }
-
-	// return oy
 }
 
 func (pos *Pos) Clone() *Pos {
 	return &Pos{
 		X: pos.X,
 		Y: pos.Y,
+	}
+}
+
+func NewPos(x, y int) *Pos {
+	return &Pos{
+		X: x,
+		Y: y,
 	}
 }

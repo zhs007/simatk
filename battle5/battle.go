@@ -97,12 +97,24 @@ func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
 
 	lst := battle.GenCurHeroList()
 
+	// 找目标
 	lst.ForEach(func(h *Hero) {
 		target := h.FindTarget()
 		if target == nil || target.IsEmpty() {
 			battle.Log.FindTarget(turn, h, nil)
 		} else {
 			battle.Log.FindTarget(turn, h, target.Heros[0])
+		}
+	})
+
+	// 移动
+	lst.ForEach(func(h *Hero) {
+		if h.targetMove != nil && !h.targetMove.IsEmpty() {
+			if h.CanMove() {
+				p := h.Move2Target(h.targetMove.Heros[0])
+				battle.Log.HeroMove(turn, h, p)
+				h.Pos.Set(p)
+			}
 		}
 	})
 

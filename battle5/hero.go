@@ -176,13 +176,63 @@ func (hero *Hero) FindTarget() *HeroList {
 	return hero.targetMove
 }
 
+func (hero *Hero) CanMove() bool {
+	if hero.Props[PropTypeCurMovDistance] <= 0 {
+		return false
+	}
+
+	return true
+}
+
+func (hero *Hero) moveY(target *Hero, mov int) *Pos {
+	oy := target.Pos.Y - hero.Pos.Y
+
+	// 直接移到位
+	if Abs(oy) <= mov {
+		// hero.Pos.Set(target.Pos)
+
+		return target.Pos.Clone()
+	}
+
+	if oy < 0 {
+		// hero.Pos.SetXY(target.Pos.X, hero.Pos.Y-mov)
+
+		return NewPos(target.Pos.X, hero.Pos.Y-mov)
+	}
+
+	// hero.Pos.SetXY(target.Pos.X, hero.Pos.Y+mov)
+
+	return NewPos(target.Pos.X, hero.Pos.Y+mov)
+}
+
 // 移动
-func (hero *Hero) Move2Target(target *Hero) {
+func (hero *Hero) Move2Target(target *Hero) *Pos {
 	// 优先x轴移动
 	ox := target.Pos.X - hero.Pos.X
 	if ox == 0 {
-		// oy := target.Pos.Y - hero.Pos.Y
+		return hero.moveY(target, hero.Props[PropTypeCurMovDistance])
 	}
+
+	if Abs(ox) <= hero.Props[PropTypeCurMovDistance] {
+		o := hero.Props[PropTypeCurMovDistance] - Abs(ox)
+		if o > 0 {
+			return hero.moveY(target, o)
+		}
+
+		// hero.Pos.SetXY(hero.Pos.X+ox, hero.Pos.Y)
+
+		return NewPos(hero.Pos.X+ox, hero.Pos.Y)
+	}
+
+	if ox < 0 {
+		// hero.Pos.SetXY(hero.Pos.X-hero.Props[PropTypeCurMovDistance], hero.Pos.Y)
+
+		return NewPos(hero.Pos.X-hero.Props[PropTypeCurMovDistance], hero.Pos.Y)
+	}
+
+	// hero.Pos.SetXY(hero.Pos.X+hero.Props[PropTypeCurMovDistance], hero.Pos.Y)
+
+	return NewPos(hero.Pos.X+hero.Props[PropTypeCurMovDistance], hero.Pos.Y)
 }
 
 func (hero *Hero) Clone() *Hero {

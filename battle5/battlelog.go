@@ -66,8 +66,8 @@ func (bln *BattleLogNode) SetTarget(hero *Hero) {
 	bln.TargetHeroID = hero.ID
 }
 
-func (bln *BattleLogNode) SetTargetPos(hero *Hero) {
-	bln.TargetPos = hero.Pos.Clone()
+func (bln *BattleLogNode) SetTargetPos(pos *Pos) {
+	bln.TargetPos = pos
 }
 
 func (bln *BattleLogNode) genTABs(tab string, tabnum int) string {
@@ -134,6 +134,16 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 				bln.SrcPos.X,
 				bln.SrcPos.Y)
 		}
+	case BLNTHeroMove:
+		str += fmt.Sprintf("队%v %v(%v.%v)坐标(%v, %v) 移动到 坐标(%v, %v) \n",
+			bln.SrcTeam,
+			bln.srcHero.Data.Name,
+			bln.SrcHeroID,
+			bln.SrcRealHeroID,
+			bln.SrcPos.X,
+			bln.SrcPos.Y,
+			bln.TargetPos.X,
+			bln.TargetPos.Y)
 	}
 
 	if ontext != nil {
@@ -198,7 +208,7 @@ func (bl *BattleLog) HeroComeIn(parent *BattleLogNode, hero *Hero) *BattleLogNod
 		node.PropVals = append(node.PropVals, v)
 	}
 
-	node.SetTargetPos(hero)
+	node.SetTargetPos(hero.Pos.Clone())
 
 	if parent != nil {
 		parent.Children = append(parent.Children, node)
@@ -247,6 +257,24 @@ func (bl *BattleLog) FindTarget(parent *BattleLogNode, src *Hero, target *Hero) 
 	if target != nil {
 		node.SetTarget(target)
 	}
+
+	if parent != nil {
+		parent.Children = append(parent.Children, node)
+	}
+
+	return node
+}
+
+func (bl *BattleLog) HeroMove(parent *BattleLogNode, src *Hero, target *Pos) *BattleLogNode {
+	node := &BattleLogNode{
+		NodeID:  bl.GenNodeID(),
+		Type:    BLNTHeroMove,
+		srcHero: src,
+	}
+
+	node.SetSrc(src)
+
+	node.SetTargetPos(target)
 
 	if parent != nil {
 		parent.Children = append(parent.Children, node)
