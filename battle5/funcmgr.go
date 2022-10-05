@@ -18,6 +18,7 @@ func (mgr *FuncMgr) Init() {
 	mgr.RegFunc("basicmatk", basicMAtk)
 
 	mgr.RegFunc("findnear", findNear)
+	mgr.RegFunc("findfar", findFar)
 }
 
 func (mgr *FuncMgr) Run(fd *FuncData, params *LibFuncParams) (bool, error) {

@@ -88,7 +88,7 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					atkfunc.FuncName = colCell
 
 					sd.Atk = atkfunc
-				case "atkval":
+				case "atkvals":
 					arr := strings.Split(colCell, "|")
 					for _, v := range arr {
 						v = strings.TrimSpace(v)
@@ -109,7 +109,7 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					}
 
 					sd.Atk = atkfunc
-				case "atkstrval":
+				case "atkstrvals":
 					arr := strings.Split(colCell, "|")
 					for _, v := range arr {
 						v = strings.TrimSpace(v)
@@ -123,7 +123,7 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					findfunc.FuncName = colCell
 
 					sd.Find = findfunc
-				case "findval":
+				case "findvals":
 					arr := strings.Split(colCell, "|")
 					for _, v := range arr {
 						v = strings.TrimSpace(v)
@@ -144,7 +144,7 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					}
 
 					sd.Find = findfunc
-				case "findstrval":
+				case "findstrvals":
 					arr := strings.Split(colCell, "|")
 					for _, v := range arr {
 						v = strings.TrimSpace(v)

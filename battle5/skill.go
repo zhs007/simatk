@@ -5,6 +5,13 @@ type Skill struct {
 	Data *SkillData
 }
 
+func (skill *Skill) Clone() *Skill {
+	return &Skill{
+		ID:   skill.ID,
+		Data: skill.Data,
+	}
+}
+
 func NewSkill(data *SkillData) *Skill {
 	skill := &Skill{
 		ID:   data.ID,

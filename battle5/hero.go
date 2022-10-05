@@ -10,6 +10,7 @@ type Hero struct {
 	Data             *HeroData // 直接读表数据
 	Skills           []*Skill  // 技能
 	battle           *Battle
+	targetMove       *HeroList // 技能目标
 	targetSkills     *HeroList // 技能目标
 	tmpDistance      int       // 临时距离，按距离排序用
 }
@@ -78,6 +79,27 @@ func (hero *Hero) cmpNearMySide(h0 *Hero, h1 *Hero) int {
 	return 1
 }
 
+// 判断谁距离敌方更近，1表示h0更近，0表示一样近，-1表示h1更近
+func (hero *Hero) cmpNearEnemySide(h0 *Hero, h1 *Hero) int {
+	if h0.X == h1.X {
+		return 0
+	}
+
+	if hero.TeamIndex == 1 {
+		if h0.X < h1.X {
+			return 1
+		}
+
+		return -1
+	}
+
+	if h0.X < h1.X {
+		return -1
+	}
+
+	return 1
+}
+
 // 在队列里找最近的多少个，一定会返回一个新的herolist
 func (hero *Hero) FindNear(lst *HeroList, num int) *HeroList {
 	if num >= lst.GetNum() {
@@ -126,13 +148,100 @@ func (hero *Hero) FindNear(lst *HeroList, num int) *HeroList {
 	return NewHeroListEx(lst.Heros[0:num])
 }
 
+// 在队列里找最远的多少个，一定会返回一个新的herolist
+func (hero *Hero) FindFar(lst *HeroList, num int) *HeroList {
+	if num >= lst.GetNum() {
+		return lst.Clone()
+	}
+
+	lst.ForEach(func(h *Hero) {
+		if hero.RealBattleHeroID == h.RealBattleHeroID {
+			h.tmpDistance = 0
+		} else {
+			ox := h.X - hero.X
+			oy := h.Y - hero.Y
+
+			if ox < 0 {
+				ox = -ox
+			}
+
+			if oy < 0 {
+				oy = -oy
+			}
+
+			if ox >= oy {
+				h.tmpDistance = ox
+			} else {
+				h.tmpDistance = oy
+			}
+		}
+	})
+
+	// 由远及近
+	lst.Sort(func(i, j int) bool {
+		if lst.Heros[i].tmpDistance == lst.Heros[j].tmpDistance {
+			// 优先距离敌方近的
+			nearmyside := hero.cmpNearEnemySide(lst.Heros[i], lst.Heros[j])
+			if nearmyside == 0 {
+				// 优先y轴小的
+				return lst.Heros[i].Y <= lst.Heros[j].Y
+			}
+
+			return nearmyside == 1
+		}
+
+		return lst.Heros[i].tmpDistance > lst.Heros[j].tmpDistance
+	})
+
+	return NewHeroListEx(lst.Heros[0:num])
+}
+
+// 选择目标
+func (hero *Hero) FindTarget() *HeroList {
+	MgrStatic.MgrFunc.Run(hero.Data.Find,
+		NewLibFuncParams(hero.battle, hero, nil))
+
+	hero.targetMove = hero.targetSkills.Clone()
+
+	return hero.targetMove
+}
+
 func (hero *Hero) Clone() *Hero {
-	return NewHero(hero.Props[PropTypeHP],
-		hero.Props[PropTypeAtk],
-		hero.Props[PropTypeDef],
-		hero.Props[PropTypeMagic],
-		hero.Props[PropTypeSpeed],
-		hero.Props[PropTypeAttackType] == 1)
+	if hero.Data == nil {
+		return NewHero(hero.Props[PropTypeHP],
+			hero.Props[PropTypeAtk],
+			hero.Props[PropTypeDef],
+			hero.Props[PropTypeMagic],
+			hero.Props[PropTypeSpeed],
+			hero.Props[PropTypeAttackType] == 1)
+	}
+
+	nh := &Hero{
+		Props: make(map[PropType]int),
+	}
+
+	nh.ID = hero.ID
+	nh.SX = hero.SX
+	nh.SY = hero.SY
+	nh.X = hero.X
+	nh.Y = hero.Y
+	nh.TeamIndex = hero.TeamIndex
+	nh.RealBattleHeroID = hero.RealBattleHeroID
+	nh.Data = hero.Data
+	nh.battle = hero.battle
+	nh.targetMove = hero.targetMove
+	nh.targetSkills = hero.targetSkills
+	nh.tmpDistance = hero.tmpDistance
+
+	for k, v := range hero.Props {
+		nh.Props[k] = v
+	}
+
+	for _, v := range hero.Skills {
+		nh.Skills = append(nh.Skills, v.Clone())
+	}
+
+	return nh
 }
 
 func NewHero(hp int, atk int, def int, magic int, speed int, isMagicAtk bool) *Hero {

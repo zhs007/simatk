@@ -22,6 +22,7 @@ type HeroData struct {
 	Info        string
 	X, Y        int
 	Skills      []SkillID
+	Find        *FuncData
 }
 
 func (hd *HeroData) Clone() *HeroData {
@@ -92,6 +93,8 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 				X: -1,
 				Y: -1,
 			}
+
+			findfunc := &FuncData{}
 
 			for x, colCell := range row {
 				switch header[x] {
@@ -235,6 +238,41 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 							hd.Skills = append(hd.Skills, SkillID(i64))
 						}
 					}
+				case "findfunc":
+					findfunc.FuncName = colCell
+
+					hd.Find = findfunc
+				case "findvals":
+					arr := strings.Split(colCell, "|")
+					for _, v := range arr {
+						v = strings.TrimSpace(v)
+						if v != "" {
+							i64, err := goutils.String2Int64(v)
+							if err != nil {
+								goutils.Error("LoadSkillData:skills",
+									zap.Int("x", x),
+									zap.Int("y", y),
+									zap.String("cell", colCell),
+									zap.Error(err))
+
+								return nil, err
+							}
+
+							findfunc.Vals = append(findfunc.Vals, int(i64))
+						}
+					}
+
+					hd.Find = findfunc
+				case "findstrvals":
+					arr := strings.Split(colCell, "|")
+					for _, v := range arr {
+						v = strings.TrimSpace(v)
+						if v != "" {
+							findfunc.StrVals = append(findfunc.StrVals, v)
+						}
+					}
+
+					hd.Find = findfunc
 				}
 			}
 
