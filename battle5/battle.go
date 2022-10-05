@@ -93,7 +93,20 @@ func (battle *Battle) battleReady(parent *BattleLogNode) {
 }
 
 func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
-	battle.Log.StartTurn(parent, turnindex+1)
+	turn := battle.Log.StartTurn(parent, turnindex+1)
+
+	lst := battle.GenCurHeroList()
+
+	lst.ForEach(func(h *Hero) {
+		target := h.FindTarget()
+		if target == nil || target.IsEmpty() {
+			battle.Log.FindTarget(turn, h, nil)
+		} else {
+			battle.Log.FindTarget(turn, h, target.Heros[0])
+		}
+	})
+
+	battle.Log.EndTurn(parent, turnindex+1)
 }
 
 func NewBattle(w, h int) *Battle {

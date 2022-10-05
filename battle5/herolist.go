@@ -90,6 +90,10 @@ func (hl *HeroList) SortInAutoSetPosSlow() {
 	})
 }
 
+func (hl *HeroList) IsEmpty() bool {
+	return len(hl.Heros) == 0
+}
+
 func NewHeroList() *HeroList {
 	heros := &HeroList{}
 

@@ -8,15 +8,15 @@ type FuncIsLess func(i, j int) bool
 
 type LibFuncParams struct {
 	Src    *Hero
-	Target []*Hero
+	Target *HeroList
 	Battle *Battle
 }
 
-func NewLibFuncParams(battle *Battle, src *Hero, target []*Hero) *LibFuncParams {
+func NewLibFuncParams(battle *Battle, src *Hero, target *HeroList) *LibFuncParams {
 	return &LibFuncParams{
 		Battle: battle,
-		Src:    src,
 		Target: target,
+		Src:    src,
 	}
 }
 
