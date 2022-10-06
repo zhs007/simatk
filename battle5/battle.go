@@ -112,8 +112,10 @@ func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
 		if h.targetMove != nil && !h.targetMove.IsEmpty() {
 			if h.CanMove() {
 				p := h.Move2Target(h.targetMove.Heros[0])
-				battle.Log.HeroMove(turn, h, p)
-				h.Pos.Set(p)
+				if p != nil {
+					battle.Log.HeroMove(turn, h, p)
+					h.Pos.Set(p)
+				}
 			}
 		}
 	})

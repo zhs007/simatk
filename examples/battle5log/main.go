@@ -32,4 +32,5 @@ func main() {
 	battle.StartBattle()
 
 	battle.Log.SaveText("./output/battlo5log.txt")
+	battle.Log.SaveJson("./output/battlo5log.json")
 }

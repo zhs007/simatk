@@ -186,6 +186,9 @@ func (hero *Hero) CanMove() bool {
 
 func (hero *Hero) moveY(target *Hero, mov int) *Pos {
 	oy := target.Pos.Y - hero.Pos.Y
+	if oy == 0 {
+		return nil
+	}
 
 	// 直接移到位
 	if Abs(oy) <= mov {

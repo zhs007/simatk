@@ -2,8 +2,10 @@ package battle5
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/zhs007/goutils"
 	"go.uber.org/zap"
 )
@@ -308,6 +310,33 @@ func (bl *BattleLog) SaveText(fn string) error {
 			return
 		}
 	})
+
+	return nil
+}
+
+func (bl *BattleLog) SaveJson(fn string) error {
+	if bl.Root == nil {
+		return nil
+	}
+
+	json := jsoniter.ConfigCompatibleWithStandardLibrary
+	buf, err := json.Marshal(bl)
+	if err != nil {
+		goutils.Error("BattleLog.SaveJson:Marshal",
+			zap.String("fn", fn),
+			zap.Error(err))
+
+		return err
+	}
+
+	err = ioutil.WriteFile(fn, buf, 0666)
+	if err != nil {
+		goutils.Error("BattleLog.SaveJson:WriteFile",
+			zap.String("fn", fn),
+			zap.Error(err))
+
+		return err
+	}
 
 	return nil
 }
