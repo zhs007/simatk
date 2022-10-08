@@ -28,3 +28,6 @@ gen*.xlsx
 *-level*.xlsx
 map001.*
 battle5.xlsx
+output/*.txt
+output/*.xlsx
+output/*.json
