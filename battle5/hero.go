@@ -10,9 +10,12 @@ type Hero struct {
 	Data             *HeroData // 直接读表数据
 	Skills           []*Skill  // 技能
 	battle           *Battle
-	targetMove       *HeroList // 技能目标
+	targetMove       *HeroList // 移动目标
 	targetSkills     *HeroList // 技能目标
 	tmpDistance      int       // 临时距离，按距离排序用
+	movePos          *Pos      // 移动位置，修正位移时用
+	lastMoveVal      int       // 剩余的移动距离，修正位移时用
+	LastTarget       *Hero     // 上一次的目标
 }
 
 func (hero *Hero) IsAlive() bool {
@@ -114,9 +117,18 @@ func (hero *Hero) FindNear(lst *HeroList, num int) *HeroList {
 		}
 	})
 
-	// 由进及远
+	// 由近及远
 	lst.Sort(func(i, j int) bool {
 		if lst.Heros[i].tmpDistance == lst.Heros[j].tmpDistance {
+			// 优先上一次目标
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[i].RealBattleHeroID {
+				return true
+			}
+
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[j].RealBattleHeroID {
+				return false
+			}
+
 			// 优先距离自己这边近的
 			nearmyside := hero.cmpNearMySide(lst.Heros[i], lst.Heros[j])
 			if nearmyside == 0 {
@@ -150,6 +162,15 @@ func (hero *Hero) FindFar(lst *HeroList, num int) *HeroList {
 	// 由远及近
 	lst.Sort(func(i, j int) bool {
 		if lst.Heros[i].tmpDistance == lst.Heros[j].tmpDistance {
+			// 优先上一次目标
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[i].RealBattleHeroID {
+				return true
+			}
+
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[j].RealBattleHeroID {
+				return false
+			}
+
 			// 优先距离敌方近的
 			nearmyside := hero.cmpNearEnemySide(lst.Heros[i], lst.Heros[j])
 			if nearmyside == 0 {
@@ -179,6 +200,10 @@ func (hero *Hero) FindTarget() *HeroList {
 func (hero *Hero) CanMove() bool {
 	if hero.Props[PropTypeCurMovDistance] <= 0 {
 		return false
+	}
+
+	if hero.LastTarget != nil {
+		return !hero.CanAttackWithDistance(hero.LastTarget)
 	}
 
 	return true
@@ -236,6 +261,98 @@ func (hero *Hero) Move2Target(target *Hero) *Pos {
 	// hero.Pos.SetXY(hero.Pos.X+hero.Props[PropTypeCurMovDistance], hero.Pos.Y)
 
 	return NewPos(hero.Pos.X+hero.Props[PropTypeCurMovDistance], hero.Pos.Y)
+}
+
+func (hero *Hero) GetRealPos() *Pos {
+	if hero.movePos != nil {
+		return hero.movePos
+	}
+
+	return hero.Pos
+}
+
+// 是否可以攻击到
+func (hero *Hero) CanAttackWithDistance(toHero *Hero) bool {
+	tmpDistance := hero.GetRealPos().CalcDistance(toHero.GetRealPos())
+
+	return tmpDistance < hero.Props[PropTypeAtkDistance]
+}
+
+// 移动一步
+func (hero *Hero) move2TargetStepY(target *Hero) bool {
+	oy := target.Pos.Y - hero.Pos.Y
+	if oy == 0 {
+		return false
+	}
+
+	hero.lastMoveVal--
+
+	// 直接移到位
+	if Abs(oy) < 1 {
+		hero.movePos.Y = target.Pos.Y
+
+		return hero.lastMoveVal > 0
+	}
+
+	if oy < 0 {
+		hero.movePos.Y = target.Pos.Y + 1
+
+		return hero.lastMoveVal > 0
+	}
+
+	hero.movePos.Y = target.Pos.Y - 1
+
+	return hero.lastMoveVal > 0
+}
+
+// 移动一步
+func (hero *Hero) move2TargetStep(target *Hero) bool {
+	if hero.movePos == nil {
+		hero.onMoveStepStart()
+	}
+
+	if hero.Props[PropTypeCurMovDistance] == 99 {
+		hero.movePos.Set(target.Pos)
+
+		return false
+	}
+
+	if hero.lastMoveVal <= 0 {
+		return false
+	}
+
+	// 优先x轴移动
+	ox := target.Pos.X - hero.Pos.X
+	if ox == 0 {
+		return hero.move2TargetStepY(target)
+	}
+
+	hero.lastMoveVal--
+
+	if ox < 0 {
+		hero.movePos.X = target.Pos.X + 1
+
+		return hero.lastMoveVal > 0
+	}
+
+	hero.movePos.X = target.Pos.X - 1
+
+	return hero.lastMoveVal > 0
+}
+
+func (hero *Hero) onMoveStepStart() {
+	hero.movePos = NewPos(hero.Pos.X, hero.Pos.Y)
+	hero.lastMoveVal = hero.Props[PropTypeMovDistance]
+}
+
+func (hero *Hero) onMoveStepEnd(parent *BattleLogNode) {
+	if !hero.Pos.Equal(hero.movePos) {
+		hero.battle.Log.HeroMove(parent, hero, hero.movePos)
+
+		hero.Pos.Set(hero.movePos)
+	}
+
+	hero.movePos = nil
 }
 
 func (hero *Hero) Clone() *Hero {

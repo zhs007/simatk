@@ -73,6 +73,10 @@ func (pos *Pos) CalcDistance(target *Pos) int {
 	return ox + oy
 }
 
+func (pos *Pos) Equal(target *Pos) bool {
+	return pos.X == target.X && pos.Y == target.Y
+}
+
 func (pos *Pos) Clone() *Pos {
 	return &Pos{
 		X: pos.X,

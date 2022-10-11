@@ -94,6 +94,10 @@ func (hl *HeroList) IsEmpty() bool {
 	return len(hl.Heros) == 0
 }
 
+func (hl *HeroList) Size() int {
+	return len(hl.Heros)
+}
+
 func NewHeroList() *HeroList {
 	heros := &HeroList{}
 

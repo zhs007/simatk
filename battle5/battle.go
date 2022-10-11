@@ -101,24 +101,61 @@ func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
 	lst.ForEach(func(h *Hero) {
 		target := h.FindTarget()
 		if target == nil || target.IsEmpty() {
+			h.LastTarget = nil
+
 			battle.Log.FindTarget(turn, h, nil)
 		} else {
+			h.LastTarget = target.Heros[0]
+
 			battle.Log.FindTarget(turn, h, target.Heros[0])
 		}
 	})
 
-	// 移动
-	lst.ForEach(func(h *Hero) {
-		if h.targetMove != nil && !h.targetMove.IsEmpty() {
-			if h.CanMove() {
-				p := h.Move2Target(h.targetMove.Heros[0])
-				if p != nil {
-					battle.Log.HeroMove(turn, h, p)
-					h.Pos.Set(p)
+	lst1 := lst
+
+	// 移动 v2
+	for {
+		lst2 := NewHeroList()
+
+		lst1.ForEach(func(h *Hero) {
+			if h.LastTarget != nil {
+				if h.CanAttackWithDistance(h.LastTarget) {
+					if h.movePos != nil {
+						h.onMoveStepEnd(turn)
+					}
+				} else {
+					if h.move2TargetStep(h.LastTarget) {
+						if h.CanAttackWithDistance(h.LastTarget) {
+							h.onMoveStepEnd(turn)
+						} else {
+							lst2.AddHero(h)
+						}
+					} else {
+						h.onMoveStepEnd(turn)
+					}
 				}
 			}
+		})
+
+		if lst2.Size() <= 0 {
+			break
 		}
-	})
+
+		lst1 = lst2
+	}
+
+	// // 移动
+	// lst.ForEach(func(h *Hero) {
+	// 	if h.targetMove != nil && !h.targetMove.IsEmpty() {
+	// 		if h.CanMove() {
+	// 			p := h.Move2Target(h.targetMove.Heros[0])
+	// 			if p != nil {
+	// 				battle.Log.HeroMove(turn, h, p)
+	// 				h.Pos.Set(p)
+	// 			}
+	// 		}
+	// 	}
+	// })
 
 	battle.Log.EndTurn(parent, turnindex+1)
 }
