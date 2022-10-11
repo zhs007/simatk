@@ -137,7 +137,7 @@ func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
 			}
 		})
 
-		if lst2.Size() <= 0 {
+		if lst2.GetNum() <= 0 {
 			break
 		}
 

@@ -1,6 +1,7 @@
 package battle5
 
 type FuncEachHero func(*Hero)
+type FuncEachHeroBreak func(*Hero) bool
 
 type FuncOnText func(string)
 

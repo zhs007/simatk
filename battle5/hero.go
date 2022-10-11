@@ -189,6 +189,39 @@ func (hero *Hero) FindFar(lst *HeroList, num int) *HeroList {
 
 // 选择目标
 func (hero *Hero) FindTarget() *HeroList {
+	// 如果自己的格子上有人，在格子内找目标
+	lstp := hero.battle.Scene.GetHerosWithPos(hero.Pos)
+	if lstp.GetNum() > 1 {
+		var last *Hero
+		var first *Hero
+
+		lstp.ForEachWithBreak(func(h *Hero) bool {
+			if h.RealBattleHeroID != hero.RealBattleHeroID {
+				first = h
+
+				if hero.LastTarget != nil {
+					if hero.LastTarget.RealBattleHeroID == h.RealBattleHeroID {
+						last = h
+
+						return false
+					}
+				} else {
+					return false
+				}
+			}
+
+			return true
+		})
+
+		if last != nil {
+			hero.targetMove = NewHeroListEx2(last)
+		} else {
+			hero.targetMove = NewHeroListEx2(first)
+		}
+
+		return hero.targetMove
+	}
+
 	MgrStatic.MgrFunc.Run(hero.Data.Find,
 		NewLibFuncParams(hero.battle, hero, nil))
 
@@ -349,6 +382,7 @@ func (hero *Hero) onMoveStepEnd(parent *BattleLogNode) {
 	if !hero.Pos.Equal(hero.movePos) {
 		hero.battle.Log.HeroMove(parent, hero, hero.movePos)
 
+		hero.battle.Scene.HeroMove(hero, hero.movePos)
 		hero.Pos.Set(hero.movePos)
 	}
 

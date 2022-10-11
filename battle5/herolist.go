@@ -28,6 +28,16 @@ func (hl *HeroList) ForEach(oneach FuncEachHero) {
 	}
 }
 
+func (hl *HeroList) ForEachWithBreak(oneach FuncEachHeroBreak) bool {
+	for _, v := range hl.Heros {
+		if !oneach(v) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (hl *HeroList) Init(battle *Battle, lst []*HeroData) {
 	hl.Heros = []*Hero{}
 
@@ -35,6 +45,16 @@ func (hl *HeroList) Init(battle *Battle, lst []*HeroData) {
 		h := NewHeroEx(battle, v)
 
 		hl.Heros = append(hl.Heros, h)
+	}
+}
+
+func (hl *HeroList) RemoveHero(h *Hero) {
+	for i, v := range hl.Heros {
+		if v.RealBattleHeroID == h.RealBattleHeroID {
+			hl.Heros = append(hl.Heros[0:i], hl.Heros[i+1:]...)
+
+			return
+		}
 	}
 }
 
@@ -94,10 +114,6 @@ func (hl *HeroList) IsEmpty() bool {
 	return len(hl.Heros) == 0
 }
 
-func (hl *HeroList) Size() int {
-	return len(hl.Heros)
-}
-
 func NewHeroList() *HeroList {
 	heros := &HeroList{}
 
@@ -108,6 +124,14 @@ func NewHeroListEx(lst []*Hero) *HeroList {
 	heros := &HeroList{}
 
 	heros.Heros = append(heros.Heros, lst...)
+
+	return heros
+}
+
+func NewHeroListEx2(hs ...*Hero) *HeroList {
+	heros := &HeroList{}
+
+	heros.Heros = append(heros.Heros, hs...)
 
 	return heros
 }

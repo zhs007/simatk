@@ -20,6 +20,20 @@ func (scene *Scene) AddHero(hero *Hero) {
 	}
 }
 
+func (scene *Scene) HeroMove(hero *Hero, pos *Pos) {
+	scene.Heros[hero.Pos.Y][hero.Pos.X].RemoveHero(hero)
+
+	scene.Heros[pos.Y][pos.X].AddHero(hero)
+}
+
+func (scene *Scene) GetHeroNum(pos *Pos) int {
+	return scene.Heros[pos.Y][pos.X].GetNum()
+}
+
+func (scene *Scene) GetHerosWithPos(pos *Pos) *HeroList {
+	return scene.Heros[pos.Y][pos.X]
+}
+
 func NewScene(w, h int) *Scene {
 	scene := &Scene{
 		Width:  w,
