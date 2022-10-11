@@ -114,6 +114,22 @@ func (hl *HeroList) IsEmpty() bool {
 	return len(hl.Heros) == 0
 }
 
+func (hl *HeroList) GetAliveHeros() *HeroList {
+	lst := NewHeroList()
+
+	hl.ForEach(func(h *Hero) {
+		if h.IsAlive() {
+			lst.AddHero(h)
+		}
+	})
+
+	if lst.IsEmpty() {
+		return nil
+	}
+
+	return lst
+}
+
 func NewHeroList() *HeroList {
 	heros := &HeroList{}
 

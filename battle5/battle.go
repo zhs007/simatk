@@ -157,7 +157,29 @@ func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
 	// 	}
 	// })
 
+	// 攻击
+	lst.ForEach(func(h *Hero) {
+		h.ForEachSkills(func(ch *Hero, s *Skill) bool {
+			ch.UseSkill(turn, s)
+
+			// if s.canUseSkill() {
+			// 	targets := s.findTarget(ch)
+			// 	if targets != nil && targets.GetNum() > 0 {
+			// 		targets.ForEach(func(th *Hero) {
+			// 			s.useSkill(th)
+			// 		})
+			// 	}
+			// }
+
+			return true
+		})
+	})
+
 	battle.Log.EndTurn(parent, turnindex+1)
+}
+
+func (battle *Battle) onHeroBeSkilled(h *Hero) {
+	battle.mapTeams[h.TeamIndex].onHeroBeSkilled(h)
 }
 
 func NewBattle(w, h int) *Battle {

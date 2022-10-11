@@ -10,29 +10,46 @@ type Hero struct {
 	Data             *HeroData // 直接读表数据
 	Skills           []*Skill  // 技能
 	battle           *Battle
-	targetMove       *HeroList // 移动目标
-	targetSkills     *HeroList // 技能目标
-	tmpDistance      int       // 临时距离，按距离排序用
-	movePos          *Pos      // 移动位置，修正位移时用
-	lastMoveVal      int       // 剩余的移动距离，修正位移时用
-	LastTarget       *Hero     // 上一次的目标
+	// targetMove       *HeroList // 移动目标
+	// targetSkills     *HeroList // 技能目标
+	tmpDistance int   // 临时距离，按距离排序用
+	movePos     *Pos  // 移动位置，修正位移时用
+	lastMoveVal int   // 剩余的移动距离，修正位移时用
+	LastTarget  *Hero // 上一次的目标
 }
 
 func (hero *Hero) IsAlive() bool {
 	return hero.Props[PropTypeCurHP] > 0
 }
 
-func (hero *Hero) UseSkill(skill *Skill) {
+func (hero *Hero) UseSkill(parent *BattleLogNode, skill *Skill) {
 	if skill != nil {
-		// 找目标
-		if skill.Data.Find != nil {
-			MgrStatic.MgrFunc.Run(skill.Data.Find, NewLibFuncParams(hero.battle, hero, nil))
+		logSkill := hero.battle.Log.UseSkill(parent, hero, skill)
+
+		if skill.canUseSkill() {
+			targets := skill.findTarget(hero)
+			if targets != nil && targets.GetNum() > 0 {
+				targets.ForEach(func(th *Hero) {
+					hero.battle.Log.FindSkillTarget(logSkill, hero, th)
+				})
+
+				targets.ForEach(func(th *Hero) {
+					skill.attack(logSkill, hero, th)
+				})
+			} else {
+				hero.battle.Log.FindSkillTarget(logSkill, hero, nil)
+			}
 		}
 
-		// 伤害
-		if skill.Data.Atk != nil {
-			MgrStatic.MgrFunc.Run(skill.Data.Atk, NewLibFuncParams(hero.battle, hero, nil))
-		}
+		// // 找目标
+		// if skill.Data.Find != nil {
+		// 	MgrStatic.MgrFunc.Run(skill.Data.Find, NewLibFuncParams(hero.battle, hero, nil))
+		// }
+
+		// // 伤害
+		// if skill.Data.Atk != nil {
+		// 	MgrStatic.MgrFunc.Run(skill.Data.Atk, NewLibFuncParams(hero.battle, hero, nil))
+		// }
 	}
 }
 
@@ -104,12 +121,14 @@ func (hero *Hero) cmpNearEnemySide(h0 *Hero, h1 *Hero) int {
 }
 
 // 在队列里找最近的多少个，一定会返回一个新的herolist
-func (hero *Hero) FindNear(lst *HeroList, num int) *HeroList {
-	if num >= lst.GetNum() {
-		return lst.Clone()
+func (hero *Hero) FindNear(lst0 *HeroList, num int) *HeroList {
+	lst1 := lst0.GetAliveHeros()
+
+	if num >= lst1.GetNum() {
+		return lst1
 	}
 
-	lst.ForEach(func(h *Hero) {
+	lst1.ForEach(func(h *Hero) {
 		if hero.RealBattleHeroID == h.RealBattleHeroID {
 			h.tmpDistance = 0
 		} else {
@@ -118,40 +137,42 @@ func (hero *Hero) FindNear(lst *HeroList, num int) *HeroList {
 	})
 
 	// 由近及远
-	lst.Sort(func(i, j int) bool {
-		if lst.Heros[i].tmpDistance == lst.Heros[j].tmpDistance {
+	lst1.Sort(func(i, j int) bool {
+		if lst1.Heros[i].tmpDistance == lst1.Heros[j].tmpDistance {
 			// 优先上一次目标
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[i].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[i].RealBattleHeroID {
 				return true
 			}
 
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[j].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[j].RealBattleHeroID {
 				return false
 			}
 
 			// 优先距离自己这边近的
-			nearmyside := hero.cmpNearMySide(lst.Heros[i], lst.Heros[j])
+			nearmyside := hero.cmpNearMySide(lst1.Heros[i], lst1.Heros[j])
 			if nearmyside == 0 {
 				// 优先y轴小的
-				return lst.Heros[i].Pos.Y <= lst.Heros[j].Pos.Y
+				return lst1.Heros[i].Pos.Y <= lst1.Heros[j].Pos.Y
 			}
 
 			return nearmyside == 1
 		}
 
-		return lst.Heros[i].tmpDistance < lst.Heros[j].tmpDistance
+		return lst1.Heros[i].tmpDistance < lst1.Heros[j].tmpDistance
 	})
 
-	return NewHeroListEx(lst.Heros[0:num])
+	return NewHeroListEx(lst1.Heros[0:num])
 }
 
 // 在队列里找最远的多少个，一定会返回一个新的herolist
-func (hero *Hero) FindFar(lst *HeroList, num int) *HeroList {
-	if num >= lst.GetNum() {
-		return lst.Clone()
+func (hero *Hero) FindFar(lst0 *HeroList, num int) *HeroList {
+	lst1 := lst0.GetAliveHeros()
+
+	if num >= lst1.GetNum() {
+		return lst1 //.Clone()
 	}
 
-	lst.ForEach(func(h *Hero) {
+	lst1.ForEach(func(h *Hero) {
 		if hero.RealBattleHeroID == h.RealBattleHeroID {
 			h.tmpDistance = 0
 		} else {
@@ -160,35 +181,46 @@ func (hero *Hero) FindFar(lst *HeroList, num int) *HeroList {
 	})
 
 	// 由远及近
-	lst.Sort(func(i, j int) bool {
-		if lst.Heros[i].tmpDistance == lst.Heros[j].tmpDistance {
+	lst1.Sort(func(i, j int) bool {
+		if lst1.Heros[i].tmpDistance == lst1.Heros[j].tmpDistance {
 			// 优先上一次目标
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[i].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[i].RealBattleHeroID {
 				return true
 			}
 
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst.Heros[j].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[j].RealBattleHeroID {
 				return false
 			}
 
 			// 优先距离敌方近的
-			nearmyside := hero.cmpNearEnemySide(lst.Heros[i], lst.Heros[j])
+			nearmyside := hero.cmpNearEnemySide(lst1.Heros[i], lst1.Heros[j])
 			if nearmyside == 0 {
 				// 优先y轴小的
-				return lst.Heros[i].Pos.Y <= lst.Heros[j].Pos.Y
+				return lst1.Heros[i].Pos.Y <= lst1.Heros[j].Pos.Y
 			}
 
 			return nearmyside == 1
 		}
 
-		return lst.Heros[i].tmpDistance > lst.Heros[j].tmpDistance
+		return lst1.Heros[i].tmpDistance > lst1.Heros[j].tmpDistance
 	})
 
-	return NewHeroListEx(lst.Heros[0:num])
+	return NewHeroListEx(lst1.Heros[0:num])
 }
 
 // 选择目标
 func (hero *Hero) FindTarget() *HeroList {
+	lst := hero.findTargetWithFuncData(hero.Data.Find)
+
+	return lst
+	// hero.targetMove = lst
+	// hero.targetSkills = nil
+
+	// return hero.targetMove
+}
+
+// 选择目标
+func (hero *Hero) findTargetWithFuncData(fd *FuncData) *HeroList {
 	// 如果自己的格子上有人，在格子内找目标
 	lstp := hero.battle.Scene.GetHerosWithPos(hero.Pos)
 	if lstp.GetNum() > 1 {
@@ -196,6 +228,10 @@ func (hero *Hero) FindTarget() *HeroList {
 		var first *Hero
 
 		lstp.ForEachWithBreak(func(h *Hero) bool {
+			if !h.IsAlive() {
+				return true
+			}
+
 			if h.RealBattleHeroID != hero.RealBattleHeroID {
 				first = h
 
@@ -214,20 +250,27 @@ func (hero *Hero) FindTarget() *HeroList {
 		})
 
 		if last != nil {
-			hero.targetMove = NewHeroListEx2(last)
-		} else {
-			hero.targetMove = NewHeroListEx2(first)
+			// hero.targetMove = NewHeroListEx2(last)
+			return NewHeroListEx2(last)
 		}
 
-		return hero.targetMove
+		if first != nil {
+			return NewHeroListEx2(first)
+		}
+
+		return nil
+		// hero.targetMove = NewHeroListEx2(first)
+		// return NewHeroListEx2(first)
+
+		// return hero.targetMove
 	}
 
-	MgrStatic.MgrFunc.Run(hero.Data.Find,
-		NewLibFuncParams(hero.battle, hero, nil))
+	params := NewLibFuncParams(hero.battle, hero, nil, nil, nil)
 
-	hero.targetMove = hero.targetSkills.Clone()
+	MgrStatic.MgrFunc.Run(fd,
+		params)
 
-	return hero.targetMove
+	return params.Results //hero.targetSkills
 }
 
 func (hero *Hero) CanMove() bool {
@@ -389,6 +432,24 @@ func (hero *Hero) onMoveStepEnd(parent *BattleLogNode) {
 	hero.movePos = nil
 }
 
+func (hero *Hero) ForEachSkills(oneach FuncEachHeroSkill) bool {
+	for _, v := range hero.Skills {
+		if !oneach(hero, v) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (hero *Hero) onPropChg(pt PropType, startval int, endval int) {
+	if pt == PropTypeCurHP {
+		if endval <= 0 {
+			hero.battle.onHeroBeSkilled(hero)
+		}
+	}
+}
+
 func (hero *Hero) Clone() *Hero {
 	if hero.Data == nil {
 		return NewHero(hero.Props[PropTypeHP],
@@ -410,8 +471,8 @@ func (hero *Hero) Clone() *Hero {
 	nh.RealBattleHeroID = hero.RealBattleHeroID
 	nh.Data = hero.Data
 	nh.battle = hero.battle
-	nh.targetMove = hero.targetMove
-	nh.targetSkills = hero.targetSkills
+	// nh.targetMove = hero.targetMove
+	// nh.targetSkills = hero.targetSkills
 	nh.tmpDistance = hero.tmpDistance
 
 	for k, v := range hero.Props {
