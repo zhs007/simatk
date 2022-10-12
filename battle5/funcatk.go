@@ -19,7 +19,7 @@ func basicAtk(fd *FuncData, params *LibFuncParams) (bool, error) {
 
 			params.Battle.Log.SkillAttack(params.LogParent, params.Src, v, params.Skill, shp, ehp)
 
-			v.onPropChg(PropTypeCurHP, shp, ehp)
+			v.onPropChg(PropTypeCurHP, shp, ehp, NewBattleActionFromData(params.LogParent, params.Src, params.Skill))
 		}
 	})
 
@@ -45,7 +45,7 @@ func basicMAtk(fd *FuncData, params *LibFuncParams) (bool, error) {
 
 			params.Battle.Log.SkillAttack(params.LogParent, params.Src, v, params.Skill, shp, ehp)
 
-			v.onPropChg(PropTypeCurHP, shp, ehp)
+			v.onPropChg(PropTypeCurHP, shp, ehp, NewBattleActionFromData(params.LogParent, params.Src, params.Skill))
 		}
 	})
 

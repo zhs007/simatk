@@ -2,6 +2,9 @@ package battle5
 
 import (
 	"sort"
+
+	"github.com/zhs007/goutils"
+	"go.uber.org/zap"
 )
 
 type HeroList struct {
@@ -58,8 +61,34 @@ func (hl *HeroList) RemoveHero(h *Hero) {
 	}
 }
 
-func (hl *HeroList) AddHero(h *Hero) {
+func (hl *HeroList) Find(h *Hero) int {
+	for i, v := range hl.Heros {
+		if v.RealBattleHeroID == h.RealBattleHeroID {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func (hl *HeroList) AddHero(h *Hero) error {
+	if h == nil {
+		goutils.Error("HeroList.AddHero",
+			zap.Error(ErrHeroIsNull))
+
+		return ErrHeroIsNull
+	}
+
+	if hl.Find(h) >= 0 {
+		goutils.Error("HeroList.AddHero",
+			zap.Error(ErrDuplicateHero))
+
+		return ErrDuplicateHero
+	}
+
 	hl.Heros = append(hl.Heros, h)
+
+	return nil
 }
 
 func (hl *HeroList) Sort(isless FuncIsLess) {
@@ -123,11 +152,19 @@ func (hl *HeroList) GetAliveHeros() *HeroList {
 		}
 	})
 
-	if lst.IsEmpty() {
+	return lst.Format()
+}
+
+func (hl *HeroList) Format() *HeroList {
+	if hl == nil {
 		return nil
 	}
 
-	return lst
+	if hl.IsEmpty() {
+		return nil
+	}
+
+	return hl
 }
 
 func NewHeroList() *HeroList {

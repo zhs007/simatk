@@ -8,6 +8,7 @@ type Battle struct {
 	Log       *BattleLog
 	curHeroID int
 	mapHeros  map[int]*Hero
+	isEnd     bool
 }
 
 func (battle *Battle) GenRealHeroID() int {
@@ -69,7 +70,7 @@ func (battle *Battle) GenCurHeroList() *HeroList {
 
 	lst.SortInBattle()
 
-	return lst
+	return lst.Format()
 }
 
 func (battle *Battle) StartBattle() {
@@ -79,7 +80,13 @@ func (battle *Battle) StartBattle() {
 
 	for i := 0; i < MaxTurn; i++ {
 		battle.startTurn(root, i)
+
+		if battle.isEnd {
+			break
+		}
 	}
+
+	battle.Log.BattleEnd(root)
 }
 
 func (battle *Battle) battleReady(parent *BattleLogNode) {
@@ -111,37 +118,42 @@ func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
 		}
 	})
 
-	lst1 := lst
-
 	// 移动 v2
-	for {
-		lst2 := NewHeroList()
+	// 先判断角色是否需要移动，如果必须要移动，则至少会移动一格
+	// 这里主要为了后行动的角色也移动
+	lst1 := NewHeroList()
+	lst.ForEach(func(h *Hero) {
+		if h.LastTarget != nil {
+			if h.onMoveStepStart() {
+				lst1.AddHero(h)
+			}
+		}
+	})
 
-		lst1.ForEach(func(h *Hero) {
-			if h.LastTarget != nil {
-				if h.CanAttackWithDistance(h.LastTarget) {
-					if h.movePos != nil {
+	if !lst1.IsEmpty() {
+		for {
+			lst2 := NewHeroList()
+
+			lst1.ForEach(func(h *Hero) {
+				// if h.LastTarget != nil {
+				if h.move2TargetStep(h.LastTarget) {
+					if h.CanAttackWithDistance(h.LastTarget) {
 						h.onMoveStepEnd(turn)
+					} else {
+						lst2.AddHero(h)
 					}
 				} else {
-					if h.move2TargetStep(h.LastTarget) {
-						if h.CanAttackWithDistance(h.LastTarget) {
-							h.onMoveStepEnd(turn)
-						} else {
-							lst2.AddHero(h)
-						}
-					} else {
-						h.onMoveStepEnd(turn)
-					}
+					h.onMoveStepEnd(turn)
 				}
+				// }
+			})
+
+			if lst2.GetNum() <= 0 {
+				break
 			}
-		})
 
-		if lst2.GetNum() <= 0 {
-			break
+			lst1 = lst2
 		}
-
-		lst1 = lst2
 	}
 
 	// // 移动
@@ -158,28 +170,47 @@ func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
 	// })
 
 	// 攻击
-	lst.ForEach(func(h *Hero) {
-		h.ForEachSkills(func(ch *Hero, s *Skill) bool {
-			ch.UseSkill(turn, s)
+	lst.ForEachWithBreak(func(h *Hero) bool {
+		if h.IsAlive() {
+			h.ForEachSkills(func(ch *Hero, s *Skill) bool {
+				ch.UseSkill(turn, s)
 
-			// if s.canUseSkill() {
-			// 	targets := s.findTarget(ch)
-			// 	if targets != nil && targets.GetNum() > 0 {
-			// 		targets.ForEach(func(th *Hero) {
-			// 			s.useSkill(th)
-			// 		})
-			// 	}
-			// }
+				return battle.isEnd
+			})
 
-			return true
-		})
+			if battle.isEnd {
+				return false
+			}
+		}
+
+		return true
 	})
 
 	battle.Log.EndTurn(parent, turnindex+1)
 }
 
-func (battle *Battle) onHeroBeSkilled(h *Hero) {
-	battle.mapTeams[h.TeamIndex].onHeroBeSkilled(h)
+func (battle *Battle) onHeroBeSkilled(h *Hero, fd *BattleActionFromData) {
+	battle.mapTeams[h.TeamIndex].onHeroBeSkilled(h, fd)
+
+	if !h.IsAlive() {
+		battle.Log.KillHero(fd.Parent, fd.Hero, h, fd.Skill)
+
+		battle.checkGameEnd()
+	}
+}
+
+func (battle *Battle) checkGameEnd() {
+	aliveteams := 0
+
+	for _, v := range battle.mapTeams {
+		if v.IsAlive() {
+			aliveteams++
+		}
+	}
+
+	if aliveteams <= 1 {
+		battle.isEnd = true
+	}
 }
 
 func NewBattle(w, h int) *Battle {

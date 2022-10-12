@@ -149,7 +149,7 @@ func (team *Team) AutoSetPos() {
 	}
 }
 
-func (team *Team) onHeroBeSkilled(h *Hero) {
+func (team *Team) onHeroBeSkilled(h *Hero, fd *BattleActionFromData) {
 	team.needUpdAlive = true
 }
 

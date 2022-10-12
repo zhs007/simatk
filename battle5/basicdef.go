@@ -90,3 +90,17 @@ func NewPos(x, y int) *Pos {
 		Y: y,
 	}
 }
+
+type BattleActionFromData struct {
+	Parent *BattleLogNode
+	Hero   *Hero
+	Skill  *Skill
+}
+
+func NewBattleActionFromData(parent *BattleLogNode, hero *Hero, skill *Skill) *BattleActionFromData {
+	return &BattleActionFromData{
+		Parent: parent,
+		Hero:   hero,
+		Skill:  skill,
+	}
+}

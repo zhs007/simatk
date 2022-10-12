@@ -10,11 +10,11 @@ func (skill *Skill) canUseSkill() bool {
 }
 
 func (skill *Skill) findTarget(src *Hero) *HeroList {
-	lst := src.findTargetWithFuncData(skill.Data.Find)
+	return src.findTargetWithFuncData(skill.Data.Find)
 
 	// src.targetSkills = lst
 
-	return lst
+	// return lst.Format()
 }
 
 func (skill *Skill) attack(parent *BattleLogNode, src *Hero, target *Hero) {

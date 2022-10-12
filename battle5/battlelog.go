@@ -26,6 +26,8 @@ const (
 	BLNTReadySkill      BattleLogNodeType = 10 // 准备放技能
 	BLNTFindSkillTarget BattleLogNodeType = 11 // 寻找技能目标
 	BLNTSkillAttack     BattleLogNodeType = 12 // 技能伤害
+	BLNTKillHero        BattleLogNodeType = 13 // 击杀hero
+	BLNTBattleEnd       BattleLogNodeType = 14 // 战斗结束
 )
 
 type BattleLogNode struct {
@@ -214,6 +216,24 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 			bln.PropVals[0],
 			MgrStatic.MgrSkillData.GetSkillData(bln.FromSkillID).Name,
 			bln.FromSkillID)
+	case BLNTKillHero:
+		str += fmt.Sprintf("队%v %v(%v.%v)坐标(%v, %v) 击杀了 队%v %v(%v.%v)坐标(%v, %v) from 技能 %v(%v)。 \n",
+			bln.SrcTeam,
+			bln.srcHero.Data.Name,
+			bln.SrcHeroID,
+			bln.SrcRealHeroID,
+			bln.SrcPos.X,
+			bln.SrcPos.Y,
+			bln.TargetTeam,
+			bln.targetHero.Data.Name,
+			bln.TargetHeroID,
+			bln.TargetRealHeroID,
+			bln.TargetPos.X,
+			bln.TargetPos.Y,
+			MgrStatic.MgrSkillData.GetSkillData(bln.FromSkillID).Name,
+			bln.FromSkillID)
+	case BLNTBattleEnd:
+		str += fmt.Sprintf("战斗结束\n")
 	}
 
 	if ontext != nil {
@@ -408,6 +428,40 @@ func (bl *BattleLog) SkillAttack(parent *BattleLogNode, src *Hero, target *Hero,
 	node.Props = append(node.Props, PropTypeCurHP)
 	node.OldPropVals = append(node.OldPropVals, starthp)
 	node.PropVals = append(node.PropVals, endhp)
+
+	if parent != nil {
+		parent.Children = append(parent.Children, node)
+	}
+
+	return node
+}
+
+func (bl *BattleLog) KillHero(parent *BattleLogNode, src *Hero, target *Hero, skill *Skill) *BattleLogNode {
+	node := &BattleLogNode{
+		NodeID: bl.GenNodeID(),
+		Type:   BLNTKillHero,
+		// srcHero: src,
+	}
+
+	node.SetSrc(src)
+	node.SetFromSkill(skill)
+
+	if target != nil {
+		node.SetTarget(target)
+	}
+
+	if parent != nil {
+		parent.Children = append(parent.Children, node)
+	}
+
+	return node
+}
+
+func (bl *BattleLog) BattleEnd(parent *BattleLogNode) *BattleLogNode {
+	node := &BattleLogNode{
+		NodeID: bl.GenNodeID(),
+		Type:   BLNTBattleEnd,
+	}
 
 	if parent != nil {
 		parent.Children = append(parent.Children, node)

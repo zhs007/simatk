@@ -122,7 +122,14 @@ func (hero *Hero) cmpNearEnemySide(h0 *Hero, h1 *Hero) int {
 
 // 在队列里找最近的多少个，一定会返回一个新的herolist
 func (hero *Hero) FindNear(lst0 *HeroList, num int) *HeroList {
+	if num <= 0 {
+		return nil
+	}
+
 	lst1 := lst0.GetAliveHeros()
+	if lst1 == nil {
+		return nil
+	}
 
 	if num >= lst1.GetNum() {
 		return lst1
@@ -166,6 +173,10 @@ func (hero *Hero) FindNear(lst0 *HeroList, num int) *HeroList {
 
 // 在队列里找最远的多少个，一定会返回一个新的herolist
 func (hero *Hero) FindFar(lst0 *HeroList, num int) *HeroList {
+	if num <= 0 {
+		return nil
+	}
+
 	lst1 := lst0.GetAliveHeros()
 
 	if num >= lst1.GetNum() {
@@ -210,9 +221,9 @@ func (hero *Hero) FindFar(lst0 *HeroList, num int) *HeroList {
 
 // 选择目标
 func (hero *Hero) FindTarget() *HeroList {
-	lst := hero.findTargetWithFuncData(hero.Data.Find)
+	return hero.findTargetWithFuncData(hero.Data.Find)
 
-	return lst
+	// return lst.Format()
 	// hero.targetMove = lst
 	// hero.targetSkills = nil
 
@@ -270,7 +281,7 @@ func (hero *Hero) findTargetWithFuncData(fd *FuncData) *HeroList {
 	MgrStatic.MgrFunc.Run(fd,
 		params)
 
-	return params.Results //hero.targetSkills
+	return params.Results.Format() //hero.targetSkills
 }
 
 func (hero *Hero) CanMove() bool {
@@ -356,7 +367,7 @@ func (hero *Hero) CanAttackWithDistance(toHero *Hero) bool {
 
 // 移动一步
 func (hero *Hero) move2TargetStepY(target *Hero) bool {
-	oy := target.Pos.Y - hero.Pos.Y
+	oy := target.Pos.Y - hero.movePos.Y
 	if oy == 0 {
 		return false
 	}
@@ -371,21 +382,21 @@ func (hero *Hero) move2TargetStepY(target *Hero) bool {
 	}
 
 	if oy < 0 {
-		hero.movePos.Y = target.Pos.Y + 1
+		hero.movePos.Y--
 
 		return hero.lastMoveVal > 0
 	}
 
-	hero.movePos.Y = target.Pos.Y - 1
+	hero.movePos.Y++
 
 	return hero.lastMoveVal > 0
 }
 
 // 移动一步
 func (hero *Hero) move2TargetStep(target *Hero) bool {
-	if hero.movePos == nil {
-		hero.onMoveStepStart()
-	}
+	// if hero.movePos == nil {
+	// 	hero.onMoveStepStart()
+	// }
 
 	if hero.Props[PropTypeCurMovDistance] == 99 {
 		hero.movePos.Set(target.Pos)
@@ -398,7 +409,7 @@ func (hero *Hero) move2TargetStep(target *Hero) bool {
 	}
 
 	// 优先x轴移动
-	ox := target.Pos.X - hero.Pos.X
+	ox := target.Pos.X - hero.movePos.X
 	if ox == 0 {
 		return hero.move2TargetStepY(target)
 	}
@@ -406,19 +417,25 @@ func (hero *Hero) move2TargetStep(target *Hero) bool {
 	hero.lastMoveVal--
 
 	if ox < 0 {
-		hero.movePos.X = target.Pos.X + 1
+		hero.movePos.X--
 
 		return hero.lastMoveVal > 0
 	}
 
-	hero.movePos.X = target.Pos.X - 1
+	hero.movePos.X++
 
 	return hero.lastMoveVal > 0
 }
 
-func (hero *Hero) onMoveStepStart() {
+func (hero *Hero) onMoveStepStart() bool {
+	if hero.CanAttackWithDistance(hero.LastTarget) {
+		return false
+	}
+
 	hero.movePos = NewPos(hero.Pos.X, hero.Pos.Y)
 	hero.lastMoveVal = hero.Props[PropTypeMovDistance]
+
+	return true
 }
 
 func (hero *Hero) onMoveStepEnd(parent *BattleLogNode) {
@@ -442,10 +459,10 @@ func (hero *Hero) ForEachSkills(oneach FuncEachHeroSkill) bool {
 	return true
 }
 
-func (hero *Hero) onPropChg(pt PropType, startval int, endval int) {
+func (hero *Hero) onPropChg(pt PropType, startval int, endval int, fd *BattleActionFromData) {
 	if pt == PropTypeCurHP {
 		if endval <= 0 {
-			hero.battle.onHeroBeSkilled(hero)
+			hero.battle.onHeroBeSkilled(hero, fd)
 		}
 	}
 }
@@ -534,6 +551,7 @@ func NewHeroEx(battle *Battle, hd *HeroData) *Hero {
 			X: -1,
 			Y: -1,
 		},
+		RealBattleHeroID: battle.GenRealHeroID(),
 	}
 
 	hero.Props[PropTypeHP] = hd.HP
