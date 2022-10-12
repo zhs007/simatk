@@ -7,11 +7,19 @@ func basicAtk(fd *FuncData, params *LibFuncParams) (bool, error) {
 	params.Target.ForEach(func(v *Hero) {
 		atk := hero.Props[PropTypeCurAtk] * hero.Props[PropTypeCurAtk] / (hero.Props[PropTypeCurAtk] + v.Props[PropTypeCurDef])
 		if atk > 0 {
+			shp := v.Props[PropTypeCurHP]
+
 			v.Props[PropTypeCurHP] -= atk
 
-			if v.Props[PropTypeCurHP] <= 0 {
-				params.Battle.mapTeams[v.TeamIndex].needUpdAlive = true
-			}
+			ehp := v.Props[PropTypeCurHP]
+
+			// if v.Props[PropTypeCurHP] <= 0 {
+			// 	params.Battle.mapTeams[v.TeamIndex].needUpdAlive = true
+			// }
+
+			params.Battle.Log.SkillAttack(params.LogParent, params.Src, v, params.Skill, shp, ehp)
+
+			v.onPropChg(PropTypeCurHP, shp, ehp)
 		}
 	})
 
@@ -25,11 +33,19 @@ func basicMAtk(fd *FuncData, params *LibFuncParams) (bool, error) {
 	params.Target.ForEach(func(v *Hero) {
 		atk := hero.Props[PropTypeCurMagic] * hero.Props[PropTypeCurMagic] / (hero.Props[PropTypeCurMagic] + v.Props[PropTypeCurMagic])
 		if atk > 0 {
+			shp := v.Props[PropTypeCurHP]
+
 			v.Props[PropTypeCurHP] -= atk
 
-			if v.Props[PropTypeCurHP] <= 0 {
-				params.Battle.mapTeams[v.TeamIndex].needUpdAlive = true
-			}
+			ehp := v.Props[PropTypeCurHP]
+
+			// if v.Props[PropTypeCurHP] <= 0 {
+			// 	params.Battle.mapTeams[v.TeamIndex].needUpdAlive = true
+			// }
+
+			params.Battle.Log.SkillAttack(params.LogParent, params.Src, v, params.Skill, shp, ehp)
+
+			v.onPropChg(PropTypeCurHP, shp, ehp)
 		}
 	})
 

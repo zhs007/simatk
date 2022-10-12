@@ -149,6 +149,10 @@ func (team *Team) AutoSetPos() {
 	}
 }
 
+func (team *Team) onHeroBeSkilled(h *Hero) {
+	team.needUpdAlive = true
+}
+
 func NewTeam(battle *Battle, index int, lst []*HeroData) *Team {
 	team := &Team{
 		Heros:        NewHeroList(),
