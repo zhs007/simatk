@@ -13,18 +13,22 @@ func (mgr *FuncMgr) RegFunc(name string, f FuncLib) {
 	mgr.MapFunc[name] = f
 }
 
-func (mgr *FuncMgr) Init() {
-	mgr.RegFunc("basicatk", basicAtk)
-	mgr.RegFunc("basicmatk", basicMAtk)
+// func (mgr *FuncMgr) Init() {
+// 	// battle5func.RegBasicAtk(mgr)
 
-	mgr.RegFunc("findnear", findNear)
-	mgr.RegFunc("findfar", findFar)
-}
+// 	// mgr.RegFunc("basicatk", FuncLib{
+
+// 	// })
+// 	// mgr.RegFunc("basicmatk", basicMAtk)
+
+// 	// mgr.RegFunc("findnear", findNear)
+// 	// mgr.RegFunc("findfar", findFar)
+// }
 
 func (mgr *FuncMgr) Run(fd *FuncData, params *LibFuncParams) (bool, error) {
 	f, isok := mgr.MapFunc[fd.FuncName]
 	if isok {
-		return f(fd, params)
+		return f.OnProc(fd, params)
 	}
 
 	goutils.Error("FuncMgr.Run",

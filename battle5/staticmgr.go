@@ -15,12 +15,13 @@ type StaticMgr struct {
 
 var MgrStatic *StaticMgr
 
-func NewStaticMgr(dir string) (*StaticMgr, error) {
+func NewStaticMgr(dir string, oninitallfuncs FuncInitAllFuncs) (*StaticMgr, error) {
 	mgr := &StaticMgr{
 		MgrFunc: NewFuncMgr(),
 	}
 
-	mgr.MgrFunc.Init()
+	// mgr.MgrFunc.Init()
+	oninitallfuncs(mgr.MgrFunc)
 
 	mgrherodata, err := LoadHeroData(path.Join(dir, "heros.xlsx"))
 	if err != nil {

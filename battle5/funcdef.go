@@ -32,10 +32,20 @@ func NewLibFuncParams(battle *Battle, src *Hero, target *HeroList, skill *Skill,
 	}
 }
 
-type FuncLib func(*FuncData, *LibFuncParams) (bool, error)
+type FuncInitAllFuncs func(*FuncMgr) error
+
+type FuncLibProc func(*FuncData, *LibFuncParams) (bool, error)
+type FuncLibInit func(*FuncData) error
+
+type FuncLib struct {
+	OnProc FuncLibProc
+	OnInit FuncLibInit
+}
 
 type FuncData struct {
-	FuncName string   `json:"name,omitempty"`
-	Vals     []int    `json:"vals,omitempty"`
-	StrVals  []string `json:"strvals,omitempty"`
+	FuncName  string   `json:"name,omitempty"`
+	InVals    []int    `json:"vals,omitempty"`
+	InStrVals []string `json:"strvals,omitempty"`
+	Vals      []int    `json:"-"`
+	StrVals   []string `json:"-"`
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/zhs007/goutils"
 	"github.com/zhs007/simatk/battle5"
+	battle5funcs "github.com/zhs007/simatk/battle5/funcs"
 	"go.uber.org/zap"
 )
 
@@ -14,7 +15,7 @@ func main() {
 
 	goutils.InitLogger("", "", "debug", true, "")
 
-	mgr, err := battle5.NewStaticMgr("./gamedata/battle5")
+	mgr, err := battle5.NewStaticMgr("./gamedata/battle5", battle5funcs.InitAllFuncs)
 	if err != nil {
 		goutils.Error("NewStaticMgr",
 			zap.Error(err))

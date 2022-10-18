@@ -459,7 +459,7 @@ func (hero *Hero) ForEachSkills(oneach FuncEachHeroSkill) bool {
 	return true
 }
 
-func (hero *Hero) onPropChg(pt PropType, startval int, endval int, fd *BattleActionFromData) {
+func (hero *Hero) OnPropChg(pt PropType, startval int, endval int, fd *BattleActionFromData) {
 	if pt == PropTypeCurHP {
 		if endval <= 0 {
 			hero.battle.onHeroBeSkilled(hero, fd)

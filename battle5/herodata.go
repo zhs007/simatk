@@ -258,7 +258,7 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 								return nil, err
 							}
 
-							findfunc.Vals = append(findfunc.Vals, int(i64))
+							findfunc.InVals = append(findfunc.InVals, int(i64))
 						}
 					}
 
@@ -268,7 +268,7 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 					for _, v := range arr {
 						v = strings.TrimSpace(v)
 						if v != "" {
-							findfunc.StrVals = append(findfunc.StrVals, v)
+							findfunc.InStrVals = append(findfunc.InStrVals, v)
 						}
 					}
 
