@@ -39,6 +39,14 @@ const (
 	PropTypeTeamSpeedVal PropType = 150 // 队伍速度值，快的队里这个值大于慢的队
 )
 
+type TargetType int
+
+const (
+	TargetTypeEnemy  TargetType = 1
+	TargetTypeFriend TargetType = 2
+	TargetTypeAll    TargetType = 3
+)
+
 // 关于位置
 // (x3,y1) (x2,y1) (x1,y1)
 // (x3,y2) (x2,y2) (x1,y2)

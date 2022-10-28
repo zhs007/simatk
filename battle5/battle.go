@@ -19,6 +19,10 @@ func (battle *Battle) GenRealHeroID() int {
 	return id
 }
 
+func (battle *Battle) GetTeam(index int) *Team {
+	return battle.mapTeams[index]
+}
+
 func (battle *Battle) SetTeam(index int, lst []*HeroData, autoSetPos bool) {
 	battle.mapTeams[index] = NewTeam(battle, index, lst)
 

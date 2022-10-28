@@ -157,6 +157,9 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 				}
 			}
 
+			MgrStatic.MgrFunc.InitFuncData(findfunc)
+			MgrStatic.MgrFunc.InitFuncData(atkfunc)
+
 			mgr.mapSkills[sd.ID] = sd
 		}
 	}

@@ -233,7 +233,7 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 			MgrStatic.MgrSkillData.GetSkillData(bln.FromSkillID).Name,
 			bln.FromSkillID)
 	case BLNTBattleEnd:
-		str += fmt.Sprintf("战斗结束\n")
+		str += "战斗结束\n"
 	}
 
 	if ontext != nil {

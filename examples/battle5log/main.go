@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-	battle5.MgrStatic = mgr
+	// battle5.MgrStatic = mgr
 
 	battle := battle5.NewBattleEx(mgr,
 		[]battle5.HeroID{10000, 10001, 10002, 10003, 10004},

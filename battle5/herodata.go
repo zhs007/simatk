@@ -276,6 +276,8 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 				}
 			}
 
+			MgrStatic.MgrFunc.InitFuncData(findfunc)
+
 			mgr.mapHeros[hd.ID] = hd
 		}
 	}

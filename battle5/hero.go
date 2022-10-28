@@ -9,7 +9,7 @@ type Hero struct {
 	RealBattleHeroID int       // 战斗里hero的唯一标识
 	Data             *HeroData // 直接读表数据
 	Skills           []*Skill  // 技能
-	battle           *Battle
+	Battle           *Battle
 	// targetMove       *HeroList // 移动目标
 	// targetSkills     *HeroList // 技能目标
 	tmpDistance int   // 临时距离，按距离排序用
@@ -24,20 +24,20 @@ func (hero *Hero) IsAlive() bool {
 
 func (hero *Hero) UseSkill(parent *BattleLogNode, skill *Skill) {
 	if skill != nil {
-		logSkill := hero.battle.Log.UseSkill(parent, hero, skill)
+		logSkill := hero.Battle.Log.UseSkill(parent, hero, skill)
 
 		if skill.canUseSkill() {
 			targets := skill.findTarget(hero)
 			if targets != nil && targets.GetNum() > 0 {
 				targets.ForEach(func(th *Hero) {
-					hero.battle.Log.FindSkillTarget(logSkill, hero, th)
+					hero.Battle.Log.FindSkillTarget(logSkill, hero, th)
 				})
 
 				targets.ForEach(func(th *Hero) {
 					skill.attack(logSkill, hero, th)
 				})
 			} else {
-				hero.battle.Log.FindSkillTarget(logSkill, hero, nil)
+				hero.Battle.Log.FindSkillTarget(logSkill, hero, nil)
 			}
 		}
 
@@ -233,7 +233,7 @@ func (hero *Hero) FindTarget() *HeroList {
 // 选择目标
 func (hero *Hero) findTargetWithFuncData(fd *FuncData) *HeroList {
 	// 如果自己的格子上有人，在格子内找目标
-	lstp := hero.battle.Scene.GetHerosWithPos(hero.Pos)
+	lstp := hero.Battle.Scene.GetHerosWithPos(hero.Pos)
 	if lstp.GetNum() > 1 {
 		var last *Hero
 		var first *Hero
@@ -276,7 +276,7 @@ func (hero *Hero) findTargetWithFuncData(fd *FuncData) *HeroList {
 		// return hero.targetMove
 	}
 
-	params := NewLibFuncParams(hero.battle, hero, nil, nil, nil)
+	params := NewLibFuncParams(hero.Battle, hero, nil, nil, nil)
 
 	MgrStatic.MgrFunc.Run(fd,
 		params)
@@ -440,9 +440,9 @@ func (hero *Hero) onMoveStepStart() bool {
 
 func (hero *Hero) onMoveStepEnd(parent *BattleLogNode) {
 	if !hero.Pos.Equal(hero.movePos) {
-		hero.battle.Log.HeroMove(parent, hero, hero.movePos)
+		hero.Battle.Log.HeroMove(parent, hero, hero.movePos)
 
-		hero.battle.Scene.HeroMove(hero, hero.movePos)
+		hero.Battle.Scene.HeroMove(hero, hero.movePos)
 		hero.Pos.Set(hero.movePos)
 	}
 
@@ -462,7 +462,7 @@ func (hero *Hero) ForEachSkills(oneach FuncEachHeroSkill) bool {
 func (hero *Hero) OnPropChg(pt PropType, startval int, endval int, fd *BattleActionFromData) {
 	if pt == PropTypeCurHP {
 		if endval <= 0 {
-			hero.battle.onHeroBeSkilled(hero, fd)
+			hero.Battle.onHeroBeSkilled(hero, fd)
 		}
 	}
 }
@@ -487,7 +487,7 @@ func (hero *Hero) Clone() *Hero {
 	nh.TeamIndex = hero.TeamIndex
 	nh.RealBattleHeroID = hero.RealBattleHeroID
 	nh.Data = hero.Data
-	nh.battle = hero.battle
+	nh.Battle = hero.Battle
 	// nh.targetMove = hero.targetMove
 	// nh.targetSkills = hero.targetSkills
 	nh.tmpDistance = hero.tmpDistance
@@ -542,7 +542,7 @@ func NewHeroEx(battle *Battle, hd *HeroData) *Hero {
 		ID:     HeroID(hd.ID),
 		Props:  make(map[PropType]int),
 		Data:   hd,
-		battle: battle,
+		Battle: battle,
 		StaticPos: &Pos{
 			X: -1,
 			Y: -1,

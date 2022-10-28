@@ -20,7 +20,7 @@ func (skill *Skill) findTarget(src *Hero) *HeroList {
 func (skill *Skill) attack(parent *BattleLogNode, src *Hero, target *Hero) {
 	// 伤害
 	if skill.Data.Atk != nil {
-		MgrStatic.MgrFunc.Run(skill.Data.Atk, NewLibFuncParams(src.battle, src, NewHeroListEx2(target), skill, parent))
+		MgrStatic.MgrFunc.Run(skill.Data.Atk, NewLibFuncParams(src.Battle, src, NewHeroListEx2(target), skill, parent))
 	}
 }
 

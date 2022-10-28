@@ -20,6 +20,8 @@ func NewStaticMgr(dir string, oninitallfuncs FuncInitAllFuncs) (*StaticMgr, erro
 		MgrFunc: NewFuncMgr(),
 	}
 
+	MgrStatic = mgr
+
 	// mgr.MgrFunc.Init()
 	oninitallfuncs(mgr.MgrFunc)
 
