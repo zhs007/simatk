@@ -11,4 +11,6 @@ var (
 	ErrHeroIsNull = errors.New("null hero")
 	// ErrDuplicateHero - duplicate hero
 	ErrDuplicateHero = errors.New("duplicate hero")
+	// ErrInvalidBuffEffectString - invalid Buff Effect string
+	ErrInvalidBuffEffectString = errors.New("invalid Buff Effect string")
 )
