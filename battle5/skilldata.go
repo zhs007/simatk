@@ -9,11 +9,13 @@ import (
 )
 
 type SkillData struct {
-	ID   SkillID
-	Name string
-	Info string
-	Atk  *FuncData
-	Find *FuncData
+	ID          SkillID
+	Name        string
+	Info        string
+	Type        SkillType
+	ReleaseType ReleaseSkillType
+	Atk         *FuncData
+	Find        *FuncData
 }
 
 type SkillDataMgr struct {
@@ -84,6 +86,10 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					sd.Name = colCell
 				case "info":
 					sd.Info = colCell
+				case "type":
+					sd.Type = Str2SkillType(colCell)
+				case "releasetype":
+					sd.ReleaseType = Str2ReleaseSkillType(colCell)
 				case "atkfunc":
 					atkfunc.FuncName = colCell
 
@@ -165,4 +171,30 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 	}
 
 	return mgr, nil
+}
+
+func Str2SkillType(str string) SkillType {
+	switch str {
+	case "basicatk":
+		return SkillTypeBasicAtk
+	case "natural":
+		return SkillTypeNatural
+	case "ultimate":
+		return SkillTypeUltimate
+	case "normal":
+		return SkillTypeNormal
+	}
+
+	return SkillTypeNormal
+}
+
+func Str2ReleaseSkillType(str string) ReleaseSkillType {
+	switch str {
+	case "normal":
+		return ReleaseSkillTypeNormal
+	case "passive":
+		return ReleaseSkillTypePassive
+	}
+
+	return ReleaseSkillTypeNormal
 }

@@ -18,6 +18,8 @@ const (
 	PropTypeDef   PropType = 3 // 初始def
 	PropTypeMagic PropType = 4 // 初始magic
 	PropTypeSpeed PropType = 5 // 初始speed
+	PropTypeDodge PropType = 6 // 初始闪避
+	PropTypeCrit  PropType = 7 // 初始暴击
 
 	PropTypeMovDistance PropType = 20 // 移动距离
 	PropTypeAtkDistance PropType = 21 // 攻击距离
@@ -42,9 +44,25 @@ const (
 type TargetType int
 
 const (
-	TargetTypeEnemy  TargetType = 1
-	TargetTypeFriend TargetType = 2
-	TargetTypeAll    TargetType = 3
+	TargetTypeEnemy  TargetType = 1 // 敌人
+	TargetTypeFriend TargetType = 2 // 友方
+	TargetTypeAll    TargetType = 3 // 不分敌我
+)
+
+type SkillType int
+
+const (
+	SkillTypeBasicAtk SkillType = 1 // 普攻
+	SkillTypeNatural  SkillType = 2 // 天赋，天赋技能
+	SkillTypeUltimate SkillType = 3 // 必杀，终极技能
+	SkillTypeNormal   SkillType = 4 // 普通
+)
+
+type ReleaseSkillType int
+
+const (
+	ReleaseSkillTypeNormal  ReleaseSkillType = 1 // 主动技能
+	ReleaseSkillTypePassive ReleaseSkillType = 2 // 被动
 )
 
 // 关于位置
