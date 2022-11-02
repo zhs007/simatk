@@ -11,6 +11,28 @@ type Battle struct {
 	isEnd     bool
 }
 
+func (battle *Battle) GenAliveHeroList(onhero FuncEachHeroBool) *HeroList {
+	hl := NewHeroList()
+
+	if onhero == nil {
+		for _, v := range battle.mapHeros {
+			if v.IsAlive() {
+				hl.AddHero(v)
+			}
+		}
+
+		return hl
+	}
+
+	for _, v := range battle.mapHeros {
+		if v.IsAlive() && onhero(v) {
+			hl.AddHero(v)
+		}
+	}
+
+	return hl
+}
+
 func (battle *Battle) GenRealHeroID() int {
 	id := battle.curHeroID
 

@@ -3,8 +3,8 @@ package battle5
 // 简单遍历hero list
 type FuncEachHero func(*Hero)
 
-// 遍历hero list，返回false会break
-type FuncEachHeroBreak func(*Hero) bool
+// 遍历hero list，返回bool
+type FuncEachHeroBool func(*Hero) bool
 
 // 遍历hero skills，返回false会break
 type FuncEachHeroSkill func(*Hero, *Skill) bool
