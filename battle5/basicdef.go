@@ -38,6 +38,12 @@ const (
 	PropTypeCurAtkDistance PropType = 121 // 当前攻击距离
 
 	PropTypeTeamSpeedVal PropType = 150 // 队伍速度值，快的队里这个值大于慢的队
+
+	// 状态值，是 或者 否
+	PropTypeTaunt PropType = 200 // 嘲讽
+
+	// 百分比附加属性
+	PropTypeReduceDamage PropType = 300 // 减少伤害
 )
 
 type TargetType int
