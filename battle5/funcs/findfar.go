@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// 物理攻击
+// 找最远的
 func findFarRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, error) {
 	hero := params.Src
 
@@ -21,7 +21,7 @@ func findFarRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, erro
 	return true, nil
 }
 
-// 物理攻击
+// 找最远的
 func findFarInit(fd *battle5.FuncData) error {
 	fd.Vals = nil
 

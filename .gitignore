@@ -31,3 +31,5 @@ battle5.xlsx
 output/*.txt
 output/*.xlsx
 output/*.json
+
+.DS_Store

@@ -25,13 +25,25 @@ func (hl *HeroList) Clone() *HeroList {
 	return lst
 }
 
+func (hl *HeroList) CloneEx(onhero FuncEachHeroBool) *HeroList {
+	lst := NewHeroList()
+
+	for _, v := range hl.Heros {
+		if onhero(v) {
+			lst.AddHero(v)
+		}
+	}
+
+	return lst
+}
+
 func (hl *HeroList) ForEach(oneach FuncEachHero) {
 	for _, v := range hl.Heros {
 		oneach(v)
 	}
 }
 
-func (hl *HeroList) ForEachWithBreak(oneach FuncEachHeroBreak) bool {
+func (hl *HeroList) ForEachWithBreak(oneach FuncEachHeroBool) bool {
 	for _, v := range hl.Heros {
 		if !oneach(v) {
 			return false

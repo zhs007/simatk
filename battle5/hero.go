@@ -1,21 +1,22 @@
 package battle5
 
 type Hero struct {
+	Battle           *Battle
 	ID               HeroID
 	Props            map[PropType]int
-	StaticPos        *Pos      // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
-	Pos              *Pos      // 坐标
-	TeamIndex        int       // 队伍索引，0-进攻方，1-防守方
-	RealBattleHeroID int       // 战斗里hero的唯一标识
-	Data             *HeroData // 直接读表数据
-	Skills           []*Skill  // 技能
-	Battle           *Battle
+	StaticPos        *Pos                 // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
+	Pos              *Pos                 // 坐标
+	TeamIndex        int                  // 队伍索引，0-进攻方，1-防守方
+	RealBattleHeroID int                  // 战斗里hero的唯一标识
+	Data             *HeroData            // 直接读表数据
+	Skills           []*Skill             // 技能
+	tmpDistance      int                  // 临时距离，按距离排序用
+	movePos          *Pos                 // 移动位置，修正位移时用
+	lastMoveVal      int                  // 剩余的移动距离，修正位移时用
+	LastTarget       *Hero                // 上一次的目标
+	MapSingleState   map[BuffEffect]*Buff // 简单状态
 	// targetMove       *HeroList // 移动目标
 	// targetSkills     *HeroList // 技能目标
-	tmpDistance int   // 临时距离，按距离排序用
-	movePos     *Pos  // 移动位置，修正位移时用
-	lastMoveVal int   // 剩余的移动距离，修正位移时用
-	LastTarget  *Hero // 上一次的目标
 }
 
 func (hero *Hero) IsAlive() bool {
@@ -505,7 +506,8 @@ func (hero *Hero) Clone() *Hero {
 
 func NewHero(hp int, atk int, def int, magic int, speed int, isMagicAtk bool) *Hero {
 	hero := &Hero{
-		Props: make(map[PropType]int),
+		Props:          make(map[PropType]int),
+		MapSingleState: make(map[BuffEffect]*Buff),
 	}
 
 	hero.Props[PropTypeHP] = hp
@@ -552,6 +554,7 @@ func NewHeroEx(battle *Battle, hd *HeroData) *Hero {
 			Y: -1,
 		},
 		RealBattleHeroID: battle.GenRealHeroID(),
+		MapSingleState:   make(map[BuffEffect]*Buff),
 	}
 
 	hero.Props[PropTypeHP] = hd.HP

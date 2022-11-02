@@ -6,13 +6,8 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	findnearNum  = 0 // 目标数量，0表示全部
-	findnearType = 1 // 目标类型，TargetType
-)
-
-// 找最近的
-func findNearRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, error) {
+// 找范围内的
+func findAreaRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, error) {
 	hero := params.Src
 
 	ti := hero.GetEnemyTeamIndex()
@@ -26,8 +21,8 @@ func findNearRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, err
 	return true, nil
 }
 
-// 找最近的
-func findNearInit(fd *battle5.FuncData) error {
+// 找范围内的
+func findAreaInit(fd *battle5.FuncData) error {
 	fd.Vals = nil
 
 	if len(fd.InVals) >= 1 {
@@ -61,9 +56,9 @@ func findNearInit(fd *battle5.FuncData) error {
 	return nil
 }
 
-func regFindNear(mgr *battle5.FuncMgr) {
-	mgr.RegFunc("findnear", battle5.FuncLib{
-		OnProc: findNearRun,
-		OnInit: findNearInit,
+func regFindArea(mgr *battle5.FuncMgr) {
+	mgr.RegFunc("findarea", battle5.FuncLib{
+		OnProc: findAreaRun,
+		OnInit: findAreaInit,
 	})
 }
