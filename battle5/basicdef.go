@@ -72,6 +72,14 @@ const (
 	ReleaseSkillTypePassive ReleaseSkillType = 2 // 被动
 )
 
+type BuffTriggerType int
+
+const (
+	BuffTriggerTypeAttach    BuffTriggerType = 1 // attach时
+	BuffTriggerTypeTurnStart BuffTriggerType = 2 // 回合开始
+	BuffTriggerTypeTurnEnd   BuffTriggerType = 3 // 回合结束
+)
+
 // 关于位置
 // (x3,y1) (x2,y1) (x1,y1)
 // (x3,y2) (x2,y2) (x1,y2)
