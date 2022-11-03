@@ -94,7 +94,21 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 				Y: -1,
 			}
 
-			findfunc := &FuncData{}
+			findfunc, err := BuildFuncData(header, row, "find")
+			if err != nil {
+				goutils.Error("LoadHeroData:find",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if findfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(findfunc)
+				hd.Find = findfunc
+			}
+
+			// findfunc := &FuncData{}
 
 			for x, colCell := range row {
 				switch header[x] {
@@ -238,45 +252,45 @@ func LoadHeroData(fn string) (*HeroDataMgr, error) {
 							hd.Skills = append(hd.Skills, SkillID(i64))
 						}
 					}
-				case "findfunc":
-					findfunc.FuncName = colCell
+					// case "findfunc":
+					// 	findfunc.FuncName = colCell
 
-					hd.Find = findfunc
-				case "findvals":
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							i64, err := goutils.String2Int64(v)
-							if err != nil {
-								goutils.Error("LoadSkillData:skills",
-									zap.Int("x", x),
-									zap.Int("y", y),
-									zap.String("cell", colCell),
-									zap.Error(err))
+					// 	hd.Find = findfunc
+					// case "findvals":
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			i64, err := goutils.String2Int64(v)
+					// 			if err != nil {
+					// 				goutils.Error("LoadSkillData:skills",
+					// 					zap.Int("x", x),
+					// 					zap.Int("y", y),
+					// 					zap.String("cell", colCell),
+					// 					zap.Error(err))
 
-								return nil, err
-							}
+					// 				return nil, err
+					// 			}
 
-							findfunc.InVals = append(findfunc.InVals, int(i64))
-						}
-					}
+					// 			findfunc.InVals = append(findfunc.InVals, int(i64))
+					// 		}
+					// 	}
 
-					hd.Find = findfunc
-				case "findstrvals":
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							findfunc.InStrVals = append(findfunc.InStrVals, v)
-						}
-					}
+					// 	hd.Find = findfunc
+					// case "findstrvals":
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			findfunc.InStrVals = append(findfunc.InStrVals, v)
+					// 		}
+					// 	}
 
-					hd.Find = findfunc
+					// 	hd.Find = findfunc
 				}
 			}
 
-			MgrStatic.MgrFunc.InitFuncData(findfunc)
+			// MgrStatic.MgrFunc.InitFuncData(findfunc)
 
 			mgr.mapHeros[hd.ID] = hd
 		}

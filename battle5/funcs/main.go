@@ -12,5 +12,7 @@ func InitAllFuncs(mgr *battle5.FuncMgr) error {
 	regFindMe(mgr)
 	regFindAll(mgr)
 
+	regAttachBuffs(mgr)
+
 	return nil
 }

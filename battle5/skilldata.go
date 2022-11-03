@@ -1,8 +1,6 @@
 package battle5
 
 import (
-	"strings"
-
 	"github.com/xuri/excelize/v2"
 	"github.com/zhs007/goutils"
 	"go.uber.org/zap"
@@ -16,6 +14,8 @@ type SkillData struct {
 	ReleaseType ReleaseSkillType
 	Atk         *FuncData
 	Find        *FuncData
+	OnStart     *FuncData
+	OnEnd       *FuncData
 }
 
 type SkillDataMgr struct {
@@ -64,8 +64,62 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 			header = row
 		} else {
 			sd := &SkillData{}
-			atkfunc := &FuncData{}
-			findfunc := &FuncData{}
+
+			atkfunc, err := BuildFuncData(header, row, "atk")
+			if err != nil {
+				goutils.Error("LoadSkillData:atk",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if atkfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(atkfunc)
+				sd.Atk = atkfunc
+			}
+
+			findfunc, err := BuildFuncData(header, row, "find")
+			if err != nil {
+				goutils.Error("LoadSkillData:find",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if findfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(findfunc)
+				sd.Find = findfunc
+			}
+
+			onstartfunc, err := BuildFuncData(header, row, "onstart")
+			if err != nil {
+				goutils.Error("LoadSkillData:onstart",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if onstartfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(onstartfunc)
+				sd.OnStart = onstartfunc
+			}
+
+			onendfunc, err := BuildFuncData(header, row, "onend")
+			if err != nil {
+				goutils.Error("LoadSkillData:onend",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if onendfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(onendfunc)
+				sd.OnEnd = onendfunc
+			}
 
 			for x, colCell := range row {
 				switch header[x] {
@@ -90,81 +144,81 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					sd.Type = Str2SkillType(colCell)
 				case "releasetype":
 					sd.ReleaseType = Str2ReleaseSkillType(colCell)
-				case "atkfunc":
-					atkfunc.FuncName = colCell
+					// case "atkfunc":
+					// 	atkfunc.FuncName = colCell
 
-					sd.Atk = atkfunc
-				case "atkvals":
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							i64, err := goutils.String2Int64(v)
-							if err != nil {
-								goutils.Error("LoadSkillData:skills",
-									zap.Int("x", x),
-									zap.Int("y", y),
-									zap.String("cell", colCell),
-									zap.Error(err))
+					// 	sd.Atk = atkfunc
+					// case "atkvals":
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			i64, err := goutils.String2Int64(v)
+					// 			if err != nil {
+					// 				goutils.Error("LoadSkillData:skills",
+					// 					zap.Int("x", x),
+					// 					zap.Int("y", y),
+					// 					zap.String("cell", colCell),
+					// 					zap.Error(err))
 
-								return nil, err
-							}
+					// 				return nil, err
+					// 			}
 
-							atkfunc.InVals = append(atkfunc.InVals, int(i64))
-						}
-					}
+					// 			atkfunc.InVals = append(atkfunc.InVals, int(i64))
+					// 		}
+					// 	}
 
-					sd.Atk = atkfunc
-				case "atkstrvals":
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							atkfunc.InStrVals = append(atkfunc.InStrVals, v)
-						}
-					}
+					// 	sd.Atk = atkfunc
+					// case "atkstrvals":
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			atkfunc.InStrVals = append(atkfunc.InStrVals, v)
+					// 		}
+					// 	}
 
-					sd.Atk = atkfunc
-				case "findfunc":
-					findfunc.FuncName = colCell
+					// 	sd.Atk = atkfunc
+					// case "findfunc":
+					// 	findfunc.FuncName = colCell
 
-					sd.Find = findfunc
-				case "findvals":
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							i64, err := goutils.String2Int64(v)
-							if err != nil {
-								goutils.Error("LoadSkillData:skills",
-									zap.Int("x", x),
-									zap.Int("y", y),
-									zap.String("cell", colCell),
-									zap.Error(err))
+					// 	sd.Find = findfunc
+					// case "findvals":
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			i64, err := goutils.String2Int64(v)
+					// 			if err != nil {
+					// 				goutils.Error("LoadSkillData:skills",
+					// 					zap.Int("x", x),
+					// 					zap.Int("y", y),
+					// 					zap.String("cell", colCell),
+					// 					zap.Error(err))
 
-								return nil, err
-							}
+					// 				return nil, err
+					// 			}
 
-							findfunc.InVals = append(findfunc.InVals, int(i64))
-						}
-					}
+					// 			findfunc.InVals = append(findfunc.InVals, int(i64))
+					// 		}
+					// 	}
 
-					sd.Find = findfunc
-				case "findstrvals":
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							findfunc.InStrVals = append(findfunc.InStrVals, v)
-						}
-					}
+					// 	sd.Find = findfunc
+					// case "findstrvals":
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			findfunc.InStrVals = append(findfunc.InStrVals, v)
+					// 		}
+					// 	}
 
-					sd.Find = findfunc
+					// 	sd.Find = findfunc
 				}
 			}
 
-			MgrStatic.MgrFunc.InitFuncData(findfunc)
-			MgrStatic.MgrFunc.InitFuncData(atkfunc)
+			// MgrStatic.MgrFunc.InitFuncData(findfunc)
+			// MgrStatic.MgrFunc.InitFuncData(atkfunc)
 
 			mgr.mapSkills[sd.ID] = sd
 		}

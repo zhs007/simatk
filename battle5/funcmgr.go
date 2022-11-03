@@ -32,7 +32,7 @@ func (mgr *FuncMgr) Run(fd *FuncData, params *LibFuncParams) (bool, error) {
 	}
 
 	goutils.Error("FuncMgr.Run",
-		goutils.JSON("duncdata", fd),
+		goutils.JSON("funcdata", fd),
 		zap.Error(ErrInvalidFuncName))
 
 	return false, ErrInvalidFuncName
@@ -45,7 +45,7 @@ func (mgr *FuncMgr) InitFuncData(fd *FuncData) error {
 	}
 
 	goutils.Error("FuncMgr.InitFuncData",
-		goutils.JSON("duncdata", fd),
+		goutils.JSON("funcdata", fd),
 		zap.Error(ErrInvalidFuncName))
 
 	return ErrInvalidFuncName

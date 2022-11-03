@@ -1,8 +1,6 @@
 package battle5
 
 import (
-	"strings"
-
 	"github.com/xuri/excelize/v2"
 	"github.com/zhs007/goutils"
 	"go.uber.org/zap"
@@ -85,9 +83,51 @@ func LoadBuffData(fn string) (*BuffDataMgr, error) {
 		} else {
 			bd := &BuffData{}
 
-			attachfunc := &FuncData{}
-			findfunc := &FuncData{}
-			triggerfunc := &FuncData{}
+			attachfunc, err := BuildFuncData(header, row, "attach")
+			if err != nil {
+				goutils.Error("LoadBuffData:attach",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if attachfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(attachfunc)
+				bd.Attach = attachfunc
+			}
+
+			findfunc, err := BuildFuncData(header, row, "find")
+			if err != nil {
+				goutils.Error("LoadBuffData:find",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if findfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(findfunc)
+				bd.Find = findfunc
+			}
+
+			triggerfunc, err := BuildFuncData(header, row, "trigger")
+			if err != nil {
+				goutils.Error("LoadBuffData:trigger",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if triggerfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(triggerfunc)
+				bd.Trigger = triggerfunc
+			}
+
+			// attachfunc := &FuncData{}
+			// findfunc := &FuncData{}
+			// triggerfunc := &FuncData{}
 
 			for x, colCell := range row {
 				switch header[x] {
@@ -145,159 +185,159 @@ func LoadBuffData(fn string) (*BuffDataMgr, error) {
 					}
 
 					bd.Turns = int(i64)
-				case "attachfunc":
-					if colCell == "" {
-						attachfunc = nil
+					// case "attachfunc":
+					// 	if colCell == "" {
+					// 		attachfunc = nil
 
-						break
-					}
+					// 		break
+					// 	}
 
-					attachfunc.FuncName = colCell
+					// 	attachfunc.FuncName = colCell
 
-					bd.Attach = attachfunc
-				case "attachvals":
-					if attachfunc == nil {
-						break
-					}
+					// 	bd.Attach = attachfunc
+					// case "attachvals":
+					// 	if attachfunc == nil {
+					// 		break
+					// 	}
 
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							i64, err := goutils.String2Int64(v)
-							if err != nil {
-								goutils.Error("LoadBuffData:attachvals",
-									zap.Int("x", x),
-									zap.Int("y", y),
-									zap.String("cell", colCell),
-									zap.Error(err))
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			i64, err := goutils.String2Int64(v)
+					// 			if err != nil {
+					// 				goutils.Error("LoadBuffData:attachvals",
+					// 					zap.Int("x", x),
+					// 					zap.Int("y", y),
+					// 					zap.String("cell", colCell),
+					// 					zap.Error(err))
 
-								return nil, err
-							}
+					// 				return nil, err
+					// 			}
 
-							attachfunc.InVals = append(attachfunc.InVals, int(i64))
-						}
-					}
+					// 			attachfunc.InVals = append(attachfunc.InVals, int(i64))
+					// 		}
+					// 	}
 
-					bd.Attach = attachfunc
-				case "attachstrvals":
-					if attachfunc == nil {
-						break
-					}
+					// 	bd.Attach = attachfunc
+					// case "attachstrvals":
+					// 	if attachfunc == nil {
+					// 		break
+					// 	}
 
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							attachfunc.InStrVals = append(attachfunc.InStrVals, v)
-						}
-					}
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			attachfunc.InStrVals = append(attachfunc.InStrVals, v)
+					// 		}
+					// 	}
 
-					bd.Attach = attachfunc
-				case "findfunc":
-					if colCell == "" {
-						findfunc = nil
+					// 	bd.Attach = attachfunc
+					// case "findfunc":
+					// 	if colCell == "" {
+					// 		findfunc = nil
 
-						break
-					}
+					// 		break
+					// 	}
 
-					findfunc.FuncName = colCell
+					// 	findfunc.FuncName = colCell
 
-					bd.Find = findfunc
-				case "findvals":
-					if findfunc == nil {
-						break
-					}
+					// 	bd.Find = findfunc
+					// case "findvals":
+					// 	if findfunc == nil {
+					// 		break
+					// 	}
 
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							i64, err := goutils.String2Int64(v)
-							if err != nil {
-								goutils.Error("LoadBuffData:findvals",
-									zap.Int("x", x),
-									zap.Int("y", y),
-									zap.String("cell", colCell),
-									zap.Error(err))
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			i64, err := goutils.String2Int64(v)
+					// 			if err != nil {
+					// 				goutils.Error("LoadBuffData:findvals",
+					// 					zap.Int("x", x),
+					// 					zap.Int("y", y),
+					// 					zap.String("cell", colCell),
+					// 					zap.Error(err))
 
-								return nil, err
-							}
+					// 				return nil, err
+					// 			}
 
-							findfunc.InVals = append(findfunc.InVals, int(i64))
-						}
-					}
+					// 			findfunc.InVals = append(findfunc.InVals, int(i64))
+					// 		}
+					// 	}
 
-					bd.Find = findfunc
-				case "findstrvals":
-					if findfunc == nil {
-						break
-					}
+					// 	bd.Find = findfunc
+					// case "findstrvals":
+					// 	if findfunc == nil {
+					// 		break
+					// 	}
 
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							findfunc.InStrVals = append(findfunc.InStrVals, v)
-						}
-					}
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			findfunc.InStrVals = append(findfunc.InStrVals, v)
+					// 		}
+					// 	}
 
-					bd.Find = findfunc
-				case "triggerfunc":
-					if colCell == "" {
-						triggerfunc = nil
+					// 	bd.Find = findfunc
+					// case "triggerfunc":
+					// 	if colCell == "" {
+					// 		triggerfunc = nil
 
-						break
-					}
+					// 		break
+					// 	}
 
-					triggerfunc.FuncName = colCell
+					// 	triggerfunc.FuncName = colCell
 
-					bd.Trigger = triggerfunc
-				case "triggetvals":
-					if triggerfunc == nil {
-						break
-					}
+					// 	bd.Trigger = triggerfunc
+					// case "triggetvals":
+					// 	if triggerfunc == nil {
+					// 		break
+					// 	}
 
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							i64, err := goutils.String2Int64(v)
-							if err != nil {
-								goutils.Error("LoadBuffData:triggetvals",
-									zap.Int("x", x),
-									zap.Int("y", y),
-									zap.String("cell", colCell),
-									zap.Error(err))
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			i64, err := goutils.String2Int64(v)
+					// 			if err != nil {
+					// 				goutils.Error("LoadBuffData:triggetvals",
+					// 					zap.Int("x", x),
+					// 					zap.Int("y", y),
+					// 					zap.String("cell", colCell),
+					// 					zap.Error(err))
 
-								return nil, err
-							}
+					// 				return nil, err
+					// 			}
 
-							triggerfunc.InVals = append(triggerfunc.InVals, int(i64))
-						}
-					}
+					// 			triggerfunc.InVals = append(triggerfunc.InVals, int(i64))
+					// 		}
+					// 	}
 
-					bd.Trigger = triggerfunc
-				case "triggerstrvals":
-					if triggerfunc == nil {
-						break
-					}
+					// 	bd.Trigger = triggerfunc
+					// case "triggerstrvals":
+					// 	if triggerfunc == nil {
+					// 		break
+					// 	}
 
-					arr := strings.Split(colCell, "|")
-					for _, v := range arr {
-						v = strings.TrimSpace(v)
-						if v != "" {
-							triggerfunc.InStrVals = append(triggerfunc.InStrVals, v)
-						}
-					}
+					// 	arr := strings.Split(colCell, "|")
+					// 	for _, v := range arr {
+					// 		v = strings.TrimSpace(v)
+					// 		if v != "" {
+					// 			triggerfunc.InStrVals = append(triggerfunc.InStrVals, v)
+					// 		}
+					// 	}
 
-					bd.Trigger = triggerfunc
+					// 	bd.Trigger = triggerfunc
 				}
 			}
 
-			MgrStatic.MgrFunc.InitFuncData(findfunc)
-			MgrStatic.MgrFunc.InitFuncData(attachfunc)
-			MgrStatic.MgrFunc.InitFuncData(triggerfunc)
+			// MgrStatic.MgrFunc.InitFuncData(findfunc)
+			// MgrStatic.MgrFunc.InitFuncData(attachfunc)
+			// MgrStatic.MgrFunc.InitFuncData(triggerfunc)
 
 			mgr.mapBuffs[bd.ID] = bd
 		}

@@ -40,7 +40,7 @@ func findAreaInit(fd *battle5.FuncData) error {
 	}
 
 	if len(fd.InStrVals) >= 1 {
-		if !isValidTargetType(fd.StrVals[0]) {
+		if !isValidTargetType(fd.InStrVals[0]) {
 			goutils.Error("findNearInit",
 				goutils.JSON("params", fd),
 				zap.Error(ErrInvalidVals))
