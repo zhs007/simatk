@@ -26,14 +26,15 @@ func Str2BuffEffect(str string) (BuffEffect, error) {
 }
 
 type BuffData struct {
-	ID      BuffID
-	Name    string
-	Effect  BuffEffect
-	Level   int
-	Turns   int
-	Attach  *FuncData
-	Trigger *FuncData
-	Find    *FuncData
+	ID       BuffID
+	Name     string
+	Effect   BuffEffect
+	Triggers []TriggerType
+	Level    int
+	Turns    int
+	Attach   *FuncData
+	Trigger  *FuncData
+	Find     *FuncData
 }
 
 type BuffDataMgr struct {
@@ -146,6 +147,8 @@ func LoadBuffData(fn string) (*BuffDataMgr, error) {
 					bd.ID = BuffID(i64)
 				case "name":
 					bd.Name = colCell
+				case "trigger":
+					bd.Triggers = ParseTriggerList(colCell)
 				case "effect":
 					effect, err := Str2BuffEffect(colCell)
 					if err != nil {

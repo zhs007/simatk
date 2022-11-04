@@ -26,7 +26,7 @@ func findAllRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, erro
 			params.Results = hero.Battle.GetTeam(ti).Heros.Clone()
 		} else {
 			params.Results = hero.Battle.GetTeam(ti).Heros.CloneEx(func(h *battle5.Hero) bool {
-				return h.RealBattleHeroID != hero.RealBattleHeroID
+				return !h.IsMe(hero)
 			})
 		}
 	} else {
@@ -34,7 +34,7 @@ func findAllRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, erro
 			params.Results = hero.Battle.GenAliveHeroList(nil)
 		} else {
 			params.Results = hero.Battle.GenAliveHeroList(func(h *battle5.Hero) bool {
-				return h.RealBattleHeroID != hero.RealBattleHeroID
+				return !h.IsMe(hero)
 			})
 		}
 	}

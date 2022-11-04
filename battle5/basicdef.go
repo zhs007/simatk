@@ -72,13 +72,45 @@ const (
 	ReleaseSkillTypePassive ReleaseSkillType = 2 // 被动
 )
 
-type BuffTriggerType int
+type TriggerType int
 
 const (
-	BuffTriggerTypeAttach    BuffTriggerType = 1 // attach时
-	BuffTriggerTypeTurnStart BuffTriggerType = 2 // 回合开始
-	BuffTriggerTypeTurnEnd   BuffTriggerType = 3 // 回合结束
+	TriggerTypeNone      TriggerType = 0 // none
+	TriggerTypeAttach    TriggerType = 1 // attach buff时，buff在被附加时
+	TriggerTypeTurnStart TriggerType = 2 // 回合开始
+	TriggerTypeTurnEnd   TriggerType = 3 // 回合结束
+	TriggerTypeFind      TriggerType = 4 // 寻找目标时
 )
+
+func Str2TriggerType(str string) TriggerType {
+
+	switch str {
+	case "find":
+		return TriggerTypeFind
+	case "attach":
+		return TriggerTypeAttach
+	case "turnstart":
+		return TriggerTypeTurnStart
+	case "turnend":
+		return TriggerTypeTurnEnd
+	}
+
+	return TriggerTypeNone
+}
+
+// 触发时数据，这里面的数据可以完整的表达任意时点
+type TriggerData struct {
+	Parent   *TriggerData // 父节点，某些情况下，是A打B，B反击然后触发一个判断，所以这里需要有溯源机制
+	Trigger  TriggerType  // 类型
+	Turn     int          // 回合
+	Src      *Hero        // 源英雄，发起方，譬如攻击、寻敌等
+	Target   *Hero        // 目标英雄，受击方，被确定为目标等
+	SrcSkill *Skill       // 源技能
+	SrcBuff  *Buff        // 源buff
+}
+
+type BuffInstanceID int
+type HeroInstanceID int
 
 // 关于位置
 // (x3,y1) (x2,y1) (x1,y1)

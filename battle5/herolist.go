@@ -65,7 +65,7 @@ func (hl *HeroList) Init(battle *Battle, lst []*HeroData) {
 
 func (hl *HeroList) RemoveHero(h *Hero) {
 	for i, v := range hl.Heros {
-		if v.RealBattleHeroID == h.RealBattleHeroID {
+		if v.IsMe(h) {
 			hl.Heros = append(hl.Heros[0:i], hl.Heros[i+1:]...)
 
 			return
@@ -75,7 +75,7 @@ func (hl *HeroList) RemoveHero(h *Hero) {
 
 func (hl *HeroList) Find(h *Hero) int {
 	for i, v := range hl.Heros {
-		if v.RealBattleHeroID == h.RealBattleHeroID {
+		if v.IsMe(h) {
 			return i
 		}
 	}

@@ -1,14 +1,21 @@
 package battle5
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/zhs007/goutils"
+	"go.uber.org/zap"
+)
 
 type Battle struct {
-	Scene     *Scene
-	mapTeams  map[int]*Team
-	Log       *BattleLog
-	curHeroID int
-	mapHeros  map[int]*Hero
-	isEnd     bool
+	Scene             *Scene
+	mapTeams          map[int]*Team
+	Log               *BattleLog
+	mapHeros          map[HeroInstanceID]*Hero
+	curHeroInstanceID HeroInstanceID
+	curBuffInstanceID BuffInstanceID
+	CurTurn           int
+	isEnd             bool
 }
 
 func (battle *Battle) GenAliveHeroList(onhero FuncEachHeroBool) *HeroList {
@@ -33,10 +40,18 @@ func (battle *Battle) GenAliveHeroList(onhero FuncEachHeroBool) *HeroList {
 	return hl
 }
 
-func (battle *Battle) GenRealHeroID() int {
-	id := battle.curHeroID
+func (battle *Battle) GenHeroInstanceID() HeroInstanceID {
+	id := battle.curHeroInstanceID
 
-	battle.curHeroID++
+	battle.curHeroInstanceID++
+
+	return id
+}
+
+func (battle *Battle) GenBuffInstanceID() BuffInstanceID {
+	id := battle.curBuffInstanceID
+
+	battle.curBuffInstanceID++
 
 	return id
 }
@@ -53,11 +68,11 @@ func (battle *Battle) SetTeam(index int, lst []*HeroData, autoSetPos bool) {
 	}
 
 	for _, v := range battle.mapTeams[index].Heros.Heros {
-		v.RealBattleHeroID = battle.GenRealHeroID()
+		v.InstanceID = battle.GenHeroInstanceID()
 
 		battle.Scene.AddHero(v)
 
-		battle.mapHeros[v.RealBattleHeroID] = v
+		battle.mapHeros[v.InstanceID] = v
 	}
 }
 
@@ -126,6 +141,8 @@ func (battle *Battle) battleReady(parent *BattleLogNode) {
 }
 
 func (battle *Battle) startTurn(parent *BattleLogNode, turnindex int) {
+	battle.CurTurn = turnindex
+
 	turn := battle.Log.StartTurn(parent, turnindex+1)
 
 	lst := battle.GenCurHeroList()
@@ -239,14 +256,36 @@ func (battle *Battle) checkGameEnd() {
 	}
 }
 
+func (battle *Battle) NewBuff(buffid BuffID, from *Hero, skill *Skill) (*Buff, error) {
+	bd := MgrStatic.MgrBuffData.GetBuffData(buffid)
+	if bd == nil {
+		goutils.Error("Battle.NewBuff",
+			zap.Int("buffid", int(buffid)),
+			zap.Error(ErrInvalidBuffID))
+
+		return nil, ErrInvalidBuffID
+	}
+
+	buff := &Buff{
+		Data:       bd,
+		InstanceID: battle.GenBuffInstanceID(),
+		From:       from,
+		FromSkill:  skill,
+	}
+
+	return buff, nil
+}
+
 func NewBattle(w, h int) *Battle {
 	scene := NewScene(w, h)
 	battle := &Battle{
-		Scene:     scene,
-		mapTeams:  make(map[int]*Team),
-		Log:       NewBattleLog(),
-		curHeroID: 1,
-		mapHeros:  make(map[int]*Hero),
+		Scene:             scene,
+		mapTeams:          make(map[int]*Team),
+		Log:               NewBattleLog(),
+		curHeroInstanceID: 1,
+		curBuffInstanceID: 1,
+		CurTurn:           1,
+		mapHeros:          make(map[HeroInstanceID]*Hero),
 	}
 
 	return battle

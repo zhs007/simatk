@@ -31,25 +31,25 @@ const (
 )
 
 type BattleLogNode struct {
-	NodeID           BattleLogNodeID   `json:"nodeid"`
-	Type             BattleLogNodeType `json:"type"`
-	Turn             int               `json:"turn,omitempty"` // turn从1开始，turnindex从0开始
-	SrcTeam          int               `json:"srcteam,omitempty"`
-	SrcHeroID        HeroID            `json:"srcheroid,omitempty"`
-	SrcRealHeroID    int               `json:"srcrealheroid,omitempty"`
-	SrcPos           *Pos              `json:"srcpos,omitempty"`
-	srcHero          *Hero             `json:"-"`
-	TargetTeam       int               `json:"targetteam,omitempty"`
-	TargetHeroID     HeroID            `json:"targetheroid,omitempty"`
-	TargetRealHeroID int               `json:"targetrealheroid,omitempty"`
-	TargetPos        *Pos              `json:"targetpos,omitempty"`
-	targetHero       *Hero             `json:"-"`
-	Children         []*BattleLogNode  `json:"children,omitempty"`
-	Props            []PropType        `json:"props,omitempty"`
-	OldPropVals      []int             `json:"oldpropvals,omitempty"`
-	PropVals         []int             `json:"propvals,omitempty"`
-	TargetSkillID    SkillID           `json:"targetskillid,omitempty"`
-	FromSkillID      SkillID           `json:"fromskillid,omitempty"`
+	NodeID               BattleLogNodeID   `json:"nodeid"`
+	Type                 BattleLogNodeType `json:"type"`
+	Turn                 int               `json:"turn,omitempty"` // turn从1开始，turnindex从0开始
+	SrcTeam              int               `json:"srcteam,omitempty"`
+	SrcHeroID            HeroID            `json:"srcheroid,omitempty"`
+	SrcHeroInstanceID    HeroInstanceID    `json:"srcheroinstanceid,omitempty"`
+	SrcPos               *Pos              `json:"srcpos,omitempty"`
+	srcHero              *Hero             `json:"-"`
+	TargetTeam           int               `json:"targetteam,omitempty"`
+	TargetHeroID         HeroID            `json:"targetheroid,omitempty"`
+	TargetHeroInstanceID HeroInstanceID    `json:"targetheroinstanceid,omitempty"`
+	TargetPos            *Pos              `json:"targetpos,omitempty"`
+	targetHero           *Hero             `json:"-"`
+	Children             []*BattleLogNode  `json:"children,omitempty"`
+	Props                []PropType        `json:"props,omitempty"`
+	OldPropVals          []int             `json:"oldpropvals,omitempty"`
+	PropVals             []int             `json:"propvals,omitempty"`
+	TargetSkillID        SkillID           `json:"targetskillid,omitempty"`
+	FromSkillID          SkillID           `json:"fromskillid,omitempty"`
 }
 
 // func (bln *BattleLogNode) SetSrcPos(hero *Hero) {
@@ -64,7 +64,7 @@ func (bln *BattleLogNode) SetSrc(hero *Hero) {
 
 	bln.SrcTeam = hero.TeamIndex + 1
 	bln.srcHero = hero
-	bln.SrcRealHeroID = hero.RealBattleHeroID
+	bln.SrcHeroInstanceID = hero.InstanceID
 	bln.SrcHeroID = hero.ID
 }
 
@@ -73,7 +73,7 @@ func (bln *BattleLogNode) SetTarget(hero *Hero) {
 
 	bln.TargetTeam = hero.TeamIndex + 1
 	bln.targetHero = hero
-	bln.TargetRealHeroID = hero.RealBattleHeroID
+	bln.TargetHeroInstanceID = hero.InstanceID
 	bln.TargetHeroID = hero.ID
 }
 
@@ -112,7 +112,7 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 			bln.SrcTeam,
 			bln.srcHero.Data.Name,
 			bln.SrcHeroID,
-			bln.SrcRealHeroID,
+			bln.SrcHeroInstanceID,
 			bln.TargetPos.X,
 			bln.TargetPos.Y)
 
@@ -135,13 +135,13 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 				bln.SrcTeam,
 				bln.srcHero.Data.Name,
 				bln.SrcHeroID,
-				bln.SrcRealHeroID,
+				bln.SrcHeroInstanceID,
 				bln.SrcPos.X,
 				bln.SrcPos.Y,
 				bln.TargetTeam,
 				bln.targetHero.Data.Name,
 				bln.TargetHeroID,
-				bln.TargetRealHeroID,
+				bln.TargetHeroInstanceID,
 				bln.TargetPos.X,
 				bln.TargetPos.Y)
 		} else {
@@ -149,7 +149,7 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 				bln.SrcTeam,
 				bln.srcHero.Data.Name,
 				bln.SrcHeroID,
-				bln.SrcRealHeroID,
+				bln.SrcHeroInstanceID,
 				bln.SrcPos.X,
 				bln.SrcPos.Y)
 		}
@@ -158,7 +158,7 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 			bln.SrcTeam,
 			bln.srcHero.Data.Name,
 			bln.SrcHeroID,
-			bln.SrcRealHeroID,
+			bln.SrcHeroInstanceID,
 			bln.SrcPos.X,
 			bln.SrcPos.Y,
 			bln.TargetPos.X,
@@ -168,7 +168,7 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 			bln.SrcTeam,
 			bln.srcHero.Data.Name,
 			bln.SrcHeroID,
-			bln.SrcRealHeroID,
+			bln.SrcHeroInstanceID,
 			bln.SrcPos.X,
 			bln.SrcPos.Y,
 			MgrStatic.MgrSkillData.GetSkillData(bln.TargetSkillID).Name,
@@ -179,13 +179,13 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 				bln.SrcTeam,
 				bln.srcHero.Data.Name,
 				bln.SrcHeroID,
-				bln.SrcRealHeroID,
+				bln.SrcHeroInstanceID,
 				bln.SrcPos.X,
 				bln.SrcPos.Y,
 				bln.TargetTeam,
 				bln.targetHero.Data.Name,
 				bln.TargetHeroID,
-				bln.TargetRealHeroID,
+				bln.TargetHeroInstanceID,
 				bln.TargetPos.X,
 				bln.TargetPos.Y)
 		} else {
@@ -193,7 +193,7 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 				bln.SrcTeam,
 				bln.srcHero.Data.Name,
 				bln.SrcHeroID,
-				bln.SrcRealHeroID,
+				bln.SrcHeroInstanceID,
 				bln.SrcPos.X,
 				bln.SrcPos.Y)
 		}
@@ -202,13 +202,13 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 			bln.SrcTeam,
 			bln.srcHero.Data.Name,
 			bln.SrcHeroID,
-			bln.SrcRealHeroID,
+			bln.SrcHeroInstanceID,
 			bln.SrcPos.X,
 			bln.SrcPos.Y,
 			bln.TargetTeam,
 			bln.targetHero.Data.Name,
 			bln.TargetHeroID,
-			bln.TargetRealHeroID,
+			bln.TargetHeroInstanceID,
 			bln.TargetPos.X,
 			bln.TargetPos.Y,
 			bln.PropVals[0]-bln.OldPropVals[0],
@@ -221,13 +221,13 @@ func (bln *BattleLogNode) GenString(tab string, tabnum int, ontext FuncOnText) {
 			bln.SrcTeam,
 			bln.srcHero.Data.Name,
 			bln.SrcHeroID,
-			bln.SrcRealHeroID,
+			bln.SrcHeroInstanceID,
 			bln.SrcPos.X,
 			bln.SrcPos.Y,
 			bln.TargetTeam,
 			bln.targetHero.Data.Name,
 			bln.TargetHeroID,
-			bln.TargetRealHeroID,
+			bln.TargetHeroInstanceID,
 			bln.TargetPos.X,
 			bln.TargetPos.Y,
 			MgrStatic.MgrSkillData.GetSkillData(bln.FromSkillID).Name,

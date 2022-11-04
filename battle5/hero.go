@@ -1,22 +1,32 @@
 package battle5
 
+import (
+	"github.com/zhs007/goutils"
+	"go.uber.org/zap"
+)
+
 type Hero struct {
-	Battle           *Battle
-	ID               HeroID
-	Props            map[PropType]int
-	StaticPos        *Pos                 // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
-	Pos              *Pos                 // 坐标
-	TeamIndex        int                  // 队伍索引，0-进攻方，1-防守方
-	RealBattleHeroID int                  // 战斗里hero的唯一标识
-	Data             *HeroData            // 直接读表数据
-	Skills           []*Skill             // 技能
-	tmpDistance      int                  // 临时距离，按距离排序用
-	movePos          *Pos                 // 移动位置，修正位移时用
-	lastMoveVal      int                  // 剩余的移动距离，修正位移时用
-	LastTarget       *Hero                // 上一次的目标
-	MapSingleState   map[BuffEffect]*Buff // 简单状态
+	Battle         *Battle
+	ID             HeroID
+	Props          map[PropType]int
+	StaticPos      *Pos                 // 初始坐标，按本地坐标来的，也就是2队人，这个坐标都是对自己在左边的
+	Pos            *Pos                 // 坐标
+	TeamIndex      int                  // 队伍索引，0-进攻方，1-防守方
+	InstanceID     HeroInstanceID       // 战斗里hero的唯一标识
+	Data           *HeroData            // 直接读表数据
+	Skills         []*Skill             // 技能
+	tmpDistance    int                  // 临时距离，按距离排序用
+	movePos        *Pos                 // 移动位置，修正位移时用
+	lastMoveVal    int                  // 剩余的移动距离，修正位移时用
+	LastTarget     *Hero                // 上一次的目标
+	MapSingleState map[BuffEffect]*Buff // 简单状态
+	Trigger        *BuffTriggerMap
 	// targetMove       *HeroList // 移动目标
 	// targetSkills     *HeroList // 技能目标
+}
+
+func (hero *Hero) IsMe(h *Hero) bool {
+	return hero.InstanceID == h.InstanceID
 }
 
 func (hero *Hero) IsAlive() bool {
@@ -137,7 +147,7 @@ func (hero *Hero) FindNear(lst0 *HeroList, num int) *HeroList {
 	}
 
 	lst1.ForEach(func(h *Hero) {
-		if hero.RealBattleHeroID == h.RealBattleHeroID {
+		if hero.InstanceID == h.InstanceID {
 			h.tmpDistance = 0
 		} else {
 			h.tmpDistance = hero.Pos.CalcDistance(h.Pos)
@@ -148,11 +158,11 @@ func (hero *Hero) FindNear(lst0 *HeroList, num int) *HeroList {
 	lst1.Sort(func(i, j int) bool {
 		if lst1.Heros[i].tmpDistance == lst1.Heros[j].tmpDistance {
 			// 优先上一次目标
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[i].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.InstanceID == lst1.Heros[i].InstanceID {
 				return true
 			}
 
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[j].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.InstanceID == lst1.Heros[j].InstanceID {
 				return false
 			}
 
@@ -185,7 +195,7 @@ func (hero *Hero) FindFar(lst0 *HeroList, num int) *HeroList {
 	}
 
 	lst1.ForEach(func(h *Hero) {
-		if hero.RealBattleHeroID == h.RealBattleHeroID {
+		if hero.IsMe(h) {
 			h.tmpDistance = 0
 		} else {
 			h.tmpDistance = hero.Pos.CalcDistance(h.Pos)
@@ -196,11 +206,11 @@ func (hero *Hero) FindFar(lst0 *HeroList, num int) *HeroList {
 	lst1.Sort(func(i, j int) bool {
 		if lst1.Heros[i].tmpDistance == lst1.Heros[j].tmpDistance {
 			// 优先上一次目标
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[i].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.IsMe(lst1.Heros[i]) {
 				return true
 			}
 
-			if hero.LastTarget != nil && hero.LastTarget.RealBattleHeroID == lst1.Heros[j].RealBattleHeroID {
+			if hero.LastTarget != nil && hero.LastTarget.IsMe(lst1.Heros[j]) {
 				return false
 			}
 
@@ -222,6 +232,21 @@ func (hero *Hero) FindFar(lst0 *HeroList, num int) *HeroList {
 
 // 选择目标
 func (hero *Hero) FindTarget() *HeroList {
+	params := NewLibFuncParams(hero.Battle, hero, nil, nil, nil,
+		NewTriggerDataFind(hero.Battle.CurTurn, hero))
+
+	ret, err := hero.Trigger.OnTrigger(TriggerTypeFind, params)
+	if err != nil {
+		goutils.Error("Hero.FindTarget",
+			zap.Error(err))
+
+		return nil
+	}
+
+	if !ret {
+		return params.Results.Format()
+	}
+
 	return hero.findTargetWithFuncData(hero.Data.Find)
 
 	// return lst.Format()
@@ -244,11 +269,11 @@ func (hero *Hero) findTargetWithFuncData(fd *FuncData) *HeroList {
 				return true
 			}
 
-			if h.RealBattleHeroID != hero.RealBattleHeroID {
+			if !h.IsMe(hero) {
 				first = h
 
 				if hero.LastTarget != nil {
-					if hero.LastTarget.RealBattleHeroID == h.RealBattleHeroID {
+					if hero.LastTarget.IsMe(h) {
 						last = h
 
 						return false
@@ -277,7 +302,7 @@ func (hero *Hero) findTargetWithFuncData(fd *FuncData) *HeroList {
 		// return hero.targetMove
 	}
 
-	params := NewLibFuncParams(hero.Battle, hero, nil, nil, nil)
+	params := NewLibFuncParams(hero.Battle, hero, nil, nil, nil, nil)
 
 	MgrStatic.MgrFunc.Run(fd,
 		params)
@@ -479,19 +504,21 @@ func (hero *Hero) Clone() *Hero {
 	}
 
 	nh := &Hero{
-		Props: make(map[PropType]int),
+		Props:   make(map[PropType]int),
+		Trigger: NewBuffTriggerMap(),
 	}
 
 	nh.ID = hero.ID
 	nh.StaticPos = hero.StaticPos.Clone()
 	nh.Pos = hero.Pos.Clone()
 	nh.TeamIndex = hero.TeamIndex
-	nh.RealBattleHeroID = hero.RealBattleHeroID
+	nh.InstanceID = hero.InstanceID
 	nh.Data = hero.Data
 	nh.Battle = hero.Battle
 	// nh.targetMove = hero.targetMove
 	// nh.targetSkills = hero.targetSkills
 	nh.tmpDistance = hero.tmpDistance
+	// nh.Trigger = NewBuffTriggerMap()
 
 	for k, v := range hero.Props {
 		nh.Props[k] = v
@@ -508,6 +535,7 @@ func NewHero(hp int, atk int, def int, magic int, speed int, isMagicAtk bool) *H
 	hero := &Hero{
 		Props:          make(map[PropType]int),
 		MapSingleState: make(map[BuffEffect]*Buff),
+		Trigger:        NewBuffTriggerMap(),
 	}
 
 	hero.Props[PropTypeHP] = hp
@@ -553,8 +581,9 @@ func NewHeroEx(battle *Battle, hd *HeroData) *Hero {
 			X: -1,
 			Y: -1,
 		},
-		RealBattleHeroID: battle.GenRealHeroID(),
-		MapSingleState:   make(map[BuffEffect]*Buff),
+		InstanceID:     battle.GenHeroInstanceID(),
+		MapSingleState: make(map[BuffEffect]*Buff),
+		Trigger:        NewBuffTriggerMap(),
 	}
 
 	hero.Props[PropTypeHP] = hd.HP

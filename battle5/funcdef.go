@@ -14,21 +14,23 @@ type FuncOnText func(string)
 type FuncIsLess func(i, j int) bool
 
 type LibFuncParams struct {
-	Src       *Hero
-	Target    *HeroList
-	Battle    *Battle
-	LogParent *BattleLogNode
-	Skill     *Skill
-	Results   *HeroList
+	Src         *Hero
+	Target      *HeroList
+	Battle      *Battle
+	LogParent   *BattleLogNode
+	Skill       *Skill
+	Results     *HeroList
+	TriggerData *TriggerData
 }
 
-func NewLibFuncParams(battle *Battle, src *Hero, target *HeroList, skill *Skill, parent *BattleLogNode) *LibFuncParams {
+func NewLibFuncParams(battle *Battle, src *Hero, target *HeroList, skill *Skill, parent *BattleLogNode, triggerdata *TriggerData) *LibFuncParams {
 	return &LibFuncParams{
-		Battle:    battle,
-		Target:    target,
-		Src:       src,
-		LogParent: parent,
-		Skill:     skill,
+		Battle:      battle,
+		Target:      target,
+		Src:         src,
+		LogParent:   parent,
+		Skill:       skill,
+		TriggerData: triggerdata,
 	}
 }
 
