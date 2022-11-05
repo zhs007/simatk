@@ -9,32 +9,35 @@ import (
 type BuffEffect int
 
 const (
-	BuffEffectUnknow       = 0
-	BuffEffectTaunt        = 1
-	BuffEffectReduceDamage = 2
+	BuffEffectUnknow   = 0
+	BuffEffectTaunt    = 1
+	BuffEffectChgProps = 2
 )
 
-func Str2BuffEffect(str string) (BuffEffect, error) {
+func Str2BuffEffect(str string) BuffEffect {
 	switch str {
 	case "TAUNT":
-		return BuffEffectTaunt, nil
-	case "REDUCE_DAMAGE":
-		return BuffEffectReduceDamage, nil
+		return BuffEffectTaunt
+	case "CHG_PROPS":
+		return BuffEffectChgProps
 	}
 
-	return BuffEffectUnknow, ErrInvalidBuffEffectString
+	return BuffEffectUnknow
 }
 
 type BuffData struct {
-	ID       BuffID
-	Name     string
-	Effect   BuffEffect
-	Triggers []TriggerType
-	Level    int
-	Turns    int
-	Attach   *FuncData
-	Trigger  *FuncData
-	Find     *FuncData
+	ID           BuffID
+	Name         string
+	Effect       BuffEffect
+	Triggers     []TriggerType
+	Level        int
+	Turns        int
+	TriggerTimes int
+	Cover        *FuncData
+	Attach       *FuncData
+	Trigger      *FuncData
+	Find         *FuncData
+	Remove       *FuncData
 }
 
 type BuffDataMgr struct {
@@ -126,9 +129,33 @@ func LoadBuffData(fn string) (*BuffDataMgr, error) {
 				bd.Trigger = triggerfunc
 			}
 
-			// attachfunc := &FuncData{}
-			// findfunc := &FuncData{}
-			// triggerfunc := &FuncData{}
+			coverfunc, err := BuildFuncData(header, row, "cover")
+			if err != nil {
+				goutils.Error("LoadBuffData:cover",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if coverfunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(coverfunc)
+				bd.Cover = coverfunc
+			}
+
+			removefunc, err := BuildFuncData(header, row, "remove")
+			if err != nil {
+				goutils.Error("LoadBuffData:remove",
+					zap.Int("y", y),
+					zap.Error(err))
+
+				return nil, err
+			}
+
+			if removefunc != nil {
+				MgrStatic.MgrFunc.InitFuncData(removefunc)
+				bd.Remove = removefunc
+			}
 
 			for x, colCell := range row {
 				switch header[x] {
@@ -150,15 +177,15 @@ func LoadBuffData(fn string) (*BuffDataMgr, error) {
 				case "trigger":
 					bd.Triggers = ParseTriggerList(colCell)
 				case "effect":
-					effect, err := Str2BuffEffect(colCell)
-					if err != nil {
+					effect := Str2BuffEffect(colCell)
+					if effect == BuffEffectUnknow {
 						goutils.Error("LoadBuffData:effect",
 							zap.Int("x", x),
 							zap.Int("y", y),
 							zap.String("cell", colCell),
-							zap.Error(err))
+							zap.Error(ErrInvalidBuffEffectString))
 
-						return nil, err
+						return nil, ErrInvalidBuffEffectString
 					}
 
 					bd.Effect = effect
@@ -188,6 +215,19 @@ func LoadBuffData(fn string) (*BuffDataMgr, error) {
 					}
 
 					bd.Turns = int(i64)
+				case "triggertimes":
+					i64, err := goutils.String2Int64(colCell)
+					if err != nil {
+						goutils.Error("LoadBuffData:triggertimes",
+							zap.Int("x", x),
+							zap.Int("y", y),
+							zap.String("cell", colCell),
+							zap.Error(err))
+
+						return nil, err
+					}
+
+					bd.TriggerTimes = int(i64)
 					// case "attachfunc":
 					// 	if colCell == "" {
 					// 		attachfunc = nil

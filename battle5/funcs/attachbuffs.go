@@ -4,7 +4,7 @@ import (
 	"github.com/zhs007/simatk/battle5"
 )
 
-// 找范围内的
+// 附加buff
 func attachBuffsRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, error) {
 	// hero := params.Src
 
@@ -19,7 +19,7 @@ func attachBuffsRun(fd *battle5.FuncData, params *battle5.LibFuncParams) (bool, 
 	return true, nil
 }
 
-// 找范围内的
+// 附加buff
 func attachBuffsInit(fd *battle5.FuncData) error {
 	// fd.Vals = nil
 

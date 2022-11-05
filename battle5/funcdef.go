@@ -21,6 +21,7 @@ type LibFuncParams struct {
 	Skill       *Skill
 	Results     *HeroList
 	TriggerData *TriggerData
+	CacheVals   []int
 }
 
 func NewLibFuncParams(battle *Battle, src *Hero, target *HeroList, skill *Skill, parent *BattleLogNode, triggerdata *TriggerData) *LibFuncParams {

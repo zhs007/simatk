@@ -13,6 +13,8 @@ type BuffID int
 type PropType int
 
 const (
+	PropTypeNone PropType = 0 // none
+
 	// 这一组是基本属性
 	PropTypeHP    PropType = 1 // 初始HP
 	PropTypeAtk   PropType = 2 // 初始atk
@@ -45,8 +47,30 @@ const (
 	PropTypeTaunt PropType = 200 // 嘲讽
 
 	// 百分比附加属性
-	PropTypeReduceDamage PropType = 300 // 减少伤害
+	PropTypeReduceDamageToMe PropType = 300 // 减少受到伤害
+	PropTypeIncreaseDamage   PropType = 301 // 增加造成伤害
 )
+
+func Str2PropType(str string) PropType {
+	switch str {
+	case "maxhp":
+		return PropTypeMaxHP
+	case "curhp":
+		return PropTypeCurHP
+	case "curatk":
+		return PropTypeCurAtk
+	case "curdef":
+		return PropTypeCurDef
+	case "curmagic":
+		return PropTypeCurMagic
+	case "curspeed":
+		return PropTypeCurSpeed
+	case "reducedamagetome":
+		return PropTypeReduceDamageToMe
+	}
+
+	return PropTypeNone
+}
 
 type TargetType int
 
