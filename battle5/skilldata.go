@@ -144,81 +144,8 @@ func LoadSkillData(fn string) (*SkillDataMgr, error) {
 					sd.Type = Str2SkillType(colCell)
 				case "releasetype":
 					sd.ReleaseType = Str2ReleaseSkillType(colCell)
-					// case "atkfunc":
-					// 	atkfunc.FuncName = colCell
-
-					// 	sd.Atk = atkfunc
-					// case "atkvals":
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			i64, err := goutils.String2Int64(v)
-					// 			if err != nil {
-					// 				goutils.Error("LoadSkillData:skills",
-					// 					zap.Int("x", x),
-					// 					zap.Int("y", y),
-					// 					zap.String("cell", colCell),
-					// 					zap.Error(err))
-
-					// 				return nil, err
-					// 			}
-
-					// 			atkfunc.InVals = append(atkfunc.InVals, int(i64))
-					// 		}
-					// 	}
-
-					// 	sd.Atk = atkfunc
-					// case "atkstrvals":
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			atkfunc.InStrVals = append(atkfunc.InStrVals, v)
-					// 		}
-					// 	}
-
-					// 	sd.Atk = atkfunc
-					// case "findfunc":
-					// 	findfunc.FuncName = colCell
-
-					// 	sd.Find = findfunc
-					// case "findvals":
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			i64, err := goutils.String2Int64(v)
-					// 			if err != nil {
-					// 				goutils.Error("LoadSkillData:skills",
-					// 					zap.Int("x", x),
-					// 					zap.Int("y", y),
-					// 					zap.String("cell", colCell),
-					// 					zap.Error(err))
-
-					// 				return nil, err
-					// 			}
-
-					// 			findfunc.InVals = append(findfunc.InVals, int(i64))
-					// 		}
-					// 	}
-
-					// 	sd.Find = findfunc
-					// case "findstrvals":
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			findfunc.InStrVals = append(findfunc.InStrVals, v)
-					// 		}
-					// 	}
-
-					// 	sd.Find = findfunc
 				}
 			}
-
-			// MgrStatic.MgrFunc.InitFuncData(findfunc)
-			// MgrStatic.MgrFunc.InitFuncData(atkfunc)
 
 			mgr.mapSkills[sd.ID] = sd
 		}

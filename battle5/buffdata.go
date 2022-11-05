@@ -9,17 +9,17 @@ import (
 type BuffEffect int
 
 const (
-	BuffEffectUnknow   = 0
-	BuffEffectTaunt    = 1
-	BuffEffectChgProps = 2
+	BuffEffectUnknow    = 0
+	BuffEffectTaunt     = 1
+	BuffEffectChgDamage = 2
 )
 
 func Str2BuffEffect(str string) BuffEffect {
 	switch str {
 	case "TAUNT":
 		return BuffEffectTaunt
-	case "CHG_PROPS":
-		return BuffEffectChgProps
+	case "CHG_DAMAGE":
+		return BuffEffectChgDamage
 	}
 
 	return BuffEffectUnknow
@@ -228,159 +228,8 @@ func LoadBuffData(fn string) (*BuffDataMgr, error) {
 					}
 
 					bd.TriggerTimes = int(i64)
-					// case "attachfunc":
-					// 	if colCell == "" {
-					// 		attachfunc = nil
-
-					// 		break
-					// 	}
-
-					// 	attachfunc.FuncName = colCell
-
-					// 	bd.Attach = attachfunc
-					// case "attachvals":
-					// 	if attachfunc == nil {
-					// 		break
-					// 	}
-
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			i64, err := goutils.String2Int64(v)
-					// 			if err != nil {
-					// 				goutils.Error("LoadBuffData:attachvals",
-					// 					zap.Int("x", x),
-					// 					zap.Int("y", y),
-					// 					zap.String("cell", colCell),
-					// 					zap.Error(err))
-
-					// 				return nil, err
-					// 			}
-
-					// 			attachfunc.InVals = append(attachfunc.InVals, int(i64))
-					// 		}
-					// 	}
-
-					// 	bd.Attach = attachfunc
-					// case "attachstrvals":
-					// 	if attachfunc == nil {
-					// 		break
-					// 	}
-
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			attachfunc.InStrVals = append(attachfunc.InStrVals, v)
-					// 		}
-					// 	}
-
-					// 	bd.Attach = attachfunc
-					// case "findfunc":
-					// 	if colCell == "" {
-					// 		findfunc = nil
-
-					// 		break
-					// 	}
-
-					// 	findfunc.FuncName = colCell
-
-					// 	bd.Find = findfunc
-					// case "findvals":
-					// 	if findfunc == nil {
-					// 		break
-					// 	}
-
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			i64, err := goutils.String2Int64(v)
-					// 			if err != nil {
-					// 				goutils.Error("LoadBuffData:findvals",
-					// 					zap.Int("x", x),
-					// 					zap.Int("y", y),
-					// 					zap.String("cell", colCell),
-					// 					zap.Error(err))
-
-					// 				return nil, err
-					// 			}
-
-					// 			findfunc.InVals = append(findfunc.InVals, int(i64))
-					// 		}
-					// 	}
-
-					// 	bd.Find = findfunc
-					// case "findstrvals":
-					// 	if findfunc == nil {
-					// 		break
-					// 	}
-
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			findfunc.InStrVals = append(findfunc.InStrVals, v)
-					// 		}
-					// 	}
-
-					// 	bd.Find = findfunc
-					// case "triggerfunc":
-					// 	if colCell == "" {
-					// 		triggerfunc = nil
-
-					// 		break
-					// 	}
-
-					// 	triggerfunc.FuncName = colCell
-
-					// 	bd.Trigger = triggerfunc
-					// case "triggetvals":
-					// 	if triggerfunc == nil {
-					// 		break
-					// 	}
-
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			i64, err := goutils.String2Int64(v)
-					// 			if err != nil {
-					// 				goutils.Error("LoadBuffData:triggetvals",
-					// 					zap.Int("x", x),
-					// 					zap.Int("y", y),
-					// 					zap.String("cell", colCell),
-					// 					zap.Error(err))
-
-					// 				return nil, err
-					// 			}
-
-					// 			triggerfunc.InVals = append(triggerfunc.InVals, int(i64))
-					// 		}
-					// 	}
-
-					// 	bd.Trigger = triggerfunc
-					// case "triggerstrvals":
-					// 	if triggerfunc == nil {
-					// 		break
-					// 	}
-
-					// 	arr := strings.Split(colCell, "|")
-					// 	for _, v := range arr {
-					// 		v = strings.TrimSpace(v)
-					// 		if v != "" {
-					// 			triggerfunc.InStrVals = append(triggerfunc.InStrVals, v)
-					// 		}
-					// 	}
-
-					// 	bd.Trigger = triggerfunc
 				}
 			}
-
-			// MgrStatic.MgrFunc.InitFuncData(findfunc)
-			// MgrStatic.MgrFunc.InitFuncData(attachfunc)
-			// MgrStatic.MgrFunc.InitFuncData(triggerfunc)
 
 			mgr.mapBuffs[bd.ID] = bd
 		}

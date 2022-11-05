@@ -21,7 +21,7 @@ func BuildFuncData(header []string, row []string, prefix string) (*FuncData, err
 		}
 
 		x1 := goutils.IndexOfStringSlice(header, prefix+"vals", 0)
-		if x < 0 || len(row) <= x1 {
+		if x1 < 0 || len(row) <= x1 {
 			return curfunc, nil
 		}
 
@@ -45,7 +45,7 @@ func BuildFuncData(header []string, row []string, prefix string) (*FuncData, err
 		}
 
 		x2 := goutils.IndexOfStringSlice(header, prefix+"strvals", 0)
-		if x < 0 || len(row) <= x2 {
+		if x2 < 0 || len(row) <= x2 {
 			return curfunc, nil
 		}
 
