@@ -17,5 +17,8 @@ func InitAllFuncs(mgr *battle5.FuncMgr) error {
 
 	regChgProps(mgr)
 
+	regCoverEffect(mgr)
+	regCoverID(mgr)
+
 	return nil
 }
