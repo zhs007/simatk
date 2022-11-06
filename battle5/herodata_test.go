@@ -10,6 +10,8 @@ import (
 func Test_LoadHeroData(t *testing.T) {
 	goutils.InitLogger("", "", "debug", true, "")
 
+	NewStaticMgr("../gamedata/battle5", nil)
+
 	mgr, err := LoadHeroData("../gamedata/battle5/heros.xlsx")
 	assert.NoError(t, err)
 	assert.NotNil(t, mgr)

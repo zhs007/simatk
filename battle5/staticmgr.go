@@ -24,7 +24,9 @@ func NewStaticMgr(dir string, oninitallfuncs FuncInitAllFuncs) (*StaticMgr, erro
 	MgrStatic = mgr
 
 	// mgr.MgrFunc.Init()
-	oninitallfuncs(mgr.MgrFunc)
+	if oninitallfuncs != nil {
+		oninitallfuncs(mgr.MgrFunc)
+	}
 
 	mgrherodata, err := LoadHeroData(path.Join(dir, "heros.xlsx"))
 	if err != nil {
