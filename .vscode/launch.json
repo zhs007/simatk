@@ -87,6 +87,14 @@
             "mode": "auto",
             "cwd": "./",
             "program": "examples/battle5log/main.go"
+        },
+        {
+            "name": "genmapex",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "./",
+            "program": "examples/genmapex/main.go"
         }
     ]
 }
