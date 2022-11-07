@@ -279,6 +279,233 @@ func (m *Map) Foreach(check FuncCheck) []*Pos {
 	return nil
 }
 
+// 检查4个外边，只要有一个位置返回false，就直接返回false，如果正好在边缘，则不会检查
+func (m *Map) checkAreaOutside(x, y int, w, h int, check FuncCheck) bool {
+	if x+w >= len(m.Tile) {
+		return false
+	}
+
+	if y+h >= len(m.Tile[0]) {
+		return false
+	}
+
+	bx := x
+	by := y
+	ex := x + w
+	ey := y + h
+
+	if x > 0 {
+		bx--
+	}
+
+	if y > 0 {
+		by--
+	}
+
+	if x+w < len(m.Tile)-1 {
+		ex++
+	}
+
+	if y+h < len(m.Tile[0])-1 {
+		ey++
+	}
+
+	if x > 0 {
+		for ty := y; ty <= ey; ty++ {
+			if !check(m, bx, ty) {
+				return false
+			}
+		}
+	}
+
+	if x+w < len(m.Tile)-1 {
+		for ty := y; ty <= ey; ty++ {
+			if !check(m, ex, ty) {
+				return false
+			}
+		}
+	}
+
+	if y > 0 {
+		for tx := x; tx <= ex; tx++ {
+			if !check(m, tx, by) {
+				return false
+			}
+		}
+	}
+
+	if y+h < len(m.Tile[0])-1 {
+		for tx := x; tx <= ex; tx++ {
+			if !check(m, tx, ey) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// 检查4个外边，有几条边彻底符合check
+func (m *Map) checkAreaOutsideEx(x, y int, w, h int, check FuncCheck) int {
+	if x+w >= len(m.Tile) {
+		return 0
+	}
+
+	if y+h >= len(m.Tile[0]) {
+		return 0
+	}
+
+	bx := x
+	by := y
+	ex := x + w
+	ey := y + h
+
+	if x > 0 {
+		bx--
+	}
+
+	if y > 0 {
+		by--
+	}
+
+	if x+w < len(m.Tile)-1 {
+		ex++
+	}
+
+	if y+h < len(m.Tile[0])-1 {
+		ey++
+	}
+
+	falsenum := 0
+
+	if x > 0 {
+		for ty := y; ty <= ey; ty++ {
+			if !check(m, bx, ty) {
+				falsenum++
+
+				break
+			}
+		}
+	}
+
+	if x+w < len(m.Tile)-1 {
+		for ty := y; ty <= ey; ty++ {
+			if !check(m, ex, ty) {
+				falsenum++
+
+				break
+			}
+		}
+	}
+
+	if y > 0 {
+		for tx := x; tx <= ex; tx++ {
+			if !check(m, tx, by) {
+				falsenum++
+
+				break
+			}
+		}
+	}
+
+	if y+h < len(m.Tile[0])-1 {
+		for tx := x; tx <= ex; tx++ {
+			if !check(m, tx, ey) {
+				falsenum++
+
+				break
+			}
+		}
+	}
+
+	return 4 - falsenum
+}
+
+// 检查区域内，只要有一个位置返回false，就返回false
+func (m *Map) checkArea(x, y int, w, h int, check FuncCheck) bool {
+	if x+w >= len(m.Tile) {
+		return false
+	}
+
+	if y+h >= len(m.Tile[0]) {
+		return false
+	}
+
+	for tx := x; tx <= x+w; tx++ {
+		for ty := y; ty <= y+h; ty++ {
+			if !check(m, tx, ty) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// 检查4个外边，有几条边彻底符合check
+func (m *Map) SetRoom(x, y int, w, h int) {
+	bx := x
+	by := y
+	ex := x + w
+	ey := y + h
+
+	if x > 0 {
+		bx--
+	}
+
+	if y > 0 {
+		by--
+	}
+
+	if x+w < len(m.Tile) {
+		ex++
+	}
+
+	if y+h < len(m.Tile[0]) {
+		ey++
+	}
+
+	if x > 0 {
+		for ty := y; ty <= ey; ty++ {
+			if m.Tile[bx][ty] == TileNone {
+				m.Tile[bx][ty] = TileWall
+			}
+		}
+	}
+
+	if x+w < len(m.Tile) {
+		for ty := y; ty <= ey; ty++ {
+			if m.Tile[ex][ty] == TileNone {
+				m.Tile[ex][ty] = TileWall
+			}
+		}
+	}
+
+	if y > 0 {
+		for tx := x; tx <= ex; tx++ {
+			if m.Tile[tx][by] == TileNone {
+				m.Tile[tx][by] = TileWall
+			}
+		}
+	}
+
+	if y+h < len(m.Tile[0]) {
+		for tx := x; tx <= ex; tx++ {
+			if m.Tile[tx][ey] == TileNone {
+				m.Tile[tx][ey] = TileWall
+			}
+		}
+	}
+
+	for tx := x; tx <= x+w; tx++ {
+		for ty := y; ty <= y+h; ty++ {
+			if m.Tile[tx][ty] == TileNone {
+				m.Tile[tx][ty] = TileRoom
+			}
+		}
+	}
+}
+
 func NewMap(w, h int) *Map {
 	dat := [][]TileType{}
 
@@ -286,7 +513,7 @@ func NewMap(w, h int) *Map {
 		arr := []TileType{}
 
 		for y := 0; y < h; y++ {
-			arr = append(arr, TileWall)
+			arr = append(arr, TileNone)
 		}
 
 		dat = append(dat, arr)

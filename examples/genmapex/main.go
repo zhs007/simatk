@@ -14,7 +14,7 @@ func main() {
 
 	goutils.InitLogger("", "", "debug", true, "")
 
-	m, err := genmap.GenMap(30, 30)
+	m, err := genmap.GenMap(30, 30, 2, 2, 5, 5)
 	if err != nil {
 		goutils.Error("GenMap",
 			zap.Error(err))
