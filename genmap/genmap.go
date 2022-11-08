@@ -69,6 +69,37 @@ func genValidRoomPos(m *Map, rw, rh int) []*Pos {
 	return nil
 }
 
+func genRoomEx(m *Map, minw, minh, maxw, maxh int) bool {
+	var lst []*Pos
+
+	rw, rh := genRoom(minw, minh, maxw, maxh)
+	lst0 := genValidRoomPos(m, rw, rh)
+	if len(lst0) > 0 {
+		lst = append(lst, lst0...)
+	}
+
+	if rw != rh {
+		lst1 := genValidRoomPos(m, rh, rw)
+		if len(lst1) > 0 {
+			lst = append(lst, lst1...)
+		}
+	}
+
+	if len(lst) > 0 {
+		ci := rand.Int() % len(lst)
+
+		if ci >= len(lst0) {
+			m.SetRoom(lst[ci].X, lst[ci].Y, rh, rw)
+		} else {
+			m.SetRoom(lst[ci].X, lst[ci].Y, rw, rh)
+		}
+
+		return true
+	}
+
+	return false
+}
+
 func GenMap(w, h int, minw, minh, maxw, maxh int) (*Map, error) {
 	m := NewMap(w, h)
 
@@ -87,24 +118,36 @@ func GenMap(w, h int, minw, minh, maxw, maxh int) (*Map, error) {
 	// ci = rand.Int() % len(lstow)
 	// m.Tile[lstow[ci].X][lstow[ci].Y] = TileExit
 
-	// 房间应该
-	for i := 0; i < 10; i++ {
-		rw, rh := genRoom(minw, minh, maxw, maxh)
-		lstow = genValidRoomPos(m, rw, rh)
-		// if rw != rh {
-		// 	lstow1 := genValidRoomPos(m, rh, rw)
-		// 	if len(lstow1) > 0 {
-		// 		lstow = append(lstow, lstow1...)
-		// 	}
-		// }
+	// 房间
+	failnum := 0
+	for {
+		if !genRoomEx(m, minw, minh, maxw, maxh) {
+			failnum++
 
-		if len(lstow) > 0 {
-			ci := rand.Int() % len(lstow)
-
-			m.SetRoom(lstow[ci].X, lstow[ci].Y, rw, rh)
-			// m.Tile[lstow[ci].X][lstow[ci].Y] = TileStart
+			if failnum >= 10 {
+				return m, nil
+			}
+		} else {
+			failnum = 0
 		}
 	}
+	// for i := 0; i < 10; i++ {
+	// 	rw, rh := genRoom(minw, minh, maxw, maxh)
+	// 	lstow = genValidRoomPos(m, rw, rh)
+	// 	// if rw != rh {
+	// 	// 	lstow1 := genValidRoomPos(m, rh, rw)
+	// 	// 	if len(lstow1) > 0 {
+	// 	// 		lstow = append(lstow, lstow1...)
+	// 	// 	}
+	// 	// }
+
+	// 	if len(lstow) > 0 {
+	// 		ci := rand.Int() % len(lstow)
+
+	// 		m.SetRoom(lstow[ci].X, lstow[ci].Y, rw, rh)
+	// 		// m.Tile[lstow[ci].X][lstow[ci].Y] = TileStart
+	// 	}
+	// }
 
 	return m, nil
 }
